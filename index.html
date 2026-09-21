@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Groq Audio Transcriber & Voice Reader Pro 🎙️🇲🇲</title>
+    <title>Groq Audio Transcriber & Voice Reader</title>
+    
+    <!-- PWA Manifest inline ကို data URL အနေဖြင့် ချိတ်ဆက်ခြင်း -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22my-transcriber%22%2C%22short_name%22%3A%22Transcriber%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23ffffff%22%2C%22description%22%3A%22Audio%20to%20Burmese%20Text%20Transcriber%20App%22%2C%22id%22%3A%22com.groq.transcriber%22%7D'>
+
     <style>
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
@@ -116,28 +120,17 @@
             margin-top: 15px; 
             display: none; 
         }
-        .timer-highlight { font-size: 18px; color: #dc2626; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🎙️ Groq Audio Transcriber & Voice Reader 🇲🇲</h2>
+    <h2>🎙️ Groq Audio Transcriber & Voice 🇲🇲</h2>
     
     <label>🔑 Groq API Key:</label>
     <div class="key-row">
         <input type="password" id="apiKey" placeholder="gsk_..." autocomplete="off">
         <button type="button" class="save-key-btn" onclick="saveApiKeyManually()">💾 Save</button>
-    </div>
-    
-    <div class="usage-box" id="usageBox" style="display:none;">
-        <div class="usage-row">
-            <span>📊 <strong>၁ နာရီအတွင်း သုံးစွဲထားမှု:</strong></span>
-            <span id="usageText">0 / 7200 စက္ကန့် (0%)</span>
-        </div>
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progressBar"></div>
-        </div>
     </div>
 
     <label>🧩 Part ရွေးပါ:</label>
@@ -166,14 +159,11 @@
     <label style="margin-top:22px;">📝 မြန်မာဘာသာပြန် ရလဒ်:</label>
     <textarea id="result" rows="10" readonly placeholder="✨ ဘာသာပြန်စာသားများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
 
-    <!-- အသံထွက်စေမည့် ခလုတ်များ -->
     <button id="speakBtn" class="voice-btn" onclick="speakText()" disabled>🔊 ရလဒ်များကို အသံထွက်ဖတ်ခိုင်းမည် (Speech)</button>
     <button id="stopBtn" class="voice-btn" style="background: #dc2626; display:none;" onclick="stopSpeech()">⏹️ အသံထွက်ခြင်း ရပ်တန့်မည်</button>
 </div>
 
 <script>
-let countdownInterval = null;
-
 window.onload = function() {
     const savedKey = localStorage.getItem('groq_api_key');
     if (savedKey) {
@@ -195,16 +185,6 @@ function formatTime(seconds) {
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-}
-
-function updateUsageUI(usedSec, limitSec = 7200) {
-    const usageBox = document.getElementById('usageBox');
-    const usageText = document.getElementById('usageText');
-    const progressBar = document.getElementById('progressBar');
-    usageBox.style.display = 'block';
-    const percent = Math.min(100, Math.round((usedSec / limitSec) * 100));
-    usageText.innerText = `${usedSec} / ${limitSec} စက္ကန့် (${percent}%)`;
-    progressBar.style.width = `${percent}%`;
 }
 
 async function transcribe() {
@@ -282,26 +262,23 @@ async function transcribe() {
         });
         
         result.value = output;
-        speakBtn.disabled = false; // စာထွက်လာလျှင် အသံထွက်ခလုတ် ပွင့်မည်
+        speakBtn.disabled = false;
 
     } catch (err) {
         status.innerText = "❌ အမှား: " + err.message;
     }
 }
 
-// Browser ၏ SpeechSynthesis ဖြင့် အသံထွက်ဖတ်ခိုင်းခြင်း
 function speakText() {
     const resultText = document.getElementById('result').value;
     if (!resultText) return;
-
-    // အချိန်ကွင်းစကွင်းပိတ်များကို ဖယ်ရှားပြီး စာသားသက်သက်ကိုသာ ဖတ်ခိုင်းရန်
     const cleanText = resultText.replace(/\[\d{2}:\d{2}:\d{2}\s*-\s*\d{2}:\d{2}:\d{2}\]/g, '');
 
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // ယခင်ဖတ်နေတာရှိရင် ရပ်မည်
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = 'my-MM'; // မြန်မာဘာသာသံထွက်
-        utterance.rate = 1.0; // အမြန်နှုန်း
+        utterance.lang = 'my-MM';
+        utterance.rate = 1.0;
 
         utterance.onstart = function() {
             document.getElementById('speakBtn').style.display = 'none';
@@ -317,7 +294,7 @@ function speakText() {
 
         window.speechSynthesis.speak(utterance);
     } else {
-        alert('⚠️ သင့် Browser သည် အသံထွက်ဖတ်ခြင်း (Speech Synthesis) ကို မထောက်ပံ့ပါ။');
+        alert('⚠️ သင့် Browser သည် အသံထွက်ဖတ်ခြင်းကို မထောက်ပံ့ပါ။');
     }
 }
 
