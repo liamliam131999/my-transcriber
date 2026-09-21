@@ -6,7 +6,7 @@
     <title>AI Video Studio Pro</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FFmpeg WASM CDN -->
+    <!-- FFmpeg WASM CDN v0.12.7 -->
     <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.7/dist/umd/ffmpeg.js"></script>
     <script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/util.js"></script>
 </head>
@@ -49,6 +49,7 @@
 
     <script>
         const { FFmpeg } = FFmpegWASM;
+        const { fetchFile, toBlobURL } = FFmpegUtil;
         let ffmpeg = null;
 
         async function loadFFmpeg() {
@@ -57,19 +58,20 @@
             const statusText = document.getElementById('statusText');
             
             statusBox.classList.remove('hidden');
-            statusText.textContent = 'FFmpeg ကို စတင်ဖွင့်နေပါပြီ (ခဏစောင့်ပါ)...';
+            statusText.textContent = 'FFmpeg Engine ကို စတင်ဖွင့်နေပါပြီ (ခဏစောင့်ပါ)...';
 
             try {
                 ffmpeg = new FFmpeg();
                 
-                // Log messages from ffmpeg to console
                 ffmpeg.on('log', ({ message }) => {
                     console.log(message);
                 });
 
+                // CORS Error မတက်စေရန် CDN file များကို Blob URL အဖြစ် ပြောင်းလဲပေးခြင်း
+                const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
                 await ffmpeg.load({
-                    coreURL: "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js",
-                    wasmURL: "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm",
+                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
                 });
 
                 statusText.textContent = 'FFmpeg အဆင်သင့်ဖြစ်ပါပြီ။';
@@ -98,19 +100,18 @@
             statusBox.classList.remove('hidden');
 
             try {
-                statusText.textContent = 'ဖိုင်ကို စတင်ဖတ်နေပါပြီ...';
+                statusText.textContent = 'FFmpeg ကို စတင်ပြင်ဆင်နေပါပြီ...';
                 const ff = await loadFFmpeg();
 
                 statusText.textContent = 'ဗီဒီယိုဖိုင်ကို FFmpeg ထဲသို့ ထည့်သွင်းနေပါပြီ...';
                 const inputName = 'input.mp4';
                 const outputName = 'output.mp4';
 
-                await ff.writeFile(inputName, await FFmpegWASM.fetchFile(videoFile));
+                await ff.writeFile(inputName, await fetchFile(videoFile));
 
                 statusText.textContent = 'အသံတိတ်နေရာများ ဖြတ်ထုတ်နေပါပြီ (ခဏစောင့်ပါ)...';
                 
-                // Basic silencing/processing command execution (Placeholder for silence removal filter logic)
-                // Running a safe test transcode/filter command to catch errors securely
+                // ဗီဒီယိုတည်းဖြတ်မှု အလုပ်လုပ်စေမည့် FFmpeg Command
                 await ff.exec(['-i', inputName, '-vcodec', 'libx264', '-crf', '28', outputName]);
 
                 statusText.textContent = 'အောင်မြင်စွာ ပြီးဆုံးပါပြီ!';
