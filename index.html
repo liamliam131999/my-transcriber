@@ -1,34 +1,17 @@
-<!DOCTYPE html>
-<html lang="my">
+<!DOCTYPE html><html lang="my">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8"><meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
-<meta name="theme-color" content="#07111f">
-
-<title>My Transcriber</title>
-
-<link rel="manifest" href="manifest.json">
-
-<!-- RichAds Push -->
-<script
+<meta name="theme-color" content="#07111f"><title>My Transcriber</title><link rel="manifest" href="manifest.json"><!-- RichAds Push --><script
     type="module"
     src="https://richinfo.co/richpartners/push/js/rp-cl-ob.js?pubid=1023360&siteid=407879&niche=33"
     async
     data-cfasync="false">
-</script>
-
-<!-- RichAds In-Page -->
-<script
+</script><!-- RichAds In-Page --><script
     src="https://richinfo.co/richpartners/in-page/js/richads-ob.js?pubid=1023360&siteid=407880"
     async>
-</script>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
+</script><script src="https://cdn.tailwindcss.com"></script><style>
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -197,680 +180,555 @@ textarea {
     background: #334155;
     border-radius: 999px;
 }
-</style>
-</head>
+</style></head><body><div class="max-w-5xl mx-auto px-3 py-4"><header class="glass glow rounded-3xl p-5 text-center mb-4"><div class="text-4xl mb-2">⚡</div>
 
-<body>
+<h1 class="text-2xl sm:text-3xl font-black
+           bg-gradient-to-r from-emerald-300 to-cyan-300
+           bg-clip-text text-transparent">
+    My Transcriber
+</h1>
 
-<div class="max-w-5xl mx-auto px-3 py-4">
+<p class="text-xs text-slate-400 mt-2">
+    Audio • Video • Transcript • Compressor
+</p>
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
-<header class="glass glow rounded-3xl p-5 text-center mb-4">
-
-    <div class="text-4xl mb-2">⚡</div>
-
-    <h1 class="text-2xl sm:text-3xl font-black
-               bg-gradient-to-r from-emerald-300 to-cyan-300
-               bg-clip-text text-transparent">
-        My Transcriber
-    </h1>
-
-    <p class="text-xs text-slate-400 mt-2">
-        Audio • Video • Transcript • Compressor
+<div class="danger-box rounded-2xl px-3 py-2 mt-4">
+    <p class="text-xs text-rose-300">
+        ⚠️ Groq / Gemini သို့ တိုက်ရိုက်တင်မည့်ဖိုင်သည်
+        <b>25MB အောက်</b> ဖြစ်ရပါမည်။
     </p>
-
-    <div class="danger-box rounded-2xl px-3 py-2 mt-4">
-        <p class="text-xs text-rose-300">
-            ⚠️ Groq / Gemini သို့ တိုက်ရိုက်တင်မည့်ဖိုင်သည်
-            <b>25MB အောက်</b> ဖြစ်ရပါမည်။
-        </p>
-    </div>
-
-</header>
-
-
-<!-- =====================================================
-     HORIZONTAL NAV
-===================================================== -->
-
-<nav class="glass rounded-2xl p-2 mb-5 overflow-x-auto">
-    <div class="flex gap-2 min-w-max">
-
-        <button
-            class="nav-btn active border border-transparent rounded-xl
-                   px-4 py-2 text-xs font-bold"
-            onclick="showTool('home',this)">
-            🏠 Home
-        </button>
-
-        <button
-            class="nav-btn border border-transparent rounded-xl
-                   px-4 py-2 text-xs font-bold"
-            onclick="showTool('groq',this)">
-            🎙️ Groq
-        </button>
-
-        <button
-            class="nav-btn border border-transparent rounded-xl
-                   px-4 py-2 text-xs font-bold"
-            onclick="showTool('gemini',this)">
-            ✨ Gemini
-        </button>
-
-        <button
-            class="nav-btn border border-transparent rounded-xl
-                   px-4 py-2 text-xs font-bold"
-            onclick="showTool('compressor',this)">
-            📉 Compressor
-        </button>
-
-        <button
-            class="nav-btn border border-transparent rounded-xl
-                   px-4 py-2 text-xs font-bold"
-            onclick="showTool('downloader',this)">
-            ⬇️ Downloader
-        </button>
-
-        <button
-            class="nav-btn border border-transparent rounded-xl
-                   px-4 py-2 text-xs font-bold"
-            onclick="showTool('feedback',this)">
-            💬 Feedback
-        </button>
-
-    </div>
-</nav>
-
-
-<!-- =====================================================
-     HOME
-===================================================== -->
-
-<section id="tool-home" class="tool-section">
-
-    <div class="grid grid-cols-2 gap-3">
-
-        <button
-            onclick="openTool('groq')"
-            class="tool-card glass rounded-3xl p-5 text-left">
-            <div class="text-3xl mb-3">🎙️</div>
-            <h2 class="font-black text-emerald-300">
-                Groq Whisper
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-2">
-                Fast multilingual transcription
-            </p>
-        </button>
-
-
-        <button
-            onclick="openTool('gemini')"
-            class="tool-card glass rounded-3xl p-5 text-left">
-            <div class="text-3xl mb-3">✨</div>
-            <h2 class="font-black text-violet-300">
-                Gemini
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-2">
-                Audio / Video transcription
-            </p>
-        </button>
-
-
-        <button
-            onclick="openTool('compressor')"
-            class="tool-card glass rounded-3xl p-5 text-left">
-            <div class="text-3xl mb-3">📉</div>
-            <h2 class="font-black text-cyan-300">
-                Smart Compressor
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-2">
-                25MB အောက်ရအောင် local processing
-            </p>
-        </button>
-
-
-        <button
-            onclick="openTool('downloader')"
-            class="tool-card glass rounded-3xl p-5 text-left">
-            <div class="text-3xl mb-3">⬇️</div>
-            <h2 class="font-black text-sky-300">
-                Downloader
-            </h2>
-            <p class="text-[11px] text-slate-400 mt-2">
-                YouTube / Bilibili / Douyin tools
-            </p>
-        </button>
-
-    </div>
-
-
-    <div class="glass rounded-3xl p-4 mt-4">
-
-        <h3 class="font-bold text-emerald-300">
-            🔄 အသုံးပြုရမည့် Workflow
-        </h3>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-
-            <div class="bg-slate-950/70 rounded-xl p-3 text-center">
-                <div>📁</div>
-                <p class="text-[10px] mt-1">Video / Audio</p>
-            </div>
-
-            <div class="bg-slate-950/70 rounded-xl p-3 text-center">
-                <div>📉</div>
-                <p class="text-[10px] mt-1">Compress</p>
-            </div>
-
-            <div class="bg-slate-950/70 rounded-xl p-3 text-center">
-                <div>🎙️</div>
-                <p class="text-[10px] mt-1">Groq / Gemini</p>
-            </div>
-
-            <div class="bg-slate-950/70 rounded-xl p-3 text-center">
-                <div>📜</div>
-                <p class="text-[10px] mt-1">Transcript</p>
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     GROQ
-===================================================== -->
-
-<section id="tool-groq" class="tool-section hidden">
-
-    <div class="glass rounded-3xl p-5">
-
-        <div class="flex items-center gap-3 mb-5">
-            <div class="text-3xl">🎙️</div>
-            <div>
-                <h2 class="text-xl font-black text-emerald-300">
-                    Groq Whisper
-                </h2>
-                <p class="text-xs text-slate-400">
-                    Multi-language transcription
-                </p>
-            </div>
-        </div>
-
-
-        <label class="small-label block mb-2">
-            🔑 Groq API Key
-        </label>
-
-        <div class="flex gap-2 mb-2">
-
-            <input
-                id="groqApiKeyInput"
-                type="password"
-                placeholder="gsk_..."
-                class="input">
-
-            <select
-                id="groqKeyHistory"
-                class="bg-slate-950 border border-slate-700
-                       rounded-xl px-2 text-xs text-emerald-300">
-                <option value="">
-                    Saved
-                </option>
-            </select>
-
-        </div>
-
-
-        <div class="file-box mt-4">
-
-            <label class="small-label block mb-2">
-                📁 Audio / Video File
-            </label>
-
-            <input
-                id="groqAudioInput"
-                type="file"
-                accept="audio/*,video/*"
-                class="w-full text-xs">
-
-        </div>
-
-
-        <button
-            id="groqTranscribeBtn"
-            class="action-btn green-btn mt-4">
-            ⚡ Groq ဖြင့် Transcript ထုတ်မည်
-        </button>
-
-
-        <div
-            id="groqStatus"
-            class="text-center text-xs text-emerald-300 mt-3">
-        </div>
-
-
-        <div class="result-box mt-4">
-
-            <label class="small-label block mb-2">
-                📜 Groq Transcript
-            </label>
-
-            <textarea
-                id="groqOutput"
-                class="input"
-                placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်...">
-            </textarea>
-
-            <button
-                id="copyGroqBtn"
-                class="action-btn mt-3
-                       bg-slate-800 text-emerald-300
-                       border border-emerald-500/20">
-                📋 Copy
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     GEMINI
-===================================================== -->
-
-<section id="tool-gemini" class="tool-section hidden">
-
-    <div class="glass rounded-3xl p-5">
-
-        <div class="flex items-center gap-3 mb-5">
-            <div class="text-3xl">✨</div>
-            <div>
-                <h2 class="text-xl font-black text-violet-300">
-                    Gemini Audio Transcript
-                </h2>
-                <p class="text-xs text-slate-400">
-                    Multi-language transcription
-                </p>
-            </div>
-        </div>
-
-
-        <label class="small-label block mb-2">
-            🔑 Gemini API Key
-        </label>
-
-        <div class="flex gap-2 mb-2">
-
-            <input
-                id="geminiApiKeyInput"
-                type="password"
-                placeholder="AIzaSy..."
-                class="input">
-
-            <select
-                id="geminiKeyHistory"
-                class="bg-slate-950 border border-slate-700
-                       rounded-xl px-2 text-xs text-violet-300">
-                <option value="">
-                    Saved
-                </option>
-            </select>
-
-        </div>
-
-
-        <div class="file-box mt-4">
-
-            <label class="small-label block mb-2">
-                📁 Audio / Video File
-            </label>
-
-            <input
-                id="geminiAudioInput"
-                type="file"
-                accept="audio/*,video/*"
-                class="w-full text-xs">
-
-        </div>
-
-
-        <button
-            id="geminiTranscribeBtn"
-            class="action-btn purple-btn mt-4">
-            ⚡ Gemini ဖြင့် Transcript ထုတ်မည်
-        </button>
-
-
-        <div
-            id="geminiStatus"
-            class="text-center text-xs text-violet-300 mt-3">
-        </div>
-
-
-        <div class="result-box mt-4">
-
-            <label class="small-label block mb-2">
-                📜 Gemini Transcript
-            </label>
-
-            <textarea
-                id="geminiOutput"
-                class="input"
-                placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်...">
-            </textarea>
-
-            <button
-                id="copyGeminiBtn"
-                class="action-btn mt-3
-                       bg-slate-800 text-violet-300
-                       border border-violet-500/20">
-                📋 Copy
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     COMPRESSOR
-===================================================== -->
-
-<section id="tool-compressor" class="tool-section hidden">
-
-    <div class="glass rounded-3xl p-5">
-
-        <div class="flex items-center gap-3 mb-3">
-            <div class="text-3xl">📉</div>
-
-            <div>
-                <h2 class="text-xl font-black text-cyan-300">
-                    Smart Audio Compressor
-                </h2>
-
-                <p class="text-xs text-slate-400">
-                    ဖုန်း/Browser ထဲမှာပဲ processing လုပ်မည်
-                </p>
-            </div>
-        </div>
-
-
-        <div class="bg-cyan-950/30
-                    border border-cyan-500/20
-                    rounded-2xl p-3 mb-4">
-
-            <p class="text-xs text-cyan-200">
-                💡 ဖိုင်ကို Server သို့ မပို့ပါ။
-                Audio ကို extract လုပ်ပြီး Opus/WebM
-                ဖြင့် 24MB အောက်ရအောင် ချုံ့ပေးပါမည်။
-            </p>
-
-        </div>
-
-
-        <div class="file-box">
-
-            <label class="small-label block mb-2">
-                📁 Audio / Video ရွေးပါ
-            </label>
-
-            <input
-                id="compressAudioInput"
-                type="file"
-                accept="audio/*,video/*"
-                class="w-full text-xs">
-
-        </div>
-
-
-        <button
-            id="compressBtn"
-            class="action-btn cyan-btn mt-4">
-            ⚡ Smart Compress
-        </button>
-
-
-        <div
-            id="compressStatus"
-            class="text-center text-xs text-cyan-300 mt-3">
-        </div>
-
-
-        <div
-            id="compressProgressArea"
-            class="hidden mt-4">
-
-            <div class="progress-track">
-                <div
-                    id="compressProgress"
-                    class="progress-bar">
-                </div>
-            </div>
-
-            <p
-                id="compressProgressText"
-                class="text-center text-[11px]
-                       text-slate-400 mt-2">
-                0%
-            </p>
-
-        </div>
-
-
-        <div
-            id="compressedResultArea"
-            class="hidden result-box mt-5">
-
-            <h3 class="font-bold text-cyan-300 mb-3">
-                ✨ Compression Result
-            </h3>
-
-
-            <div
-                id="compressInfo"
-                class="text-[11px] text-slate-400
-                       leading-6 mb-3">
-            </div>
-
-
-            <audio
-                id="compressedAudioPlayer"
-                controls
-                class="w-full">
-            </audio>
-
-
-            <button
-                id="downloadCompressedBtn"
-                type="button"
-                class="action-btn cyan-btn mt-4">
-                📥 Download Audio
-            </button>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     DOWNLOADER
-===================================================== -->
-
-<section id="tool-downloader" class="tool-section hidden">
-
-    <div class="glass rounded-3xl p-5">
-
-        <div class="flex items-center gap-3 mb-5">
-
-            <div class="text-3xl">⬇️</div>
-
-            <div>
-                <h2 class="text-xl font-black text-sky-300">
-                    Downloader
-                </h2>
-
-                <p class="text-xs text-slate-400">
-                    Public / authorized media links
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="grid grid-cols-3 gap-2 mb-4">
-
-            <div class="bg-slate-950/70
-                        rounded-2xl p-4 text-center">
-                <div class="text-2xl">▶️</div>
-                <p class="text-[10px] mt-2">
-                    YouTube
-                </p>
-            </div>
-
-            <div class="bg-slate-950/70
-                        rounded-2xl p-4 text-center">
-                <div class="text-2xl">📺</div>
-                <p class="text-[10px] mt-2">
-                    Bilibili
-                </p>
-            </div>
-
-            <div class="bg-slate-950/70
-                        rounded-2xl p-4 text-center">
-                <div class="text-2xl">🎵</div>
-                <p class="text-[10px] mt-2">
-                    Douyin
-                </p>
-            </div>
-
-        </div>
-
-
-        <input
-            id="mediaUrlInput"
-            type="url"
-            placeholder="Video URL ထည့်ပါ..."
-            class="input">
-
-
-        <button
-            id="downloadUrlBtn"
-            class="action-btn blue-btn mt-4">
-            🔗 Link စစ်မည်
-        </button>
-
-
-        <div
-            id="downloadStatus"
-            class="text-center text-xs
-                   text-sky-300 mt-4">
-        </div>
-
-
-        <div class="bg-amber-950/20
-                    border border-amber-500/20
-                    rounded-2xl p-3 mt-5">
-
-            <p class="text-[11px] text-amber-300">
-                ⚠️ Downloader backend မထည့်ရသေးသောအချိန်တွင်
-                public/direct media URL များအတွက်သာ အသုံးပြုပါ။
-                DRM/private/login-protected content ကို bypass မလုပ်ပါ။
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     FEEDBACK
-===================================================== -->
-
-<section id="tool-feedback" class="tool-section hidden">
-
-    <div class="glass rounded-3xl p-5">
-
-        <div class="text-3xl mb-3">
-            💬
-        </div>
-
-        <h2 class="text-xl font-black text-emerald-300">
-            Feedback
-        </h2>
-
-        <p class="text-xs text-slate-400 mt-1">
-            App မှာ error / အကြံပြုချက်ရှိရင် ရေးပေးပါ။
-        </p>
-
-
-        <textarea
-            id="feedbackText"
-            class="input mt-5"
-            placeholder="သင့် Feedback ကို ဒီမှာရေးပါ...">
-        </textarea>
-
-
-        <button
-            id="feedbackBtn"
-            class="action-btn green-btn mt-3">
-            📩 Feedback ပို့မည်
-        </button>
-
-
-        <p
-            id="feedbackStatus"
-            class="text-center text-xs
-                   text-emerald-300 mt-3">
-        </p>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     FOOTER
-===================================================== -->
-
-<footer class="text-center py-8">
-
-    <p class="text-[10px] text-slate-600">
-        My Transcriber
-    </p>
-
-    <p class="text-[10px] text-slate-700 mt-1">
-        Local processing • Groq • Gemini
-    </p>
-
-</footer>
+</div>
+
+</header><nav class="glass rounded-2xl p-2 mb-5 overflow-x-auto">
+    <div class="flex gap-2 min-w-max">    <button
+        class="nav-btn active border border-transparent rounded-xl
+               px-4 py-2 text-xs font-bold"
+        onclick="showTool('home',this)">
+        🏠 Home
+    </button>
+
+    <button
+        class="nav-btn border border-transparent rounded-xl
+               px-4 py-2 text-xs font-bold"
+        onclick="showTool('groq',this)">
+        🎙️ Groq
+    </button>
+
+    <button
+        class="nav-btn border border-transparent rounded-xl
+               px-4 py-2 text-xs font-bold"
+        onclick="showTool('gemini',this)">
+        ✨ Gemini
+    </button>
+
+    <button
+        class="nav-btn border border-transparent rounded-xl
+               px-4 py-2 text-xs font-bold"
+        onclick="showTool('compressor',this)">
+        📉 Compressor
+    </button>
+
+    <button
+        class="nav-btn border border-transparent rounded-xl
+               px-4 py-2 text-xs font-bold"
+        onclick="showTool('downloader',this)">
+        ⬇️ Downloader
+    </button>
+
+    <button
+        class="nav-btn border border-transparent rounded-xl
+               px-4 py-2 text-xs font-bold"
+        onclick="showTool('feedback',this)">
+        💬 Feedback
+    </button>
 
 </div>
 
+</nav><section id="tool-home" class="tool-section"><div class="grid grid-cols-2 gap-3">
 
-<!-- =====================================================
-     HIDDEN MEDIA
-===================================================== -->
+    <button
+        onclick="openTool('groq')"
+        class="tool-card glass rounded-3xl p-5 text-left">
+        <div class="text-3xl mb-3">🎙️</div>
+        <h2 class="font-black text-emerald-300">
+            Groq Whisper
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-2">
+            Fast multilingual transcription
+        </p>
+    </button>
 
-<video
-    id="hiddenMediaElement"
-    class="hidden"
-    preload="auto">
+    <button
+        onclick="openTool('gemini')"
+        class="tool-card glass rounded-3xl p-5 text-left">
+        <div class="text-3xl mb-3">✨</div>
+        <h2 class="font-black text-violet-300">
+            Gemini
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-2">
+            Audio / Video transcription
+        </p>
+    </button>
+
+    <button
+        onclick="openTool('compressor')"
+        class="tool-card glass rounded-3xl p-5 text-left">
+        <div class="text-3xl mb-3">📉</div>
+        <h2 class="font-black text-cyan-300">
+            Smart Compressor
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-2">
+            25MB အောက်ရအောင် local processing
+        </p>
+    </button>
+
+    <button
+        onclick="openTool('downloader')"
+        class="tool-card glass rounded-3xl p-5 text-left">
+        <div class="text-3xl mb-3">⬇️</div>
+        <h2 class="font-black text-sky-300">
+            Downloader
+        </h2>
+        <p class="text-[11px] text-slate-400 mt-2">
+            YouTube / Bilibili / Douyin tools
+        </p>
+    </button>
+
+</div>
+
+<div class="glass rounded-3xl p-4 mt-4">
+
+    <h3 class="font-bold text-emerald-300">
+        🔄 အသုံးပြုရမည့် Workflow
+    </h3>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+
+        <div class="bg-slate-950/70 rounded-xl p-3 text-center">
+            <div>📁</div>
+            <p class="text-[10px] mt-1">Video / Audio</p>
+        </div>
+
+        <div class="bg-slate-950/70 rounded-xl p-3 text-center">
+            <div>📉</div>
+            <p class="text-[10px] mt-1">Compress</p>
+        </div>
+
+        <div class="bg-slate-950/70 rounded-xl p-3 text-center">
+            <div>🎙️</div>
+            <p class="text-[10px] mt-1">Groq / Gemini</p>
+        </div>
+
+        <div class="bg-slate-950/70 rounded-xl p-3 text-center">
+            <div>📜</div>
+            <p class="text-[10px] mt-1">Transcript</p>
+        </div>
+
+    </div>
+
+</div>
+
+</section><section id="tool-groq" class="tool-section hidden"><div class="glass rounded-3xl p-5">
+
+    <div class="flex items-center gap-3 mb-5">
+        <div class="text-3xl">🎙️</div>
+        <div>
+            <h2 class="text-xl font-black text-emerald-300">
+                Groq Whisper
+            </h2>
+            <p class="text-xs text-slate-400">
+                Multi-language transcription
+            </p>
+        </div>
+    </div>
+
+    <label class="small-label block mb-2">
+        🔑 Groq API Key
+    </label>
+
+    <div class="flex gap-2 mb-2">
+
+        <input
+            id="groqApiKeyInput"
+            type="password"
+            placeholder="gsk_..."
+            class="input">
+
+        <select
+            id="groqKeyHistory"
+            class="bg-slate-950 border border-slate-700
+                   rounded-xl px-2 text-xs text-emerald-300">
+            <option value="">
+                Saved
+            </option>
+        </select>
+
+    </div>
+
+    <div class="file-box mt-4">
+
+        <label class="small-label block mb-2">
+            📁 Audio / Video File
+        </label>
+
+        <input
+            id="groqAudioInput"
+            type="file"
+            accept="audio/*,video/*"
+            class="w-full text-xs">
+
+    </div>
+
+    <button
+        id="groqTranscribeBtn"
+        class="action-btn green-btn mt-4">
+        ⚡ Groq ဖြင့် Transcript ထုတ်မည်
+    </button>
+
+    <div
+        id="groqStatus"
+        class="text-center text-xs text-emerald-300 mt-3">
+    </div>
+
+    <div class="result-box mt-4">
+
+        <label class="small-label block mb-2">
+            📜 Groq Transcript
+        </label>
+
+        <textarea
+            id="groqOutput"
+            class="input"
+            placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်...">
+        </textarea>
+
+        <button
+            id="copyGroqBtn"
+            class="action-btn mt-3
+                   bg-slate-800 text-emerald-300
+                   border border-emerald-500/20">
+            📋 Copy
+        </button>
+
+    </div>
+
+</div>
+
+</section><section id="tool-gemini" class="tool-section hidden"><div class="glass rounded-3xl p-5">
+
+    <div class="flex items-center gap-3 mb-5">
+        <div class="text-3xl">✨</div>
+        <div>
+            <h2 class="text-xl font-black text-violet-300">
+                Gemini Audio Transcript
+            </h2>
+            <p class="text-xs text-slate-400">
+                Multi-language transcription
+            </p>
+        </div>
+    </div>
+
+    <label class="small-label block mb-2">
+        🔑 Gemini API Key
+    </label>
+
+    <div class="flex gap-2 mb-2">
+
+        <input
+            id="geminiApiKeyInput"
+            type="password"
+            placeholder="AIzaSy..."
+            class="input">
+
+        <select
+            id="geminiKeyHistory"
+            class="bg-slate-950 border border-slate-700
+                   rounded-xl px-2 text-xs text-violet-300">
+            <option value="">
+                Saved
+            </option>
+        </select>
+
+    </div>
+
+    <div class="file-box mt-4">
+
+        <label class="small-label block mb-2">
+            📁 Audio / Video File
+        </label>
+
+        <input
+            id="geminiAudioInput"
+            type="file"
+            accept="audio/*,video/*"
+            class="w-full text-xs">
+
+    </div>
+
+    <button
+        id="geminiTranscribeBtn"
+        class="action-btn purple-btn mt-4">
+        ⚡ Gemini ဖြင့် Transcript ထုတ်မည်
+    </button>
+
+    <div
+        id="geminiStatus"
+        class="text-center text-xs text-violet-300 mt-3">
+    </div>
+
+    <div class="result-box mt-4">
+
+        <label class="small-label block mb-2">
+            📜 Gemini Transcript
+        </label>
+
+        <textarea
+            id="geminiOutput"
+            class="input"
+            placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်...">
+        </textarea>
+
+        <button
+            id="copyGeminiBtn"
+            class="action-btn mt-3
+                   bg-slate-800 text-violet-300
+                   border border-violet-500/20">
+            📋 Copy
+        </button>
+
+    </div>
+
+</div>
+
+</section><section id="tool-compressor" class="tool-section hidden"><div class="glass rounded-3xl p-5">
+
+    <div class="flex items-center gap-3 mb-3">
+        <div class="text-3xl">📉</div>
+
+        <div>
+            <h2 class="text-xl font-black text-cyan-300">
+                Smart Audio Compressor
+            </h2>
+
+            <p class="text-xs text-slate-400">
+                ဖုန်း/Browser ထဲမှာပဲ processing လုပ်မည်
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-cyan-950/30
+                border border-cyan-500/20
+                rounded-2xl p-3 mb-4">
+
+        <p class="text-xs text-cyan-200">
+            💡 ဖိုင်ကို Server သို့ မပို့ပါ။
+            Audio ကို extract လုပ်ပြီး Opus/WebM
+            ဖြင့် 24MB အောက်ရအောင် ချုံ့ပေးပါမည်။
+        </p>
+
+    </div>
+
+    <div class="file-box">
+
+        <label class="small-label block mb-2">
+            📁 Audio / Video ရွေးပါ
+        </label>
+
+        <input
+            id="compressAudioInput"
+            type="file"
+            accept="audio/*,video/*"
+            class="w-full text-xs">
+
+    </div>
+
+    <button
+        id="compressBtn"
+        class="action-btn cyan-btn mt-4">
+        ⚡ Smart Compress
+    </button>
+
+    <div
+        id="compressStatus"
+        class="text-center text-xs text-cyan-300 mt-3">
+    </div>
+
+    <div
+        id="compressProgressArea"
+        class="hidden mt-4">
+
+        <div class="progress-track">
+            <div
+                id="compressProgress"
+                class="progress-bar">
+            </div>
+        </div>
+
+        <p
+            id="compressProgressText"
+            class="text-center text-[11px]
+                   text-slate-400 mt-2">
+            0%
+        </p>
+
+    </div>
+
+    <div
+        id="compressedResultArea"
+        class="hidden result-box mt-5">
+
+        <h3 class="font-bold text-cyan-300 mb-3">
+            ✨ Compression Result
+        </h3>
+
+        <div
+            id="compressInfo"
+            class="text-[11px] text-slate-400
+                   leading-6 mb-3">
+        </div>
+
+        <audio
+            id="compressedAudioPlayer"
+            controls
+            class="w-full">
+        </audio>
+
+        <button
+            id="downloadCompressedBtn"
+            type="button"
+            class="action-btn cyan-btn mt-4">
+            📥 Download Audio
+        </button>
+
+    </div>
+
+</div>
+
+</section><section id="tool-downloader" class="tool-section hidden"><div class="glass rounded-3xl p-5">
+
+    <div class="flex items-center gap-3 mb-5">
+
+        <div class="text-3xl">⬇️</div>
+
+        <div>
+            <h2 class="text-xl font-black text-sky-300">
+                Downloader
+            </h2>
+
+            <p class="text-xs text-slate-400">
+                Public / authorized media links
+            </p>
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 mb-4">
+
+        <div class="bg-slate-950/70
+                    rounded-2xl p-4 text-center">
+            <div class="text-2xl">▶️</div>
+            <p class="text-[10px] mt-2">
+                YouTube
+            </p>
+        </div>
+
+        <div class="bg-slate-950/70
+                    rounded-2xl p-4 text-center">
+            <div class="text-2xl">📺</div>
+            <p class="text-[10px] mt-2">
+                Bilibili
+            </p>
+        </div>
+
+        <div class="bg-slate-950/70
+                    rounded-2xl p-4 text-center">
+            <div class="text-2xl">🎵</div>
+            <p class="text-[10px] mt-2">
+                Douyin
+            </p>
+        </div>
+
+    </div>
+
+    <input
+        id="mediaUrlInput"
+        type="url"
+        placeholder="Video URL ထည့်ပါ..."
+        class="input">
+
+    <button
+        id="downloadUrlBtn"
+        class="action-btn blue-btn mt-4">
+        🔗 Link စစ်မည်
+    </button>
+
+    <div
+        id="downloadStatus"
+        class="text-center text-xs
+               text-sky-300 mt-4">
+    </div>
+
+    <div class="bg-amber-950/20
+                border border-amber-500/20
+                rounded-2xl p-3 mt-5">
+
+        <p class="text-[11px] text-amber-300">
+            ⚠️ Downloader backend မထည့်ရသေးသောအချိန်တွင်
+            public/direct media URL များအတွက်သာ အသုံးပြုပါ။
+            DRM/private/login-protected content ကို bypass မလုပ်ပါ။
+        </p>
+
+    </div>
+
+</div>
+
+</section><section id="tool-feedback" class="tool-section hidden"><div class="glass rounded-3xl p-5">
+
+    <div class="text-3xl mb-3">
+        💬
+    </div>
+
+    <h2 class="text-xl font-black text-emerald-300">
+        Feedback
+    </h2>
+
+    <p class="text-xs text-slate-400 mt-1">
+        App မှာ error / အကြံပြုချက်ရှိရင် ရေးပေးပါ။
+    </p>
+
+    <textarea
+        id="feedbackText"
+        class="input mt-5"
+        placeholder="သင့် Feedback ကို ဒီမှာရေးပါ...">
+    </textarea>
+
+    <button
+        id="feedbackBtn"
+        class="action-btn green-btn mt-3">
+        📩 Feedback ပို့မည်
+    </button>
+
+    <p
+        id="feedbackStatus"
+        class="text-center text-xs
+               text-emerald-300 mt-3">
+    </p>
+
+</div>
+
+</section><footer class="text-center py-8"><p class="text-[10px] text-slate-600">
+    My Transcriber
+</p>
+
+<p class="text-[10px] text-slate-700 mt-1">
+    Local processing • Groq • Gemini
+</p>
+
+</footer></div><video
+id="hiddenMediaElement"
+class="hidden"
+preload="auto">
 </video>
-
 
 <script>
 
@@ -1539,7 +1397,8 @@ function toBase64(file) {
 
 
 /* =========================================================
-   SMART COMPRESSOR
+   FAST SMART COMPRESSOR
+   FFmpeg.wasm version
 ========================================================= */
 
 const MAX_SIZE =
@@ -1548,7 +1407,6 @@ const MAX_SIZE =
 const TARGET_SIZE =
     23 * 1024 * 1024;
 
-
 let compressedBlob = null;
 
 let compressedFileName =
@@ -1556,6 +1414,14 @@ let compressedFileName =
 
 let compressedObjectURL = null;
 
+let ffmpegInstance = null;
+let ffmpegLoaded = false;
+let ffmpegLoading = false;
+
+
+/* ---------------------------------------------------------
+   BASIC HELPERS
+--------------------------------------------------------- */
 
 function formatMB(bytes) {
 
@@ -1575,24 +1441,26 @@ function chooseBitrate(duration) {
         !duration ||
         !isFinite(duration)
     ) {
-        return 64000;
+        return 32000;
     }
-
 
     const bits =
         TARGET_SIZE * 8;
-
 
     const bitrate =
         Math.floor(
             bits / duration
         );
 
+    /*
+       Voice transcription အတွက်
+       16–64 kbps အတွင်းထားမယ်။
+    */
 
     return Math.max(
         16000,
         Math.min(
-            128000,
+            64000,
             bitrate
         )
     );
@@ -1600,274 +1468,484 @@ function chooseBitrate(duration) {
 }
 
 
-function getRecorderMimeType() {
+/* ---------------------------------------------------------
+   LOAD FFMPEG.WASM
+--------------------------------------------------------- */
 
-    const types = [
+async function loadFFmpeg(setStatus, setProgress) {
 
-        'audio/webm;codecs=opus',
+    if (ffmpegLoaded) {
+        return ffmpegInstance;
+    }
 
-        'audio/webm',
+    if (ffmpegLoading) {
 
-        'audio/ogg;codecs=opus',
-
-        'audio/ogg'
-
-    ];
-
-
-    for (
-        const type of types
-    ) {
-
-        if (
-            window.MediaRecorder &&
-            MediaRecorder.isTypeSupported(type)
-        ) {
-
-            return type;
-
+        while (ffmpegLoading) {
+            await new Promise(
+                resolve => setTimeout(resolve, 100)
+            );
         }
 
+        if (ffmpegLoaded) {
+            return ffmpegInstance;
+        }
     }
 
+    ffmpegLoading = true;
 
-    return '';
+    try {
 
-}
-
-
-async function recordAudio(
-    mediaElement,
-    duration,
-    bitrate
-) {
-
-    const AudioContextClass =
-        window.AudioContext ||
-        window.webkitAudioContext;
-
-
-    if (!AudioContextClass) {
-
-        throw new Error(
-            'ဒီ Browser တွင် Audio Processing မထောက်ပံ့ပါ။'
+        setStatus(
+            '⬇️ Compressor engine ကို ပထမဆုံးအကြိမ် download လုပ်နေပါတယ်...'
         );
 
-    }
-
-
-    const audioCtx =
-        new AudioContextClass();
-
-
-    if (
-        audioCtx.state ===
-        'suspended'
-    ) {
-
-        await audioCtx.resume();
-
-    }
-
-
-    const source =
-        audioCtx.createMediaElementSource(
-            mediaElement
+        setProgress(
+            5,
+            'FFmpeg engine loading...'
         );
 
 
-    const destination =
-        audioCtx.createMediaStreamDestination();
+        /*
+           FFmpeg.wasm UMD package.
+           The package itself spawns a worker.
+        */
 
+        if (
+            !window.FFmpegWASM
+        ) {
 
-    source.connect(destination);
+            await new Promise(
+                (resolve, reject) => {
 
+                    const script =
+                        document.createElement(
+                            'script'
+                        );
 
-    const mimeType =
-        getRecorderMimeType();
+                    script.src =
+                        'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js';
 
+                    script.onload =
+                        resolve;
 
-    if (!mimeType) {
+                    script.onerror =
+                        () => reject(
+                            new Error(
+                                'FFmpeg library ကို download မလုပ်နိုင်ပါ။'
+                            )
+                        );
 
-        throw new Error(
-            'WebM/Opus မထောက်ပံ့သော Browser ဖြစ်ပါသည်။'
-        );
-
-    }
-
-
-    const recorder =
-        new MediaRecorder(
-            destination.stream,
-            {
-                mimeType,
-                audioBitsPerSecond:
-                    bitrate
-            }
-        );
-
-
-    const chunks = [];
-
-
-    recorder.ondataavailable =
-        event => {
-
-            if (
-                event.data &&
-                event.data.size
-            ) {
-
-                chunks.push(
-                    event.data
-                );
-
-            }
-
-        };
-
-
-    return new Promise(
-        async (resolve, reject) => {
-
-            let finished = false;
-
-
-            function finish() {
-
-                if (finished) return;
-
-                finished = true;
-
-
-                const blob =
-                    new Blob(
-                        chunks,
-                        {
-                            type:
-                                mimeType
-                        }
+                    document.head.appendChild(
+                        script
                     );
 
-
-                try {
-                    audioCtx.close();
-                } catch {}
-
-
-                resolve(blob);
-
-            }
-
-
-            recorder.onerror =
-                event => {
-
-                    if (finished) return;
-
-                    finished = true;
-
-                    try {
-                        audioCtx.close();
-                    } catch {}
-
-                    reject(
-                        event.error ||
-                        new Error(
-                            'Audio recording error'
-                        )
-                    );
-
-                };
-
-
-            recorder.onstop =
-                finish;
-
-
-            mediaElement.currentTime = 0;
-
-
-            mediaElement.onended =
-                () => {
-
-                    if (
-                        recorder.state ===
-                        'recording'
-                    ) {
-
-                        recorder.stop();
-
-                    }
-
-                };
-
-
-            recorder.start(1000);
-
-
-            try {
-
-                await mediaElement.play();
-
-            }
-
-            catch (error) {
-
-                try {
-
-                    if (
-                        recorder.state ===
-                        'recording'
-                    ) {
-                        recorder.stop();
-                    }
-
-                } catch {}
-
-
-                reject(error);
-
-                return;
-
-            }
-
-
-            const timeout =
-                Math.max(
-                    60000,
-                    (duration + 10) *
-                    1000
-                );
-
-
-            setTimeout(
-                () => {
-
-                    if (
-                        recorder.state ===
-                        'recording'
-                    ) {
-
-                        try {
-                            recorder.stop();
-                        } catch {}
-
-                    }
-
-                },
-                timeout
+                }
             );
 
         }
-    );
+
+
+        /*
+           Different UMD builds expose the
+           package slightly differently.
+        */
+
+        const FFmpegClass =
+            window.FFmpegWASM?.FFmpeg ||
+            window.FFmpeg?.FFmpeg ||
+            window.FFmpeg;
+
+
+        if (
+            typeof FFmpegClass !==
+            'function'
+        ) {
+
+            throw new Error(
+                'FFmpeg engine ကို initialize မလုပ်နိုင်ပါ။'
+            );
+
+        }
+
+
+        ffmpegInstance =
+            new FFmpegClass();
+
+
+        const ffmpeg =
+            ffmpegInstance;
+
+
+        if (
+            typeof ffmpeg.on ===
+            'function'
+        ) {
+
+            ffmpeg.on(
+                'progress',
+                ({
+                    progress
+                }) => {
+
+                    const p =
+                        Math.max(
+                            5,
+                            Math.min(
+                                95,
+                                Math.round(
+                                    progress *
+                                    100
+                                )
+                            )
+                        );
+
+                    setProgress(
+                        p,
+                        '⚡ FFmpeg compress လုပ်နေပါတယ်...'
+                    );
+
+                }
+            );
+
+
+            ffmpeg.on(
+                'log',
+                ({
+                    message
+                }) => {
+
+                    console.log(
+                        '[FFmpeg]',
+                        message
+                    );
+
+                }
+            );
+
+        }
+
+
+        /*
+           Official ffmpeg.wasm 0.12+
+           loading pattern.
+        */
+
+        const baseURL =
+            'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+
+
+        if (
+            typeof ffmpeg.load !==
+            'function'
+        ) {
+
+            throw new Error(
+                'FFmpeg load function မတွေ့ပါ။'
+            );
+
+        }
+
+
+        /*
+           toBlobURL is provided by @ffmpeg/util.
+           Load util dynamically as a module.
+        */
+
+        const util =
+            await import(
+                'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm'
+            );
+
+
+        const {
+            toBlobURL
+        } = util;
+
+
+        await ffmpeg.load({
+
+            coreURL:
+                await toBlobURL(
+                    `${baseURL}/ffmpeg-core.js`,
+                    'text/javascript'
+                ),
+
+            wasmURL:
+                await toBlobURL(
+                    `${baseURL}/ffmpeg-core.wasm`,
+                    'application/wasm'
+                )
+
+        });
+
+
+        ffmpegLoaded =
+            true;
+
+        setProgress(
+            10,
+            '✅ Compressor engine ready'
+        );
+
+        setStatus(
+            '✅ Fast Compressor ready'
+        );
+
+
+        return ffmpeg;
+
+    }
+
+    catch (error) {
+
+        ffmpegInstance =
+            null;
+
+        ffmpegLoaded =
+            false;
+
+        throw error;
+
+    }
+
+    finally {
+
+        ffmpegLoading =
+            false;
+
+    }
 
 }
 
 
-/* =========================================================
+/* ---------------------------------------------------------
+   FFMPEG FILE CLEANUP
+--------------------------------------------------------- */
+
+async function safeDeleteFFmpegFile(
+    ffmpeg,
+    filename
+) {
+
+    try {
+
+        if (
+            typeof ffmpeg.deleteFile ===
+            'function'
+        ) {
+
+            await ffmpeg.deleteFile(
+                filename
+            );
+
+        }
+
+    } catch {}
+
+}
+
+
+/* ---------------------------------------------------------
+   FAST AUDIO COMPRESS
+--------------------------------------------------------- */
+
+async function compressWithFFmpeg(
+    file,
+    bitrate,
+    setStatus,
+    setProgress
+) {
+
+    const ffmpeg =
+        await loadFFmpeg(
+            setStatus,
+            setProgress
+        );
+
+
+    const inputName =
+        'input_' +
+        Date.now() +
+        '_' +
+        Math.random()
+            .toString(36)
+            .slice(2) +
+        '.bin';
+
+
+    const outputName =
+        'output_' +
+        Date.now() +
+        '.webm';
+
+
+    try {
+
+        setStatus(
+            '📥 File ကို compressor engine ထဲထည့်နေပါတယ်...'
+        );
+
+        setProgress(
+            12,
+            'Input file loading...'
+        );
+
+
+        const {
+            fetchFile
+        } =
+            await import(
+                'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm'
+            );
+
+
+        const data =
+            await fetchFile(file);
+
+
+        await ffmpeg.writeFile(
+            inputName,
+            data
+        );
+
+
+        setProgress(
+            18,
+            'Audio processing စနေပါပြီ...'
+        );
+
+
+        /*
+           -vn
+             Video track မထည့်ပါ။
+             Audio သီးသန့်ထုတ်မယ်။
+
+           -map 0:a:0?
+             ပထမ audio track ကိုသုံးမယ်။
+
+           -c:a libopus
+             Opus encode
+
+           -ac 1
+             Mono
+             Transcript အတွက်လုံလောက်ပြီး
+             size ကိုလည်း လျှော့ပေးတယ်။
+
+           -b:a
+             Duration အလိုက်တွက်ထားတဲ့ bitrate
+
+           -application voip
+             Speech အတွက် optimize
+
+           -ar 48000
+             Opus native sample rate
+        */
+
+        const exitCode =
+            await ffmpeg.exec([
+
+                '-i',
+                inputName,
+
+                '-map',
+                '0:a:0?',
+
+                '-vn',
+
+                '-ac',
+                '1',
+
+                '-ar',
+                '48000',
+
+                '-c:a',
+                'libopus',
+
+                '-b:a',
+                `${Math.round(
+                    bitrate / 1000
+                )}k`,
+
+                '-vbr',
+                'on',
+
+                '-compression_level',
+                '10',
+
+                '-application',
+                'voip',
+
+                '-f',
+                'webm',
+
+                outputName
+
+            ]);
+
+
+        if (
+            exitCode !== 0
+        ) {
+
+            throw new Error(
+                'FFmpeg audio compression မအောင်မြင်ပါ။'
+            );
+
+        }
+
+
+        setProgress(
+            96,
+            '📦 Output file ပြင်ဆင်နေပါတယ်...'
+        );
+
+
+        const output =
+            await ffmpeg.readFile(
+                outputName
+            );
+
+
+        /*
+           Uint8Array → Blob
+        */
+
+        const blob =
+            new Blob(
+                [
+                    output.buffer
+                ],
+                {
+                    type:
+                        'audio/webm;codecs=opus'
+                }
+            );
+
+
+        return blob;
+
+    }
+
+    finally {
+
+        await safeDeleteFFmpegFile(
+            ffmpeg,
+            inputName
+        );
+
+        await safeDeleteFFmpegFile(
+            ffmpeg,
+            outputName
+        );
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
    DOWNLOAD
-========================================================= */
+--------------------------------------------------------- */
 
 async function downloadBlob(
     blob,
@@ -1889,20 +1967,18 @@ async function downloadBlob(
         );
 
 
-    /*
-       Normal browser download
-    */
-
     const link =
         document.createElement('a');
 
 
-    link.href = url;
+    link.href =
+        url;
 
     link.download =
         filename;
 
-    link.rel = 'noopener';
+    link.rel =
+        'noopener';
 
     link.style.display =
         'none';
@@ -1917,23 +1993,22 @@ async function downloadBlob(
 
         link.click();
 
-    } finally {
+    }
+
+    finally {
 
         link.remove();
 
     }
 
 
-    /*
-       Keep URL alive longer for
-       Android WebView.
-    */
-
     setTimeout(
         () => {
 
             try {
-                URL.revokeObjectURL(url);
+                URL.revokeObjectURL(
+                    url
+                );
             } catch {}
 
         },
@@ -1942,8 +2017,7 @@ async function downloadBlob(
 
 
     /*
-       Android fallback:
-       open the generated file.
+       Android fallback
     */
 
     if (
@@ -1973,9 +2047,9 @@ async function downloadBlob(
 }
 
 
-/* =========================================================
+/* ---------------------------------------------------------
    COMPRESS BUTTON
-========================================================= */
+--------------------------------------------------------- */
 
 document
     .getElementById('compressBtn')
@@ -2031,12 +2105,6 @@ document
                 );
 
 
-            const mediaElement =
-                document.getElementById(
-                    'hiddenMediaElement'
-                );
-
-
             if (
                 !fileInput.files.length
             ) {
@@ -2065,11 +2133,11 @@ document
 
 
             progress.style.width =
-                '5%';
+                '1%';
 
 
             progressText.textContent =
-                'ဖိုင်ဖတ်နေပါပြီ...';
+                'စစ်ဆေးနေပါပြီ...';
 
 
             status.textContent =
@@ -2092,70 +2160,154 @@ document
                 }
 
 
+                /*
+                   IMPORTANT:
+                   24MB အောက်ဆို re-encode
+                   လုံးဝမလုပ်ပါ။
+                */
+
+                if (
+                    file.size <=
+                    MAX_SIZE
+                ) {
+
+                    compressedBlob =
+                        file;
+
+
+                    compressedFileName =
+                        file.name;
+
+
+                    compressedObjectURL =
+                        URL.createObjectURL(
+                            compressedBlob
+                        );
+
+
+                    audioPlayer.src =
+                        compressedObjectURL;
+
+
+                    progress.style.width =
+                        '100%';
+
+
+                    progressText.textContent =
+                        '100%';
+
+
+                    info.innerHTML =
+                        '📁 မူရင်း: ' +
+                        formatMB(
+                            file.size
+                        ) +
+                        '<br>' +
+                        '📦 ရလဒ်: ' +
+                        formatMB(
+                            file.size
+                        ) +
+                        '<br>' +
+                        '⚡ Compression မလိုပါ — မူရင်းဖိုင်ကို အသုံးပြုထားပါသည်။';
+
+
+                    status.textContent =
+                        '✅ 24MB အောက်ဖြစ်သောကြောင့် ချက်ချင်းအသုံးပြုနိုင်ပါပြီ။';
+
+
+                    resultArea.classList.remove(
+                        'hidden'
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                   Duration ကို browser metadata
+                   ကနေယူတယ်။
+                   ဒီအဆင့်မှာ audio ကို
+                   realtime play မလုပ်တော့ဘူး။
+                */
+
                 const fileURL =
                     URL.createObjectURL(
                         file
                     );
 
 
-                mediaElement.src =
+                const media =
+                    document.createElement(
+                        'audio'
+                    );
+
+
+                media.preload =
+                    'metadata';
+
+                media.src =
                     fileURL;
 
 
-                mediaElement.load();
+                const duration =
+                    await new Promise(
+                        (
+                            resolve,
+                            reject
+                        ) => {
+
+                            const timeout =
+                                setTimeout(
+                                    () => {
+
+                                        reject(
+                                            new Error(
+                                                'ဖိုင် duration ဖတ်ရန် အချိန်ကြာလွန်းနေပါသည်။'
+                                            )
+                                        );
+
+                                    },
+                                    30000
+                                );
 
 
-                await new Promise(
-                    (resolve, reject) => {
-
-                        const timeout =
-                            setTimeout(
+                            media.onloadedmetadata =
                                 () => {
+
+                                    clearTimeout(
+                                        timeout
+                                    );
+
+                                    resolve(
+                                        media.duration
+                                    );
+
+                                };
+
+
+                            media.onerror =
+                                () => {
+
+                                    clearTimeout(
+                                        timeout
+                                    );
 
                                     reject(
                                         new Error(
-                                            'ဖိုင်ဖတ်ရန် အချိန်ကြာလွန်းနေပါသည်။'
+                                            'ဖိုင် duration မဖတ်နိုင်ပါ။'
                                         )
                                     );
 
-                                },
-                                30000
-                            );
+                                };
+
+                        }
+                    );
 
 
-                        mediaElement.onloadedmetadata =
-                            () => {
-
-                                clearTimeout(
-                                    timeout
-                                );
-
-                                resolve();
-
-                            };
-
-
-                        mediaElement.onerror =
-                            () => {
-
-                                clearTimeout(
-                                    timeout
-                                );
-
-                                reject(
-                                    new Error(
-                                        'ဖိုင်ကို ဖွင့်၍မရပါ။'
-                                    )
-                                );
-
-                            };
-
-                    }
+                URL.revokeObjectURL(
+                    fileURL
                 );
-
-
-                const duration =
-                    mediaElement.duration;
 
 
                 if (
@@ -2164,19 +2316,21 @@ document
                 ) {
 
                     throw new Error(
-                        'Audio duration ကို မဖတ်နိုင်ပါ။'
+                        'Audio duration မရပါ။'
                     );
 
                 }
 
 
                 progress.style.width =
-                    '15%';
+                    '8%';
 
 
                 progressText.textContent =
                     'Duration: ' +
-                    Math.round(duration) +
+                    Math.round(
+                        duration
+                    ) +
                     ' sec';
 
 
@@ -2186,57 +2340,40 @@ document
                     );
 
 
+                status.textContent =
+                    '⚡ Fast Audio Compressor စတင်နေပါပြီ...';
+
+
                 /*
-                   Small files still get
-                   reasonable quality.
+                   First compression
                 */
 
-                if (
-                    file.size <=
-                    MAX_SIZE
-                ) {
-
-                    bitrate =
-                        Math.min(
-                            96000,
-                            bitrate
-                        );
-
-                }
-
-
-                status.textContent =
-                    '🎧 Audio extract + compress လုပ်နေပါပြီ...';
-
-
-                progress.style.width =
-                    '20%';
-
-
                 let blob =
-                    await recordAudio(
-                        mediaElement,
-                        duration,
-                        bitrate
+                    await compressWithFFmpeg(
+                        file,
+                        bitrate,
+                        statusSetter,
+                        progressSetter
                     );
 
 
-                progress.style.width =
-                    '65%';
-
-
                 /*
-                   Retry with lower bitrate
-                   if still over 24MB.
+                   If output > 24MB,
+                   lower bitrate and retry.
+
+                   Normally one pass is enough
+                   because bitrate was calculated
+                   from duration.
                 */
 
-                let attempts = 1;
+                let attempts =
+                    1;
 
 
                 while (
                     blob.size >
                     MAX_SIZE &&
-                    attempts < 4
+                    attempts < 3
                 ) {
 
                     attempts++;
@@ -2253,28 +2390,25 @@ document
                             Math.floor(
                                 bitrate *
                                 ratio *
-                                .88
+                                0.90
                             )
                         );
 
 
                     status.textContent =
-                        '📉 ဖိုင်ကြီးနေသေးပါသည်။ Bitrate လျှော့ပြီး ထပ်လုပ်နေပါပြီ...';
-
-
-                    progress.style.width =
-                        Math.min(
-                            92,
-                            65 +
-                            attempts * 7
-                        ) + '%';
+                        '📉 ' +
+                        formatMB(
+                            blob.size
+                        ) +
+                        ' ရှိနေသေးပါသည်။ Bitrate ထပ်လျှော့နေပါပြီ...';
 
 
                     blob =
-                        await recordAudio(
-                            mediaElement,
-                            duration,
-                            bitrate
+                        await compressWithFFmpeg(
+                            file,
+                            bitrate,
+                            statusSetter,
+                            progressSetter
                         );
 
                 }
@@ -2313,7 +2447,9 @@ document
 
                 info.innerHTML =
                     '📁 မူရင်း: ' +
-                    formatMB(file.size) +
+                    formatMB(
+                        file.size
+                    ) +
                     '<br>' +
                     '📦 ရလဒ်: ' +
                     formatMB(
@@ -2341,21 +2477,18 @@ document
                     status.textContent =
                         '⚠️ 24MB အောက် မရသေးပါ။';
 
-                } else {
+                }
+
+                else {
 
                     status.textContent =
-                        '✅ Compression အောင်မြင်ပါပြီ။';
+                        '✅ Fast Compression အောင်မြင်ပါပြီ။';
 
                 }
 
 
                 resultArea.classList.remove(
                     'hidden'
-                );
-
-
-                URL.revokeObjectURL(
-                    fileURL
                 );
 
             }
@@ -2381,9 +2514,76 @@ document
     );
 
 
-/* =========================================================
+/* ---------------------------------------------------------
+   PROGRESS HELPERS
+--------------------------------------------------------- */
+
+function progressSetter(
+    percent,
+    text
+) {
+
+    const progress =
+        document.getElementById(
+            'compressProgress'
+        );
+
+
+    const progressText =
+        document.getElementById(
+            'compressProgressText'
+        );
+
+
+    if (progress) {
+
+        progress.style.width =
+            Math.max(
+                0,
+                Math.min(
+                    100,
+                    percent
+                )
+            ) +
+            '%';
+
+    }
+
+
+    if (progressText) {
+
+        progressText.textContent =
+            text ||
+            `${Math.round(percent)}%`;
+
+    }
+
+}
+
+
+function statusSetter(
+    text
+) {
+
+    const status =
+        document.getElementById(
+            'compressStatus'
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            text;
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
    DOWNLOAD COMPRESSED AUDIO
-========================================================= */
+--------------------------------------------------------- */
 
 document
     .getElementById(
@@ -2414,7 +2614,9 @@ document
                 button.textContent;
 
 
-            button.disabled = true;
+            button.disabled =
+                true;
+
 
             button.textContent =
                 '⏳ Download လုပ်နေပါပြီ...';
@@ -2561,10 +2763,6 @@ document
             }
 
 
-            /*
-               Save locally for now.
-            */
-
             const feedbacks =
                 JSON.parse(
                     localStorage.getItem(
@@ -2605,7 +2803,5 @@ document
         }
     );
 
-</script>
-
-</body>
-    </html>
+</script></body>
+      </html>
