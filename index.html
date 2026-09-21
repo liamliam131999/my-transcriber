@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Multi-API Studio with Voiceover & Download</title>
+    <title>AI Video Studio Pro - Groq Only Version</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -11,9 +11,9 @@
     <div class="max-w-2xl mx-auto space-y-6">
         <header class="mb-4">
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
-                <span>⚡</span> AI Video Studio Pro
+                <span>⚡</span> AI Video Studio Pro (Groq)
             </h1>
-            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း၊ ဘာသာပြန်ခြင်း၊ အသံထွက်ခြင်း (Voiceover) နှင့် ဖိုင်ဒေါင်းလုပ်ဆွဲခြင်းစနစ်</p>
+            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း၊ Groq ဖြင့် မြန်မာလိုဘာသာပြန်ခြင်း၊ အသံထွက်ခြင်းနှင့် ဖိုင်သိမ်းဆည်းခြင်း</p>
         </header>
 
         <!-- Option 1: Chinese Audio to Chinese Text (Groq Whisper) -->
@@ -23,7 +23,7 @@
             </h2>
             
             <div>
-                <label class="block text-xs text-slate-400 mb-1">🔑 Groq API Key ထည့်ပါ:</label>
+                <label class="block text-xs text-slate-400 mb-1">🔑 Groq API Key (အပေါ်ပိုင်းအတွက်):</label>
                 <input type="password" id="groqApiKeyInput" placeholder="gsk_..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400 mb-3">
             </div>
 
@@ -51,27 +51,15 @@
             </div>
         </div>
 
-        <!-- Option 2: Translate Chinese Text to Burmese (Groq or Gemini) + Voiceover & Download -->
+        <!-- Option 2: Translate Chinese Text to Burmese (Groq API) + Voiceover & Download -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🇲🇲</span> ၂။ ထွက်လာတဲ့တရုတ်စာကို မြန်မာဘာသာသို့ ဘာသာပြန်ရန်
+                <span>🇲🇲</span> ၂။ ထွက်လာတဲ့တရုတ်စာကို မြန်မာဘာသာသို့ ဘာသာပြန်ရန် (Groq API)
             </h2>
             
-            <!-- API Provider Selector -->
-            <div class="flex gap-4 items-center bg-slate-900 p-3 rounded-lg border border-slate-700">
-                <label class="text-xs text-slate-300 font-medium">သုံးမည့် API ကို ရွေးပါ:</label>
-                <label class="flex items-center gap-1.5 text-xs text-amber-400 cursor-pointer">
-                    <input type="radio" name="apiProvider" value="groq" checked class="accent-amber-500"> Groq API
-                </label>
-                <label class="flex items-center gap-1.5 text-xs text-cyan-400 cursor-pointer">
-                    <input type="radio" name="apiProvider" value="gemini" class="accent-cyan-500"> Google Gemini API
-                </label>
-            </div>
-
-            <!-- Dynamic API Key Input for Translation -->
             <div>
-                <label class="block text-xs text-slate-400 mb-1" id="translateKeyLabel">🔑 Groq API Key ထည့်ပါ:</label>
-                <input type="password" id="translateApiKeyInput" placeholder="API Key ထည့်ရန်..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+                <label class="block text-xs text-slate-400 mb-1">🔑 Groq API Key (အောက်ပိုင်း ဘာသာပြန်အတွက်):</label>
+                <input type="password" id="translateApiKeyInput" placeholder="gsk_..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
             </div>
 
             <button id="translateBtn" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
@@ -105,21 +93,6 @@
     </div>
 
     <script>
-        // Switch placeholder / label based on selected API provider
-        document.querySelectorAll('input[name="apiProvider"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const label = document.getElementById('translateKeyLabel');
-                const input = document.getElementById('translateApiKeyInput');
-                if (e.target.value === 'groq') {
-                    label.textContent = '🔑 Groq API Key ထည့်ပါ:';
-                    input.placeholder = 'gsk_...';
-                } else {
-                    label.textContent = '🔑 Google Gemini API Key ထည့်ပါ:';
-                    input.placeholder = 'AIza...';
-                }
-            });
-        });
-
         // Option 1: Transcribe Audio to Chinese (Groq Whisper)
         document.getElementById('transcribeBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('groqApiKeyInput').value.trim();
@@ -131,7 +104,7 @@
 
             if (!apiKey) {
                 statusBox.classList.remove('hidden');
-                statusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ Groq API Key ထည့်သွင်းပါ။</span>';
+                statusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ အပေါ်က Groq API Key ထည့်သွင်းပါ။</span>';
                 return;
             }
 
@@ -176,9 +149,8 @@
             }
         });
 
-        // Option 2: Translate using Selected API (Groq with Auto-Fallback OR Google Gemini)
+        // Option 2: Translate using Groq API with Auto-Fallback Models
         document.getElementById('translateBtn').addEventListener('click', async () => {
-            const provider = document.querySelector('input[name="apiProvider"]:checked').value;
             const apiKey = document.getElementById('translateApiKeyInput').value.trim();
             const chineseText = document.getElementById('resultOutput').value.trim();
             const translateStatusBox = document.getElementById('translateStatusBox');
@@ -188,7 +160,7 @@
 
             if (!apiKey) {
                 translateStatusBox.classList.remove('hidden');
-                translateStatusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ API Key ထည့်သွင်းပါ။</span>';
+                translateStatusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ အောက်က Groq API Key ထည့်သွင်းပါ။</span>';
                 return;
             }
 
@@ -200,60 +172,32 @@
 
             translationArea.classList.add('hidden');
             translateStatusBox.classList.remove('hidden');
-            translateStatusText.textContent = 'မြန်မာဘာသာသို့ ဘာသာပြန်ဆိုနေပါပြီ...';
+            translateStatusText.textContent = 'Groq API ဖြင့် မြန်မာဘာသာသို့ ဘာသာပြန်ဆိုနေပါပြီ...';
 
+            const modelsList = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'];
             let translatedText = null;
 
             try {
-                if (provider === 'groq') {
-                    // Groq Auto-Fallback Logic
-                    const modelsList = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'];
-                    
-                    for (let model of modelsList) {
-                        translateStatusText.textContent = `Groq (${model}) ဖြင့် ဘာသာပြန်နေသည်...`;
-                        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                            method: 'POST',
-                            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                model: model,
-                                messages: [
-                                    { role: 'system', content: 'You are a professional translator. Translate the following Chinese dialogue text into natural, accurate Burmese dialogue for video recaps. Output only the Burmese translation.' },
-                                    { role: 'user', content: chineseText }
-                                ],
-                                temperature: 0.3
-                            })
-                        });
-
-                        if (res.ok) {
-                            const data = await res.json();
-                            translatedText = data.choices[0].message.content.trim();
-                            break;
-                        }
-                    }
-                } else {
-                    // Google Gemini API Logic
-                    translateStatusText.textContent = 'Google Gemini API ဖြင့် ဘာသာပြန်နေသည်...';
-                    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
-                    
-                    const res = await fetch(geminiUrl, {
+                for (let model of modelsList) {
+                    translateStatusText.textContent = `Model (${model}) ဖြင့် ဘာသာပြန်နေသည်...`;
+                    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `Translate the following Chinese dialogue text into natural, accurate Burmese dialogue for video recaps. Output only the Burmese translation:\n\n${chineseText}`
-                                }]
-                            }]
+                            model: model,
+                            messages: [
+                                { role: 'system', content: 'You are a professional Chinese to Burmese translator for video recaps. Translate accurately and naturally into Burmese dialogue. Output only the Burmese translation.' },
+                                { role: 'user', content: chineseText }
+                            ],
+                            temperature: 0.3
                         })
                     });
 
-                    if (!res.ok) {
-                        const errData = await res.json();
-                        throw new Error(errData.error?.message || 'Gemini API ချိတ်ဆက်မှု အမှားရှိသည်။');
+                    if (res.ok) {
+                        const data = await res.json();
+                        translatedText = data.choices[0].message.content.trim();
+                        break;
                     }
-
-                    const data = await res.json();
-                    translatedText = data.candidates[0].content.parts[0].text.trim();
                 }
 
                 if (translatedText) {
@@ -261,7 +205,7 @@
                     translationOutput.value = translatedText;
                     translationArea.classList.remove('hidden');
                 } else {
-                    throw new Error('ဘာသာပြန်စာသား ထွက်မလာပါ။');
+                    throw new Error('ဘာသာပြန်စာသား ထွက်မလာပါ။ Model အားလုံး အလုပ်မလုပ်နိုင်ပါ။');
                 }
 
             } catch (error) {
@@ -271,7 +215,7 @@
             }
         });
 
-        // Copy button
+        // Copy buttons
         document.getElementById('copyChineseBtn').addEventListener('click', () => {
             const el = document.getElementById('resultOutput');
             el.select();
@@ -284,7 +228,7 @@
             navigator.clipboard.writeText(el.value).then(() => alert('မြန်မာစာသားများကို ကူးယူပြီးပါပြီ!'));
         });
 
-        // NEW: Free Voiceover Feature (Web Speech API)[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)
+        // Voiceover Feature (Web Speech API)
         document.getElementById('voiceoverBtn').addEventListener('click', () => {
             const textToSpeak = document.getElementById('translationOutput').value.trim();
             if (!textToSpeak) {
@@ -293,20 +237,17 @@
             }
 
             if ('speechSynthesis' in window) {
-                // အရင်ပြောနေတာရှိရင် ရပ်မည်
                 window.speechSynthesis.cancel();
-
                 let utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'my-MM'; // မြန်မာဘာသာစကား သတ်မှတ်ခြင်း[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)
-                utterance.rate = 1.0;     // အသံထွက်အမြန်နှုန်း[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)
-                
+                utterance.lang = 'my-MM';
+                utterance.rate = 1.0;
                 window.speechSynthesis.speak(utterance);
             } else {
                 alert('သင့်ဘရောက်ဆာ သို့မဟုတ် စက်တွင် Voiceover စနစ်ကို မပံ့ပိုးပါ။');
             }
         });
 
-        // NEW: Save and Download Feature (.txt file export)[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span)
+        // Save and Download Feature (.txt file export)
         document.getElementById('downloadBtn').addEventListener('click', () => {
             const textContent = document.getElementById('translationOutput').value.trim();
             if (!textContent) {
