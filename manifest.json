@@ -11,7 +11,13 @@
       "src": "https://api.iconify.design/fluent-emoji:studio-microphone.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://api.iconify.design/fluent-emoji:studio-microphone.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
