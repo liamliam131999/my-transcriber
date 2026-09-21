@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq Audio Transcriber 🇲🇲</title>
+    <title>Multi-API Key Audio & Video Transcriber 🇲🇲</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a73e8">
@@ -82,6 +82,20 @@
             padding: 14px;
         }
         button.main-btn:hover { transform: translateY(-1px); }
+
+        button.script-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            border: none;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 12px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+            padding: 12px;
+        }
+        button.script-btn:hover { background: #5b21b6; }
         button:disabled { background: #94a3b8; cursor: not-allowed; }
 
         #status { margin-top: 15px; font-weight: bold; font-size: 14px; color: #334155; }
@@ -112,12 +126,19 @@
 <body>
 
 <div class="card">
-    <h2>🎙️ Groq Audio Transcriber 🇲🇲</h2>
+    <h2>🎬 Multi-API Key Audio & Video Transcriber 🇲🇲</h2>
     
-    <label>🔑 Groq API Key:</label>
+    <label>🔑 သုံးမည့် API Key ကို ရွေးပါ:</label>
+    <select id="activeKeySelect" onchange="onKeySelectionChange()">
+        <option value="key1">🔑 API Key (၁)</option>
+        <option value="key2">🔑 API Key (၂)</option>
+        <option value="key3">🔑 API Key (၃)</option>
+    </select>
+
+    <label id="keyInputLabel">🔑 API Key (၁) ထည့်ရန်:</label>
     <div class="key-row">
-        <input type="password" id="apiKey" placeholder="gsk_..." autocomplete="off">
-        <button type="button" class="save-key-btn" onclick="saveApiKeyManually()">💾 Save</button>
+        <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="off">
+        <button type="button" class="save-key-btn" onclick="saveActiveApiKey()">💾 Save</button>
     </div>
 
     <label>🧩 Part ရွေးပါ:</label>
@@ -128,39 +149,64 @@
         <option value="3600">⏩ Part 4 (01:00:00 မှ စမည်)</option>
     </select>
 
-    <label>🗣️ မူရင်း အသံဖိုင် ဘာသာစကား:</label>
+    <label>🗣️ မူရင်း အသံ/ဗီဒီယို ဘာသာစကား:</label>
     <select id="langSelect">
         <option value="zh">🇨🇳 တရုတ်ဘာသာ (Chinese)</option>
         <option value="en">🇬🇧 အင်္ဂလိပ်ဘာသာ (English)</option>
         <option value="auto">🌐 အလိုအလျောက် (Auto Detect)</option>
     </select>
 
-    <label>📁 Audio File တင်ပါ:</label>
+    <label>📁 Audio သို့မဟုတ် Video ဖိုင် တင်ပါ:</label>
     <input type="file" id="fileInput" accept="audio/*,video/*">
     
-    <button id="transcribeBtn" class="main-btn" onclick="transcribe()">🚀 အသံဖိုင်မှ စာသားထုတ်ယူမည် (Transcribe)</button>
+    <button id="transcribeBtn" class="main-btn" onclick="transcribe()">🚀 ရွေးထားသော Key ဖြင့် စာသားထုတ်ယူမည်</button>
     
     <div id="status"></div>
     <div id="limitInfo" class="limit-box" style="display:none;"></div>
     <div id="errorBox" class="error-box"></div>
     
-    <label style="margin-top:22px;">📝 ထွက်လာသည့် စာသားရလဒ်:</label>
-    <textarea id="result" rows="10" readonly placeholder="✨ စာသားများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+    <label style="margin-top:22px;">📝 ထွက်လာသည့် စာသားရလဒ် (Transcript):</label>
+    <textarea id="result" rows="8" readonly placeholder="✨ စာသားများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+
+    <button id="scriptBtn" class="script-btn" onclick="generateRecapScript()" disabled>✨ ဤစာသားများမှ ဇာတ်လမ်း Recap Script ရေးပေးမည်</button>
+
+    <label style="margin-top:22px;">🎬 ဗီဒီယို Recap Script ရလဒ်:</label>
+    <textarea id="scriptResult" rows="10" readonly placeholder="✨ Recap ဇာတ်ညွှန်းများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
 </div>
 
 <script>
 window.onload = function() {
-    const savedKey = localStorage.getItem('groq_api_key');
-    if (savedKey) {
-        document.getElementById('apiKey').value = savedKey;
-    }
+    loadKeyForSelection();
 };
 
-function saveApiKeyManually() {
-    const key = document.getElementById('apiKey').value.trim();
-    if (key) {
-        localStorage.setItem('groq_api_key', key);
-        alert('✅ API Key သိမ်းဆည်းပြီးပါပြီ!');
+function getSelectedKeyName() {
+    return document.getElementById('activeKeySelect').value;
+}
+
+function onKeySelectionChange() {
+    const selected = getSelectedKeyName();
+    const selectElem = document.getElementById('activeKeySelect');
+    const labelElem = document.getElementById('keyInputLabel');
+    
+    labelElem.innerText = `🔑 ${selectElem.options[selectElem.selectedIndex].text} ထည့်ရန်:`;
+    loadKeyForSelection();
+}
+
+function loadKeyForSelection() {
+    const keyName = getSelectedKeyName();
+    const savedKey = localStorage.getItem('groq_' + keyName) || '';
+    document.getElementById('apiKeyInput').value = savedKey;
+}
+
+function saveActiveApiKey() {
+    const keyName = getSelectedKeyName();
+    const keyValue = document.getElementById('apiKeyInput').value.trim();
+    if (keyValue) {
+        localStorage.setItem('groq_' + keyName, keyValue);
+        alert(`✅ ${document.getElementById('activeKeySelect').selectedOptions[0].text} ကို သိမ်းဆည်းပြီးပါပြီ!`);
+    } else {
+        localStorage.removeItem('groq_' + keyName);
+        alert(`🗑️ Key ကို ဖျက်လိုက်ပါပြီ။`);
     }
 }
 
@@ -173,21 +219,33 @@ function formatTime(seconds) {
 }
 
 async function transcribe() {
-    const apiKey = document.getElementById('apiKey').value.trim();
+    const keyName = getSelectedKeyName();
+    const apiKey = localStorage.getItem('groq_' + keyName) || document.getElementById('apiKeyInput').value.trim();
+    
     const fileInput = document.getElementById('fileInput');
     const offsetSeconds = parseInt(document.getElementById('partSelect').value);
     const selectedLang = document.getElementById('langSelect').value;
     const status = document.getElementById('status');
     const result = document.getElementById('result');
+    const scriptResult = document.getElementById('scriptResult');
     const errorBox = document.getElementById('errorBox');
     const limitInfo = document.getElementById('limitInfo');
+    const scriptBtn = document.getElementById('scriptBtn');
 
     errorBox.style.display = 'none';
     limitInfo.style.display = 'none';
-    if (!apiKey) { alert('⚠️ API Key ထည့်ပါ'); return; }
-    if (!fileInput.files[0]) { alert('⚠️ Audio ဖိုင် ရွေးပေးပါ'); return; }
 
-    localStorage.setItem('groq_api_key', apiKey);
+    if (!apiKey) { 
+        alert('⚠️ ကျေးဇူးပြု၍ ရွေးချယ်ထားသော API Key ထည့်ပြီး Save ခလုတ်ကို အရင်နှိပ်ပါ'); 
+        return; 
+    }
+    if (!fileInput.files[0]) { 
+        alert('⚠️ ကျေးဇူးပြု၍ Audio သို့မဟုတ် Video ဖိုင် ရွေးပေးပါ'); 
+        return; 
+    }
+
+    localStorage.setItem('groq_' + keyName, apiKey);
+
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append('file', file);
@@ -195,8 +253,10 @@ async function transcribe() {
     formData.append('response_format', 'verbose_json');
     if (selectedLang !== 'auto') formData.append('language', selectedLang);
 
-    status.innerText = "⏳ အသံဖိုင်မှ စာသားထုတ်ယူနေပါသည်...";
+    status.innerText = "⏳ ဖိုင်မှ စာသားထုတ်ယူနေပါသည် (ခဏစောင့်ပါ)...";
     result.value = "";
+    scriptResult.value = "";
+    scriptBtn.disabled = true;
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -214,11 +274,11 @@ async function transcribe() {
             
             if (matchLimit) {
                 limitInfo.style.display = 'block';
-                limitInfo.innerHTML = `📊 <b>Rate Limit အခြေအနေ:</b><br>• အသုံးပြုခွင့် အများဆုံး: ${matchLimit[1]} စက္ကန့်<br>• သုံးပြီးသား: ${matchLimit[2]} စက္ကန့်`;
+                limitInfo.innerHTML = `📊 <b>Rate Limit အခြေအနေ:</b><br>• အသုံးပြုခွင့် အများဆုံး: ${matchLimit[1]} စက္ကန့်<br>• သုံးပြီးသား: ${matchLimit[2]} စက္ကန့်<br><br>💡 <i>အကြံပြုချက်: အခြား API Key သို့ ပြောင်းသုံးပါ။</i>`;
             }
             
             if (matchTime) {
-                throw new Error(`Rate limit ပြည့်သွားပါပြီ။ ကျေးဇူးပြု၍ (${matchTime[1]}) ခန့် စောင့်ပြီးမှ ပြန်လွှတ်ပါ။`);
+                throw new Error(`Rate limit ပြည့်သွားပါပြီ။ (${matchTime[1]}) စောင့်ပါ (သို့) အခြား API Key သို့ ပြောင်းသုံးပါ။`);
             } else {
                 throw new Error(errMessage);
             }
@@ -234,9 +294,63 @@ async function transcribe() {
         });
         
         result.value = output;
+        scriptBtn.disabled = false;
 
     } catch (err) {
         status.innerText = "❌ အမှားတွေ့ရှိပါသည်";
+        errorBox.style.display = 'block';
+        errorBox.innerText = err.message;
+    }
+}
+
+async function generateRecapScript() {
+    const keyName = getSelectedKeyName();
+    const apiKey = localStorage.getItem('groq_' + keyName) || document.getElementById('apiKeyInput').value.trim();
+    const transcriptText = document.getElementById('result').value;
+    const status = document.getElementById('status');
+    const scriptResult = document.getElementById('scriptResult');
+    const errorBox = document.getElementById('errorBox');
+
+    if (!transcriptText) {
+        alert('⚠️ ထုတ်ယူထားသော စာသားများ မရှိသေးပါ။');
+        return;
+    }
+
+    status.innerText = "⏳ ဗီဒီယို Recap Script ဖန်တီးနေပါသည်...";
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ` + apiKey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    { 
+                        role: 'system', 
+                        content: 'You are an expert movie and video recap scriptwriter. Read the provided transcript lines, extract the core storyline, and write an engaging, smooth narrative recap script in fluent Burmese language suitable for YouTube or TikTok video storytelling. Organize it neatly with headings or paragraphs.' 
+                    },
+                    { 
+                        role: 'user', 
+                        content: `ဒီ Transcript စာသားတွေကို အခြေခံပြီး စိတ်ဝင်စားစရာကောင်းတဲ့ ဗီဒီယို Recap ဇာတ်ညွှန်း (Storyline Recap Script) တစ်ခုကို မြန်မာလို ရေးပေးပါ:\n\n${transcriptText}` 
+                    }
+                ],
+                temperature: 0.7
+            })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error?.message || 'Script Generation Error');
+        }
+
+        scriptResult.value = data.choices[0].message.content;
+        status.innerText = "✅ Recap Script ရေးသားခြင်း အောင်မြင်ပါသည်။";
+
+    } catch (err) {
+        status.innerText = "❌ Script ရေးရာတွင် အမှားတွေ့ရှိပါသည်";
         errorBox.style.display = 'block';
         errorBox.innerText = err.message;
     }
