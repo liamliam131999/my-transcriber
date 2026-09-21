@@ -220,7 +220,7 @@ async function transcribe() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-8b-instant',
+                model: 'llama-3.3-70b-versatile',
                 messages: [
                     { role: 'system', content: 'Translate the following indexed text lines into fluent Burmese. Keep the exact format `[index] text`.' },
                     { role: 'user', content: originalTexts }
@@ -276,12 +276,12 @@ function speakText() {
         utterance.onend = function() {
             document.getElementById('speakBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('status').innerText = "✅ အသံထွက်ဖတ်ပြခြင်း ပြီးဆုံးပါပြီ။";
+            document.getElementById('status').innerText = "✅ အသံထွက်ဖတ်ခြင်း ပြီးဆုံးပါပြီ။";
         };
 
         window.speechSynthesis.speak(utterance);
     } else {
-        alert('⚠️ သင့် Browser သည် အသံထွက်ဖတ်ခြင်းကို မထောက်ပံ့ပါ။');
+        alert('⚠️ သင့်ဘရောက်ဇာတွင် Speech Synthesis ကို မထောက်ပံ့ပါ။');
     }
 }
 
@@ -290,9 +290,10 @@ function stopSpeech() {
         window.speechSynthesis.cancel();
         document.getElementById('speakBtn').style.display = 'block';
         document.getElementById('stopBtn').style.display = 'none';
-        document.getElementById('status').innerText = "⏹️ အသံထွက်ခြင်းကို ရပ်တန့်လိုက်ပါပြီ။";
+        document.getElementById('status').innerText = "⏹️ အသံထွက်ခြင်း ရပ်တန့်လိုက်ပါပြီ။";
     }
 }
 </script>
+
 </body>
 </html>
