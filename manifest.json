@@ -8,9 +8,9 @@
   "description": "Audio to Burmese Text Transcriber App",
   "icons": [
     {
-      "src": "https://www.svgrepo.com/show/532981/microphone.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "./4670132.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
