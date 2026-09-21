@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Video Silence Remover & Transcriber 🇲🇲</title>
+    <title>Dialogue Transcriber & Auto Silence Video Cutter 🇲🇲</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a73e8">
@@ -26,20 +26,28 @@
             padding: 28px; 
             border-radius: 16px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.12); 
+            margin-bottom: 25px;
         }
         h2 { 
             margin-top: 0; 
             color: #1a73e8; 
-            font-size: 22px; 
+            font-size: 20px; 
             text-align: center;
             border-bottom: 2px dashed #e0e0e0;
             padding-bottom: 12px;
         }
+        h3 {
+            font-size: 17px;
+            color: #059669;
+            margin-top: 0;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
         label { 
             font-weight: 600; 
-            margin-top: 18px; 
+            margin-top: 15px; 
             display: block; 
-            font-size: 15px; 
+            font-size: 14px; 
         }
         input, select, button, textarea { 
             width: 100%; 
@@ -49,12 +57,6 @@
             border: 1px solid #cbd5e1; 
             box-sizing: border-box; 
             font-size: 14px; 
-            transition: all 0.2s ease;
-        }
-        input:focus, select:focus { 
-            border-color: #1a73e8; 
-            outline: none; 
-            box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
         }
         .key-row { display: flex; gap: 10px; }
         .save-key-btn {
@@ -65,41 +67,31 @@
         
         button.main-btn { 
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
-            color: white; border: none; font-weight: bold; font-size: 16px;
-            cursor: pointer; margin-top: 22px; border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3); padding: 14px;
+            color: white; border: none; font-weight: bold; font-size: 15px;
+            cursor: pointer; margin-top: 18px; border-radius: 10px; padding: 13px;
         }
-        button.main-btn:hover { transform: translateY(-1px); }
-
         button.cut-btn {
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            color: white; border: none; font-weight: bold; font-size: 16px;
-            cursor: pointer; margin-top: 12px; border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(5,150,105,0.3); padding: 14px;
+            color: white; border: none; font-weight: bold; font-size: 15px;
+            cursor: pointer; margin-top: 18px; border-radius: 10px; padding: 13px;
         }
-        button.cut-btn:hover { background: #065f46; }
         button:disabled { background: #94a3b8; cursor: not-allowed; }
 
-        #status, #editStatus { margin-top: 12px; font-weight: bold; font-size: 14px; color: #334155; }
-        
+        .status { margin-top: 10px; font-weight: bold; font-size: 13px; color: #334155; }
         .error-box { 
             background: #fef2f2; border: 1px solid #fecaca; border-left: 5px solid #ef4444; 
-            padding: 14px; border-radius: 10px; color: #991b1b; margin-top: 15px; display: none; word-break: break-all;
+            padding: 12px; border-radius: 10px; color: #991b1b; margin-top: 12px; display: none; word-break: break-all;
         }
-        video {
-            width: 100%;
-            margin-top: 15px;
-            border-radius: 10px;
-            background: #000;
-        }
+        video { width: 100%; margin-top: 15px; border-radius: 10px; background: #000; }
     </style>
 </head>
 <body>
 
+<!-- အပိုင်း (၁) : Dialogue သီးသန့် ထုတ်ပေးမည့်နေရာ -->
 <div class="card">
-    <h2>🎬 Auto Video Silence Remover & Transcriber 🇲🇲</h2>
+    <h2>🎙️ ဇာတ်ကောင်ပြောသော Dialogue စာသားများ သီးသန့်ထုတ်ရန်</h2>
     
-    <label>🔑 သုံးမည့် API Key ကို ရွေးပါ:</label>
+    <label>🔑 API Key ရွေးရန်:</label>
     <select id="activeKeySelect" onchange="onKeySelectionChange()">
         <option value="key1">🔑 API Key (၁)</option>
         <option value="key2">🔑 API Key (၂)</option>
@@ -112,28 +104,32 @@
         <button type="button" class="save-key-btn" onclick="saveActiveApiKey()">💾 Save</button>
     </div>
 
-    <label>📁 ဗီဒီယို (သို့) အသံဖိုင် တင်ပါ:</label>
-    <input type="file" id="fileInput" accept="video/*,audio/*">
+    <label>📁 အသံ (သို့) ဗီဒီယိုဖိုင် တင်ပါ:</label>
+    <input type="file" id="transcribeFileInput" accept="audio/*,video/*">
     
-    <button id="transcribeBtn" class="main-btn" onclick="transcribe()">🚀 ဇာတ်ကောင်စပြောမည့်အချိန် ညှိပြီး စာထုတ်မည်</button>
+    <button class="main-btn" onclick="extractDialogues()">✨ Dialogue စာသားများ သီးသန့်ထုတ်ယူမည်</button>
     
-    <div id="status"></div>
-    <div id="errorBox" class="error-box"></div>
+    <div id="transcribeStatus" class="status"></div>
+    <div id="transcribeError" class="error-box"></div>
     
-    <label style="margin-top:22px;">📝 ထွက်လာသည့် စာသားရလဒ် (Transcript):</label>
-    <textarea id="result" rows="6" readonly placeholder="✨ စာများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+    <label style="margin-top:18px;">📝 ထွက်လာသည့် Dialogue စာသားများ (Timestamp မပါ):</label>
+    <textarea id="dialogueResult" rows="6" readonly placeholder="✨ ဇာတ်ကောင်ပြောသည့် စာသားများသာ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+</div>
 
-    <!-- Auto Silence Removal / Video Editor Section -->
-    <hr style="margin: 25px 0; border: 0; border-top: 1px solid #cbd5e1;">
-    <h3 style="color: #059669; font-size: 18px; margin-bottom: 5px;">✂️ Auto Silence Remover (အသံတိတ်အပိုင်းများ အလိုအလျောက် ဖြတ်ထုတ်ရန်)</h3>
-    <p style="font-size: 13px; color: #64748b; margin-top: 0;">ဗီဒီယိုထဲမှ စကားမပြောဘဲ တိတ်ဆိတ်နေသော နေရာများကို ဖယ်ရှားပြီး ဇာတ်ကောင်စကားပြောသည့် အပိုင်းများကိုသာ အလိုအလျောက် ဆက်ပေးပါမည်။</p>
+<!-- အပိုင်း (၂) : ဗီဒီယို အသံတိတ်အပိုင်းများ အလိုအလျောက် ဖြတ်ထုတ်မည့်နေရာ -->
+<div class="card">
+    <h3>✂️ Auto Silence Video Cutter (အသံတိတ်များ ဖယ်ရှားရန်)</h3>
+    <p style="font-size: 13px; color: #64748b; margin-top: 2px;">ဗီဒီယိုဖိုင်တင်လိုက်တာနဲ့ အသံတိတ်နေတဲ့နေရာတွေကို အလိုအလျောက်ဖျတ်ပြီး ပြီးသားဗီဒီယိုကို သိမ်းဆည်းနိုင်ပါတယ်။</p>
 
-    <button id="autoCutBtn" class="cut-btn" onclick="autoRemoveSilence()" disabled>✂️ အသံတိတ်အပိုင်းများ ဖြတ်ထုတ်ပြီး ဗီဒီယိုအချောထည် ထုတ်မည်</button>
-    <div id="editStatus"></div>
+    <label>🎬 ဗီဒီယိုဖိုင် တင်ပါ:</label>
+    <input type="file" id="videoCutInput" accept="video/*">
+
+    <button class="cut-btn" onclick="autoRemoveSilence()">✂️ အသံတိတ်အပိုင်းများ ဖြတ်ထုတ်ပြီး ဗီဒီယိုထုတ်မည်</button>
+    <div id="cutStatus" class="status"></div>
 
     <label style="margin-top:15px;">▶️ တည်းဖြတ်ပြီး ဗီဒီယိုအချောထည် (Preview & Download):</label>
     <video id="outputVideo" controls style="display:none;"></video>
-    <a id="downloadLink" style="display:none; margin-top: 12px;" download="edited_final_video.mp4">
+    <a id="downloadLink" style="display:none; margin-top: 12px;" download="final_edited_video.mp4">
         <button class="main-btn" style="background: #0d9488; margin-top: 5px;">📥 ဗီဒီယိုကို ဖုန်းထဲသို့ Save / Download လုပ်ရန်</button>
     </a>
 </div>
@@ -153,8 +149,7 @@ function getSelectedKeyName() {
 function onKeySelectionChange() {
     const selected = getSelectedKeyName();
     const selectElem = document.getElementById('activeKeySelect');
-    const labelElem = document.getElementById('keyInputLabel');
-    labelElem.innerText = `🔑 ${selectElem.options[selectElem.selectedIndex].text} ထည့်ရန်:`;
+    document.getElementById('keyInputLabel').innerText = `🔑 ${selectElem.options[selectElem.selectedIndex].text} ထည့်ရန်:`;
     loadKeyForSelection();
 }
 
@@ -169,48 +164,35 @@ function saveActiveApiKey() {
     const keyValue = document.getElementById('apiKeyInput').value.trim();
     if (keyValue) {
         localStorage.setItem('groq_' + keyName, keyValue);
-        alert(`✅ ${document.getElementById('activeKeySelect').selectedOptions[0].text} ကို သိမ်းဆည်းပြီးပါပြီ!`);
+        alert(`✅ သိမ်းဆည်းပြီးပါပြီ!`);
     } else {
         localStorage.removeItem('groq_' + keyName);
-        alert(`🗑️ Key ကို ဖျက်လိုက်ပါပြီ။`);
+        alert(`🗑️ ဖျက်လိုက်ပါပြီ။`);
     }
 }
 
-function formatTime(seconds) {
-    const pad = (num) => String(num).padStart(2, '0');
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-}
-
-let activeSegments = []; // သိမ်းဆည်းထားမည့် ဇာတ်ကောင်စပြောသော အပိုင်းများ
-
-async function transcribe() {
+// ၁။ Dialogue သီးသန့်ထုတ်ယူခြင်း (Timestamp လုံးဝမပါ)
+async function extractDialogues() {
     const keyName = getSelectedKeyName();
     const apiKey = localStorage.getItem('groq_' + keyName) || document.getElementById('apiKeyInput').value.trim();
-    const fileInput = document.getElementById('fileInput');
-    const status = document.getElementById('status');
-    const result = document.getElementById('result');
-    const errorBox = document.getElementById('errorBox');
-    const autoCutBtn = document.getElementById('autoCutBtn');
+    const fileInput = document.getElementById('transcribeFileInput');
+    const status = document.getElementById('transcribeStatus');
+    const resultBox = document.getElementById('dialogueResult');
+    const errorBox = document.getElementById('transcribeError');
 
     errorBox.style.display = 'none';
 
-    if (!apiKey) { alert('⚠️ ကျေးဇူးပြု၍ API Key ထည့်ပါ'); return; }
-    if (!fileInput.files[0]) { alert('⚠️ ဗီဒီယို သို့မဟုတ် အသံဖိုင် ရွေးပေးပါ'); return; }
+    if (!apiKey) { alert('⚠️ API Key ထည့်ပါ'); return; }
+    if (!fileInput.files[0]) { alert('⚠️ ဖိုင်ရွေးပေးပါ'); return; }
 
     localStorage.setItem('groq_' + keyName, apiKey);
-    const file = fileInput.files[0];
-    
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', fileInput.files[0]);
     formData.append('model', 'whisper-large-v3');
     formData.append('response_format', 'verbose_json');
 
-    status.innerText = "⏳ ဖိုင်မှ အချက်အလက်များ ထုတ်ယူနေပါသည်...";
-    result.value = "";
-    autoCutBtn.disabled = true;
+    status.innerText = "⏳ စာသားများ ထုတ်ယူနေပါသည်...";
+    resultBox.value = "";
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -222,21 +204,15 @@ async function transcribe() {
         const data = await response.json();
         if (!response.ok) throw new Error(data.error?.message || 'API Error');
 
-        status.innerText = "✅ စာသားထုတ်ယူခြင်း ပြီးစီးပါပြီ။";
+        status.innerText = "✅ Dialogue ထုတ်ယူခြင်း ပြီးစီးပါပြီ။";
         let output = "";
-        activeSegments = [];
 
         let validSegments = data.segments.filter(seg => seg.text && seg.text.trim().length > 0);
-
         validSegments.forEach((seg) => {
-            activeSegments.push({ start: seg.start, end: seg.end });
-            output += `[${formatTime(seg.start)} - ${formatTime(seg.end)}] ${seg.text.trim()}\n`;
+            output += seg.text.trim() + " ";
         });
         
-        result.value = output;
-        if (activeSegments.length > 0 && file.type.startsWith('video')) {
-            autoCutBtn.disabled = false;
-        }
+        resultBox.value = output.trim();
 
     } catch (err) {
         status.innerText = "❌ အမှားတွေ့ရှိပါသည်";
@@ -245,65 +221,47 @@ async function transcribe() {
     }
 }
 
-// FFmpeg ဖြင့် အသံတိတ်အပိုင်းများ ဖယ်ရှားပြီး ဗီဒီယိုအချောထည်ထုတ်ခြင်း
+// ၂။ ဗီဒီယို အသံတိတ်အပိုင်းများ အလိုအလျောက် ဖြတ်ထုတ်ခြင်း (FFmpeg)
 async function autoRemoveSilence() {
-    const fileInput = document.getElementById('fileInput');
-    const editStatus = document.getElementById('editStatus');
+    const fileInput = document.getElementById('videoCutInput');
+    const cutStatus = document.getElementById('cutStatus');
     const outputVideo = document.getElementById('outputVideo');
     const downloadLink = document.getElementById('downloadLink');
 
-    if (!fileInput.files[0] || activeSegments.length === 0) {
-        alert('⚠️ ဖြတ်ထုတ်ရန် အချက်အလက် မလုံလောက်ပါ။');
+    if (!fileInput.files[0]) {
+        alert('⚠️ ကျေးဇူးပြု၍ တည်းဖြတ်မည့် ဗီဒီယိုဖိုင်ကို ရွေးပေးပါ။');
         return;
     }
 
     if (!ffmpeg) {
-        editStatus.innerText = "⏳ ဗီဒီယိုတည်းဖြတ်စနစ်ကို စတင်ဒေါင်းလုပ်လုပ်နေပါသည် (ခဏစောင့်ပါ)...";
+        cutStatus.innerText = "⏳ ဗီဒီယို တည်းဖြတ်စနစ်ကို စတင်ဒေါင်းလုပ်လုပ်နေပါသည် (ခဏစောင့်ပါ)...";
         try {
             ffmpeg = createFFmpeg({ log: true });
             await ffmpeg.load();
         } catch (e) {
-            editStatus.innerText = "❌ FFmpeg စတင်၍မရပါ။";
+            cutStatus.innerText = "❌ စနစ်စတင်၍မရပါ။";
             return;
         }
     }
 
-    editStatus.innerText = "⏳ ဗီဒီယိုကို အသံတိတ်နေရာများ ဖယ်ရှားကာ တည်းဖြတ်နေပါပြီ...";
+    cutStatus.innerText = "⏳ ဗီဒီယိုထဲမှ အသံတိတ်နေသော နေရာများကို ရှာဖွေဖြတ်တောက်နေပါပြီ...";
     const file = fileInput.files[0];
-    const inputName = 'input.mp4';
+    const inputName = 'input_video.mp4';
     
     ffmpeg.FS('writeFile', inputName, await fetchFile(file));
 
-    // FFmpeg filter complex တည်ဆောက်ခြင်း (ဇာတ်ကောင်စပြောသော အပိုင်းများကိုသာ ညှပ်ဆက်ရန်)
-    let filterParts = [];
-    let concatInputs = [];
-    
-    activeSegments.forEach((seg, index) => {
-        // အချိန်အကွာအဝေး အနည်းဆုံး 0.3 စက္ကန့်ရှိမှသာ ယူမည်
-        if (seg.end - seg.start > 0.2) {
-            filterParts.push(`[0:v]trim=start=${seg.start}:end=${seg.end},setpts=PTS-STARTPTS[v${index}];[0:a]atrim=start=${seg.start}:end=${seg.end},asetpts=PTS-STARTPTS[a${index}]`);
-            concatInputs.push(`[v${index}][a${index}]`);
-        }
-    });
-
-    if (concatInputs.length === 0) {
-        editStatus.innerText = "❌ ညှပ်ထုတ်ရန် အပိုင်းအစ မတွေ့ပါ။";
-        return;
-    }
-
-    let filterScript = filterParts.join(';') + `;${concatInputs.join('')}concat=n=${concatInputs.length}:v=1:a=1[outv][outa]`;
-
     try {
+        // FFmpeg silencedetect filter ကိုသုံးပြီး အသံတိတ်တဲ့ အပိုင်းတွေကို အလိုအလျောက် ဖြတ်ထုတ်ရန်
+        // (-1:32 silenceremove filter)
         await ffmpeg.run(
             '-i', inputName,
-            '-filter_complex', filterScript,
-            '-map', '[outv]',
-            '-map', '[outa]',
-            'output.mp4'
+            '-af', 'silenceremove=start_periods=1:start_silence=0.8:start_threshold=-45dB:detection=peak,areverse,silenceremove=start_periods=1:start_silence=0.8:start_threshold=-45dB:detection=peak,areverse',
+            '-video_track_timescale', '1000',
+            'output_video.mp4'
         );
 
-        editStatus.innerText = "✅ ဗီဒီယို တည်းဖြတ်ခြင်း အောင်မြင်ပါသည်။ Save ပြုလုပ်နိုင်ပါပြီ!";
-        const data = ffmpeg.FS('readFile', 'output.mp4');
+        cutStatus.innerText = "✅ ဗီဒီယိုတည်းဖြတ်ပြီးပါပြီ။ Download ဆွဲနိုင်ပါပြီ!";
+        const data = ffmpeg.FS('readFile', 'output_video.mp4');
         
         const videoBlob = new Blob([data.buffer], { type: 'video/mp4' });
         const videoUrl = URL.createObjectURL(videoBlob);
@@ -314,7 +272,7 @@ async function autoRemoveSilence() {
         downloadLink.style.display = 'block';
 
     } catch (err) {
-        editStatus.innerText = "❌ ဗီဒီယိုတည်းဖြတ်ရာတွင် အမှားဖြစ်သွားပါသည်။";
+        cutStatus.innerText = "❌ ဗီဒီယိုတည်းဖြတ်ရာတွင် အမှားဖြစ်သွားပါသည်။";
         console.error(err);
     }
 }
