@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PWA Manifest & Theme -->
     <meta name="theme-color" content="#10b981">
-    <link id="pwa-manifest" rel="manifest" href="">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 font-sans">
     <div class="max-w-4xl mx-auto space-y-4">
@@ -142,33 +142,13 @@
     <video id="hiddenMediaElement" class="hidden" preload="auto"></video>
 
     <script>
-        // --- PWA Dynamic Manifest & Service Worker Registration ---
-        const manifestData = {
-            "name": "Video Transcriber",
-            "short_name": "Transcriber",
-            "start_url": "./index.html",
-            "display": "standalone",
-            "background_color": "#020617",
-            "theme_color": "#10b981",
-            "icons": [{
-                "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
-                "sizes": "512x512",
-                "type": "image/png"
-            }]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-        document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
-
+        // --- PWA Service Worker Registration ---
         if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-            `;
-            const swBlob = new Blob([swCode], { type: 'text/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob))
-                .then(reg => console.log('PWA Service Worker Registered'))
-                .catch(err => console.log('SW Error', err));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('SW Error', err));
+            });
         }
 
         // --- LocalStorage API Key Management System ---
@@ -211,7 +191,7 @@
         setupKeyManagement('groqApiKeyInput', 'groqKeyHistory', 'groq_keys_list');
         setupKeyManagement('geminiApiKeyInput', 'geminiKeyHistory', 'gemini_keys_list');
 
-        // --- 1. Groq Transcription Logic (Multi-Language Auto Detect) ---
+        // --- 1. Groq Transcription Logic ---
         document.getElementById('groqTranscribeBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('groqApiKeyInput').value.trim();
             const fileInput = document.getElementById('groqAudioInput');
@@ -236,7 +216,6 @@
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
                 formData.append('model', 'whisper-large-v3');
-                // ထည့်သွင်းထားသော ဖိုင်၏ မူရင်းဘာသာစကားအတိုင်း အလိုအလျောက်ဖော်ပြရန် (Multi-language support)
 
                 const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
                     method: 'POST',
@@ -260,7 +239,7 @@
             navigator.clipboard.writeText(el.value).then(() => alert('ကူးယူပြီးပါပြီ!'));
         });
 
-        // --- 2. Gemini Transcription Logic (Multi-Language Auto Detect) ---
+        // --- 2. Gemini Transcription Logic ---
         document.getElementById('geminiTranscribeBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('geminiApiKeyInput').value.trim();
             const fileInput = document.getElementById('geminiAudioInput');
@@ -328,7 +307,7 @@
             });
         }
 
-        // --- 3. Safe Audio/Video File Size Compressor Logic (Streaming via MediaRecorder) ---
+        // --- 3. Safe Audio/Video File Size Compressor Logic ---
         document.getElementById('compressBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('compressAudioInput');
             const status = document.getElementById('compressStatus');
@@ -402,7 +381,7 @@
 
             } catch (error) {
                 status.textContent = 'အမှား: ' + error.message;
-    }
+            }
         });
     </script>
 </body>
