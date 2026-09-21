@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Separate Voiceover Tool</title>
+    <title>AI Video Studio Pro - Audio Download Voiceover</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-4">
@@ -12,7 +12,7 @@
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
                 <span>⚡</span> AI Video Studio Pro
             </h1>
-            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်းနှင့် မြန်မာစာအတွက် သီးသန့်အသံထွက်/ဖိုင်သိမ်းစနစ်</p>
+            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်းနှင့် မြန်မာစာမှ အသံဖိုင် (MP3) ထုတ်ယူခြင်း</p>
         </header>
 
         <!-- Option 1: Chinese Audio to Chinese Text (Groq Whisper) -->
@@ -48,25 +48,34 @@
             </div>
         </div>
 
-        <!-- Option 2: Separate Burmese Voiceover & Download Tool -->
+        <!-- Option 2: Burmese Text to Voiceover Audio Download Tool -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🇲🇲</span> ၂။ အခြားနေရာမှ ဘာသာပြန်လာသော မြန်မာစာအတွက် အသံထုတ်/ဖိုင်သိမ်းကွက်
+                <span>🇲🇲</span> ၂။ မြန်မာစာမှ အသံဖိုင် (Voiceover MP3) တိုက်ရိုက်ထုတ်ရန်
             </h2>
-            <p class="text-[11px] text-slate-400">💡 ဘာသာပြန်ထားသော မြန်မာစာသားများကို အောက်ပါကွက်လပ်ထဲသို့ ထည့်ပြီး အသံထွက်ခိုင်းရန် သို့မဟုတ် ဖိုင်သိမ်းရန် သုံးပါ။</p>
+            <p class="text-[11px] text-slate-400">💡 ဘာသာပြန်ထားသော မြန်မာစာများကို ထည့်ပြီး ဗီဒီယိုထဲထည့်ရန် အသံဖိုင် (Audio) အဖြစ် ဒေါင်းလုပ်ဆွဲပါ။</p>
 
             <div class="space-y-2">
-                <label class="block text-xs text-slate-300 font-semibold">✍️ မြန်မာစာသားများ ထည့်ရန် (သို့) ကူးထည့်ရန်:</label>
-                <textarea id="burmeseInput" rows="6" placeholder="အခြားနေရာမှ ဘာသာပြန်လာသော မြန်မာစာများကို ဤနေရာတွင် Paste လုပ်ပါ..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
+                <label class="block text-xs text-slate-300 font-semibold">✍️ မြန်မာစာသားများ ထည့်ရန်:</label>
+                <textarea id="burmeseInput" rows="5" placeholder="အသံဖိုင်ထုတ်မည့် မြန်မာစာများကို ဤနေရာတွင် Paste လုပ်ပါ..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
                 
-                <!-- Action Buttons: Voiceover, Download -->
+                <!-- Action Buttons -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                    <button id="voiceoverBtn" class="bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
-                        <span>🔊</span> အသံထွက်ဖတ်ရန် (Voiceover)
+                    <button id="generateAudioBtn" class="bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
+                        <span>🎙️</span> အသံဖိုင်ထုတ်မည် (Generate Audio)
                     </button>
-                    <button id="downloadBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
-                        <span>💾</span> ဖိုင်သိမ်းရန် (.txt Download)
+                    <button id="downloadTextBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
+                        <span>💾</span> စာသားဖိုင်သိမ်းရန် (.txt)
                     </button>
+                </div>
+
+                <!-- Audio Player & Download Area -->
+                <div id="audioPlayerArea" class="hidden pt-3 space-y-2">
+                    <p class="text-xs text-emerald-400 font-medium">✨ အသံဖိုင် ထွက်ရှိလာပါပြီ -</p>
+                    <audio id="audioResult" controls class="w-full h-10"></audio>
+                    <a id="downloadAudioLink" class="block w-full text-center bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 rounded-lg text-xs transition shadow-lg">
+                        📥 အသံဖိုင် (MP3) ဒေါင်းလုပ်ဆွဲရန်
+                    </a>
                 </div>
             </div>
         </div>
@@ -123,41 +132,73 @@
             navigator.clipboard.writeText(el.value).then(() => alert('စာသားများကို ကူးယူပြီးပါပြီ!'));
         });
 
-        // Option 2: Independent Burmese Voiceover Feature
-        document.getElementById('voiceoverBtn').addEventListener('click', () => {
-            const textToSpeak = document.getElementById('burmeseInput').value.trim();
-            if (!textToSpeak) {
-                alert('ဖတ်ပြရန် မြန်မာစာသား မရှိသေးပါ။');
+        // Option 2: Generate Real Audio File (TTS API integration)
+        document.getElementById('generateAudioBtn').addEventListener('click', async () => {
+            const text = document.getElementById('burmeseInput').value.trim();
+            const audioPlayerArea = document.getElementById('audioPlayerArea');
+            const audioResult = document.getElementById('audioResult');
+            const downloadAudioLink = document.getElementById('downloadAudioLink');
+
+            if (!text) {
+                alert('အသံဖိုင်ထုတ်ရန် စာသား ထည့်သွင်းပေးပါ။');
                 return;
             }
 
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                let utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'my-MM'; // မြန်မာအသံထွက်အတွက်
-                utterance.rate = 1.0;
-                window.speechSynthesis.speak(utterance);
-            } else {
-                alert('သင့်ဘရောက်ဆာတွင် Voiceover စနစ်ကို မပံ့ပိုးပါ။');
+            alert('အသံဖိုင် (Voiceover) ဖန်တီးနေပါပြီ...');
+
+            try {
+                // Using Streamlabs / ResponsiveVoice or public TTS endpoints that return audio streams
+                // Here we use a reliable public TTS proxy for generating speech audio blobs
+                const encodedText = encodeURIComponent(text);
+                // Standard TTS endpoint or Google TTS web proxy
+                const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=my&client=tw-ob`;
+
+                const response = await fetch(ttsUrl);
+                if (!response.ok) throw new Error('အသံဖိုင် ထုတ်ယူ၍ မရပါ။');
+
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+
+                audioResult.src = audioUrl;
+                downloadAudioLink.href = audioUrl;
+                downloadAudioLink.download = 'voiceover_audio.mp3';
+                
+                audioPlayerArea.classList.remove('hidden');
+                alert('အသံဖိုင် ထုတ်လုပ်ခြင်း အောင်မြင်ပါပြီ!');
+
+            } catch (error) {
+                // Fallback using Responsive/Proxy TTS if Google TTS blocks direct fetch due to CORS
+                try {
+                    const fallbackUrl = `https://api.streamelements.com/kappa/v2/speech?voice=Brian&text=${encodeURIComponent(text)}`;
+                    const res = await fetch(fallbackUrl);
+                    if(!res.ok) throw new Error('Fallback failed');
+                    const blob = await res.blob();
+                    const audioUrl = URL.createObjectURL(blob);
+
+                    audioResult.src = audioUrl;
+                    downloadAudioLink.href = audioUrl;
+                    downloadAudioLink.download = 'voiceover_audio.mp3';
+                    audioPlayerArea.classList.remove('hidden');
+                    alert('အသံဖိုင် ထုတ်လုပ်ခြင်း အောင်မြင်ပါပြီ!');
+                } catch(err) {
+                    alert('အသံဖိုင်ထုတ်လုပ်ရာတွင် အမှားရှိနေပါသည်။ ဘရောက်ဆာ CORS ကန့်သတ်ချက်ကြောင့် ဖြစ်နိုင်ပါသည်။');
+                }
             }
         });
 
-        // Option 2: Independent Burmese Download Feature
-        document.getElementById('downloadBtn').addEventListener('click', () => {
+        // Option 2: Text Download
+        document.getElementById('downloadTextBtn').addEventListener('click', () => {
             const textContent = document.getElementById('burmeseInput').value.trim();
             if (!textContent) {
-                alert('ဒေါင်းလုပ်ဆွဲရန် မြန်မာစာသား မရှိသေးပါ။');
+                alert('ဒေါင်းလုပ်ဆွဲရန် စာသား မရှိသေးပါ။');
                 return;
             }
 
-            const filename = 'burmese_script.txt';
             let element = document.createElement('a');
             let file = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
             element.href = URL.createObjectURL(file);
-            element.download = filename;
-            document.body.appendChild(element);
+            element.download = 'burmese_script.txt';
             element.click();
-            document.body.removeChild(element);
         });
     </script>
 </body>
