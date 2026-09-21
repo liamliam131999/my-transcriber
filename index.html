@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Hacker Studio Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PWA Manifest & Theme -->
+    <meta name="theme-color" content="#10b981">
+    <link id="pwa-manifest" rel="manifest" href="">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 font-sans">
     <div class="max-w-4xl mx-auto space-y-4">
@@ -110,7 +113,7 @@
             <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
                 <span class="text-base">📉</span> ၃။ အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ဆိုဒ်လျှော့ချရန် (Compressor)
             </h2>
-            <p class="text-[10px] text-slate-400 font-mono">💡 ကြီးမားသော ဗီဒီယို သို့မဟုတ် အသံဖိုင်များကို ဘရောက်ဆာ Error မတက်ဘဲ ဖိုင်ဆိုဒ်သေးငယ်သော အသံဖိုင် (WebAudio/WebM) အဖြစ်သို့ ပြောင်းလဲပေးပါသည်။</p>
+            <p class="text-[10px] text-slate-400 font-mono">💡 ကြီးမားသော ဗီဒီယို သို့မဟုတ် အသံဖိုင်များကို ဘရောက်ဆာ Error မတက်ဘဲ ဖိုင်ဆိုဒ်သေးငယ်သော အသံဖိုင်အဖြစ်သို့ ပြောင်းလဲပေးပါသည်။</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
                 <div class="sm:col-span-2">
@@ -139,6 +142,35 @@
     <video id="hiddenMediaElement" class="hidden" preload="auto"></video>
 
     <script>
+        // --- PWA Dynamic Manifest & Service Worker Registration ---
+        const manifestData = {
+            "name": "AI Hacker Studio Pro",
+            "short_name": "HackerStudio",
+            "start_url": "./index.html",
+            "display": "standalone",
+            "background_color": "#020617",
+            "theme_color": "#10b981",
+            "icons": [{
+                "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+        document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+            `;
+            const swBlob = new Blob([swCode], { type: 'text/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+                .then(reg => console.log('PWA Service Worker Registered'))
+                .catch(err => console.log('SW Error', err));
+        }
+
         // --- LocalStorage API Key Management System ---
         function setupKeyManagement(inputId, selectId, storageKey) {
             const input = document.getElementById(inputId);
@@ -325,7 +357,6 @@
 
                 status.textContent = 'ဖိုင်ဆိုဒ် လျှော့ချရန် အသံဖမ်းယူနေပါပြီ...';
 
-                // Setup Stream Capture
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') {
                     await audioCtx.resume();
@@ -334,7 +365,7 @@
                 const sourceNode = audioCtx.createMediaElementSource(mediaElement);
                 const destination = audioCtx.createMediaStreamDestination();
                 sourceNode.connect(destination);
-                sourceNode.connect(audioCtx.destination); // Playback safely in background
+                sourceNode.connect(audioCtx.destination);
 
                 const recorder = new MediaRecorder(destination.stream, { 
                     mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' 
