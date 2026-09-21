@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Fixed Version</title>
+    <title>AI Video Studio Pro - Separate Voiceover Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-4">
@@ -12,13 +12,13 @@
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
                 <span>⚡</span> AI Video Studio Pro
             </h1>
-            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း၊ အပိုင်းလိုက်ခွဲ၍ မြန်မာလိုဘာသာပြန်ခြင်း</p>
+            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်းနှင့် မြန်မာစာအတွက် သီးသန့်အသံထွက်/ဖိုင်သိမ်းစနစ်</p>
         </header>
 
         <!-- Option 1: Chinese Audio to Chinese Text (Groq Whisper) -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🇨🇳</span> ၁။ တရုတ်အသံမှ မူရင်းတရုတ်စာသား ထုတ်ရန် (Groq Whisper API)
+                <span>🇨🇳</span> ၁။ တရုတ်အသံမှ မူရင်းစာသား ထုတ်ယူရန် (Groq Whisper API)
             </h2>
             
             <div>
@@ -32,7 +32,7 @@
             </div>
 
             <button id="transcribeBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
-                <span>🎯</span> တရုတ်စာသားများ ထုတ်ယူမည် (Transcribe)
+                <span>🎯</span> စာသားများ ထုတ်ယူမည် (Transcribe)
             </button>
 
             <div id="statusBox" class="p-3 rounded-lg text-xs hidden bg-slate-900 border border-slate-700">
@@ -40,42 +40,32 @@
             </div>
 
             <div id="resultArea" class="hidden space-y-2">
-                <label class="block text-xs text-slate-300 font-semibold">📜 ထွက်လာသော မူရင်းတရုတ်စာသားများ:</label>
-                <textarea id="resultOutput" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
+                <label class="block text-xs text-slate-300 font-semibold">📜 ထွက်လာသော စာသားများ:</label>
+                <textarea id="resultOutput" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
                 <button id="copyChineseBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded-lg text-xs transition">
-                    📋 တရုတ်စာသားများ ကူးယူရန် (Copy)
+                    📋 စာသားများ ကူးယူရန် (Copy)
                 </button>
             </div>
         </div>
 
-        <!-- Option 2: Translate Chinese Text to Burmese (Chunked Translation) -->
+        <!-- Option 2: Separate Burmese Voiceover & Download Tool -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🇲🇲</span> ၂။ မြန်မာဘာသာသို့ အပိုင်းလိုက် ဘာသာပြန်ရန်
+                <span>🇲🇲</span> ၂။ အခြားနေရာမှ ဘာသာပြန်လာသော မြန်မာစာအတွက် အသံထုတ်/ဖိုင်သိမ်းကွက်
             </h2>
-            <p class="text-[11px] text-slate-400">💡 စာသားအရှည်ကြီးများကို အပိုင်းခွဲ၍ အမှားအယွင်းမရှိ ဘာသာပြန်ပေးပါမည်။</p>
+            <p class="text-[11px] text-slate-400">💡 ဘာသာပြန်ထားသော မြန်မာစာသားများကို အောက်ပါကွက်လပ်ထဲသို့ ထည့်ပြီး အသံထွက်ခိုင်းရန် သို့မဟုတ် ဖိုင်သိမ်းရန် သုံးပါ။</p>
 
-            <button id="translateBtn" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
-                <span>🔄</span> မြန်မာဘာသာသို့ ဘာသာပြန်မည် (Translate)
-            </button>
-
-            <div id="translateStatusBox" class="p-3 rounded-lg text-xs hidden bg-slate-900 border border-slate-700">
-                <span id="translateStatusText">အဆင်သင့်ဖြစ်ပါပြီ။</span>
-            </div>
-
-            <div id="translationArea" class="hidden space-y-3">
-                <label class="block text-xs text-slate-300 font-semibold">🇲🇲 ဘာသာပြန်ထားသော မြန်မာစာ Dialogue များ:</label>
-                <textarea id="translationOutput" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
+            <div class="space-y-2">
+                <label class="block text-xs text-slate-300 font-semibold">✍️ မြန်မာစာသားများ ထည့်ရန် (သို့) ကူးထည့်ရန်:</label>
+                <textarea id="burmeseInput" rows="6" placeholder="အခြားနေရာမှ ဘာသာပြန်လာသော မြန်မာစာများကို ဤနေရာတွင် Paste လုပ်ပါ..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button id="copyBurmeseBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1">
-                        <span>📋</span> ကူးယူရန် (Copy)
-                    </button>
-                    <button id="voiceoverBtn" class="bg-purple-600 hover:bg-purple-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                <!-- Action Buttons: Voiceover, Download -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                    <button id="voiceoverBtn" class="bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
                         <span>🔊</span> အသံထွက်ဖတ်ရန် (Voiceover)
                     </button>
-                    <button id="downloadBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1">
-                        <span>💾</span> ဖိုင်သိမ်းရန် (Download)
+                    <button id="downloadBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
+                        <span>💾</span> ဖိုင်သိမ်းရန် (.txt Download)
                     </button>
                 </div>
             </div>
@@ -83,15 +73,16 @@
     </div>
 
     <script>
+        // Option 1: Transcribe Audio
         document.getElementById('transcribeBtn').addEventListener('click', async () => {
-            const apiKey = document.getElementById('groqApiKeyInput').value.trim();
+            const keyVal = document.getElementById('groqApiKeyInput').value.trim();
             const fileInput = document.getElementById('audioInput');
             const statusBox = document.getElementById('statusBox');
             const statusText = document.getElementById('statusText');
             const resultArea = document.getElementById('resultArea');
             const resultOutput = document.getElementById('resultOutput');
 
-            if (!apiKey || fileInput.files.length === 0) {
+            if (!keyVal || fileInput.files.length === 0) {
                 statusBox.classList.remove('hidden');
                 statusText.innerHTML = '<span class="text-red-400">API Key နှင့် အသံဖိုင်ကို သေချာထည့်ပါ။</span>';
                 return;
@@ -100,7 +91,7 @@
             const mediaFile = fileInput.files[0];
             resultArea.classList.add('hidden');
             statusBox.classList.remove('hidden');
-            statusText.textContent = 'တရုတ်အသံဖိုင်ကို စာသားပြောင်းနေပါပြီ...';
+            statusText.textContent = 'အသံဖိုင်ကို စာသားပြောင်းနေပါပြီ (ခဏစောင့်ပါ)...';
 
             try {
                 const formData = new FormData();
@@ -110,7 +101,7 @@
 
                 const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${apiKey}` },
+                    headers: { 'Authorization': `Bearer ${keyVal}` },
                     body: formData
                 });
 
@@ -126,92 +117,47 @@
             }
         });
 
-        // Chunked Translation Function to handle long texts
-        document.getElementById('translateBtn').addEventListener('click', async () => {
-            const chineseText = document.getElementById('resultOutput').value.trim();
-            const translateStatusBox = document.getElementById('translateStatusBox');
-            const translateStatusText = document.getElementById('translateStatusText');
-            const translationArea = document.getElementById('translationArea');
-            const translationOutput = document.getElementById('translationOutput');
+        document.getElementById('copyChineseBtn').addEventListener('click', () => {
+            const el = document.getElementById('resultOutput');
+            el.select();
+            navigator.clipboard.writeText(el.value).then(() => alert('စာသားများကို ကူးယူပြီးပါပြီ!'));
+        });
 
-            if (!chineseText) {
-                translateStatusBox.classList.remove('hidden');
-                translateStatusText.innerHTML = '<span class="text-red-400">ဘာသာပြန်ရန် စာသားမရှိပါ။</span>';
+        // Option 2: Independent Burmese Voiceover Feature
+        document.getElementById('voiceoverBtn').addEventListener('click', () => {
+            const textToSpeak = document.getElementById('burmeseInput').value.trim();
+            if (!textToSpeak) {
+                alert('ဖတ်ပြရန် မြန်မာစာသား မရှိသေးပါ။');
                 return;
             }
 
-            translationArea.classList.add('hidden');
-            translateStatusBox.classList.remove('hidden');
-            translateStatusText.textContent = 'စာသားများကို အပိုင်းလိုက်ခွဲ၍ ဘာသာပြန်နေပါပြီ...';
-
-            try {
-                // Split text into chunks of roughly 400 characters to prevent fetch limits
-                const chunks = [];
-                let currentChunk = '';
-                const sentences = chineseText.split(/([。！？\n])/);
-
-                for (let part of sentences) {
-                    if ((currentChunk + part).length > 400) {
-                        chunks.push(currentChunk);
-                        currentChunk = part;
-                    } else {
-                        currentChunk += part;
-                    }
-                }
-                if (currentChunk) chunks.push(currentChunk);
-
-                let fullTranslatedText = '';
-                for (let i = 0; i < chunks.length; i++) {
-                    translateStatusText.textContent = `အပိုင်း (${i + 1} / ${chunks.length}) ကို ဘာသာပြန်နေပါပြီ...`;
-                    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh&tl=my&dt=t&q=${encodeURIComponent(chunks[i])}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error(`အပိုင်း ${i + 1} ဘာသာပြန်မရပါ။`);
-                    
-                    const data = await res.json();
-                    if (data && data[0]) {
-                        data[0].forEach(item => {
-                            if (item[0]) fullTranslatedText += item[0];
-                        });
-                    }
-                }
-
-                translateStatusText.textContent = 'ဘာသာပြန်ဆိုမှု အောင်မြင်ပါပြီ!';
-                translationOutput.value = fullTranslatedText;
-                translationArea.classList.remove('hidden');
-
-            } catch (error) {
-                translateStatusBox.classList.remove('hidden');
-                translateStatusText.innerHTML = `<span class="text-red-400">ဘာသာပြန်အမှား: ${error.message}</span>`;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'my-MM'; // မြန်မာအသံထွက်အတွက်
+                utterance.rate = 1.0;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('သင့်ဘရောက်ဆာတွင် Voiceover စနစ်ကို မပံ့ပိုးပါ။');
             }
         });
 
-        document.getElementById('copyChineseBtn').addEventListener('click', () => {
-            navigator.clipboard.writeText(document.getElementById('resultOutput').value);
-            alert('ကူးယူပြီးပါပြီ!');
-        });
-
-        document.getElementById('copyBurmeseBtn').addEventListener('click', () => {
-            navigator.clipboard.writeText(document.getElementById('translationOutput').value);
-            alert('ကူးယူပြီးပါပြီ!');
-        });
-
-        document.getElementById('voiceoverBtn').addEventListener('click', () => {
-            const text = document.getElementById('translationOutput').value;
-            if (!text) return;
-            window.speechSynthesis.cancel();
-            let utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'my-MM';
-            window.speechSynthesis.speak(utterance);
-        });
-
+        // Option 2: Independent Burmese Download Feature
         document.getElementById('downloadBtn').addEventListener('click', () => {
-            const text = document.getElementById('translationOutput').value;
-            if (!text) return;
-            let blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'translation.txt';
-            link.click();
+            const textContent = document.getElementById('burmeseInput').value.trim();
+            if (!textContent) {
+                alert('ဒေါင်းလုပ်ဆွဲရန် မြန်မာစာသား မရှိသေးပါ။');
+                return;
+            }
+
+            const filename = 'burmese_script.txt';
+            let element = document.createElement('a');
+            let file = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            element.href = URL.createObjectURL(file);
+            element.download = filename;
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         });
     </script>
 </body>
