@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groq Audio Transcriber & Voice Reader</title>
     
-    <!-- PWA Manifest inline ကို data URL အနေဖြင့် ချိတ်ဆက်ခြင်း -->
-    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22my-transcriber%22%2C%22short_name%22%3A%22Transcriber%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23ffffff%22%2C%22description%22%3A%22Audio%20to%20Burmese%20Text%20Transcriber%20App%22%2C%22id%22%3A%22com.groq.transcriber%22%7D'>
+    <!-- Manifest with Built-in Icon -->
+    <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22my-transcriber%22%2C%22short_name%22%3A%22Transcriber%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%231a73e8%22%2C%22description%22%3A%22Audio%20to%20Burmese%20Text%20Transcriber%20App%22%2C%22id%22%3A%22com.groq.transcriber%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fapi.iconify.design%2Ffluent-emoji%3Astudio-microphone.svg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D'>
 
     <style>
         body { 
@@ -96,19 +96,6 @@
         button.voice-btn:hover { background: #047857; }
         button:disabled { background: #94a3b8; cursor: not-allowed; }
 
-        .usage-box { 
-            background: #f0f9ff; 
-            border: 1px solid #bae6fd;
-            border-left: 5px solid #0284c7; 
-            padding: 14px; 
-            border-radius: 10px; 
-            margin-top: 18px; 
-            font-size: 13.5px; 
-        }
-        .usage-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .progress-bar-bg { background: #e0f2fe; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 8px; }
-        .progress-bar-fill { background: #0284c7; height: 100%; width: 0%; transition: width 0.4s ease; }
-        
         #status { margin-top: 15px; font-weight: bold; font-size: 14px; color: #334155; }
         .error-box { 
             background: #fef2f2; 
