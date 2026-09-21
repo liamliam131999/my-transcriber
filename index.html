@@ -14,7 +14,7 @@
                 <span>💻</span> AI HACKER STUDIO PRO
             </h1>
             <p class="text-[11px] text-rose-400 font-medium bg-rose-950/70 py-1.5 px-2 rounded-xl border border-rose-900/50 inline-block">
-                ⚠️ သတိပြုရန် - အသံဖိုင်/ဗီဒီယိုဖိုင်သည် 25MB size ထက် မကျော်ရပါ။
+                ⚠️ သတိပြုရန် - Groq/Gemini သို့ တိုက်ရိုက်တင်ရန် ဖိုင်ဆိုဒ်သည် 25MB ထက် မကျော်ရပါ။
             </p>
         </header>
 
@@ -110,7 +110,7 @@
             <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
                 <span class="text-base">📉</span> ၃။ အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ဆိုဒ်လျှော့ချရန် (Compressor)
             </h2>
-            <p class="text-[10px] text-slate-400 font-mono">💡 25MB ကျော်နေသော ဗီဒီယို သို့မဟုတ် အသံဖိုင်များကို ဖိုင်ဆိုဒ်သေးငယ်သော အသံဖိုင် (WAV) အဖြစ်သို့ ပြောင်းလဲပေးပါသည်။</p>
+            <p class="text-[10px] text-slate-400 font-mono">💡 ကြီးမားသော ဗီဒီယို သို့မဟုတ် အသံဖိုင်များကို ဘရောက်ဆာ Error မတက်ဘဲ ဖိုင်ဆိုဒ်သေးငယ်သော အသံဖိုင် (WebAudio/WebM) အဖြစ်သို့ ပြောင်းလဲပေးပါသည်။</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
                 <div class="sm:col-span-2">
@@ -129,11 +129,14 @@
                 <p class="text-[11px] text-emerald-400 font-medium font-mono">✨ ဆိုဒ်လျှော့ချပြီးသား အသံဖိုင် (ရလဒ်) -</p>
                 <audio id="compressedAudioPlayer" controls class="w-full h-8"></audio>
                 <a id="downloadCompressedLink" class="block w-full text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded-xl text-xs transition shadow-md font-mono">
-                    📥 ဒေါင်းလုပ်ဆွဲရန် (Download WAV)
+                    📥 ဒေါင်းလုပ်ဆွဲရန် (Download Audio)
                 </a>
             </div>
         </div>
     </div>
+
+    <!-- Hidden Media Element for Safe Processing -->
+    <video id="hiddenMediaElement" class="hidden" preload="auto"></video>
 
     <script>
         // --- LocalStorage API Key Management System ---
@@ -292,13 +295,14 @@
             });
         }
 
-        // --- 3. Audio/Video File Size Compressor Logic ---
+        // --- 3. Safe Audio/Video File Size Compressor Logic (Streaming via MediaRecorder) ---
         document.getElementById('compressBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('compressAudioInput');
             const status = document.getElementById('compressStatus');
             const resultArea = document.getElementById('compressedResultArea');
             const audioPlayer = document.getElementById('compressedAudioPlayer');
             const downloadLink = document.getElementById('downloadCompressedLink');
+            const mediaElement = document.getElementById('hiddenMediaElement');
 
             if (fileInput.files.length === 0) {
                 alert('အသံဖိုင် (သို့) ဗီဒီယိုဖိုင်ကို ရွေးချယ်ပေးပါ။');
@@ -307,76 +311,67 @@
 
             const file = fileInput.files[0];
             status.classList.remove('hidden');
-            status.textContent = 'ဖိုင်ကို ဖတ်ရှုပြီး ဆိုဒ်လျှော့ချနေပါပြီ (ခဏစောင့်ပါ)...';
+            status.textContent = 'ဖိုင်ကို စတင်ဖတ်ရှုနေပါပြီ (ခဏစောင့်ပါ)...';
             resultArea.classList.add('hidden');
 
             try {
-                const arrayBuffer = await file.arrayBuffer();
+                const fileURL = URL.createObjectURL(file);
+                mediaElement.src = fileURL;
+                
+                await new Promise((resolve, reject) => {
+                    mediaElement.onloadedmetadata = () => resolve();
+                    mediaElement.onerror = () => reject(new Error('ဖိုင်ကို ဖွင့်၍မရပါ။'));
+                });
+
+                status.textContent = 'ဖိုင်ဆိုဒ် လျှော့ချရန် အသံဖမ်းယူနေပါပြီ...';
+
+                // Setup Stream Capture
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
 
-                const targetSampleRate = 16000;
-                const offlineCtx = new OfflineAudioContext(
-                    1, 
-                    Math.ceil(audioBuffer.duration * targetSampleRate), 
-                    targetSampleRate
-                );
+                const sourceNode = audioCtx.createMediaElementSource(mediaElement);
+                const destination = audioCtx.createMediaStreamDestination();
+                sourceNode.connect(destination);
+                sourceNode.connect(audioCtx.destination); // Playback safely in background
 
-                const source = offlineCtx.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(offlineCtx.destination);
-                source.start(0);
+                const recorder = new MediaRecorder(destination.stream, { 
+                    mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' 
+                });
 
-                const renderedBuffer = await offlineCtx.startRendering();
-                const wavBlob = bufferToWaveBlob(renderedBuffer);
-                const compressedUrl = URL.createObjectURL(wavBlob);
+                const chunks = [];
+                recorder.ondataavailable = e => chunks.push(e.data);
+                
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    audioPlayer.src = url;
+                    downloadLink.href = url;
+                    downloadLink.download = 'compressed_' + file.name.replace(/\.[^/.]+$/, "") + '.webm';
 
-                audioPlayer.src = compressedUrl;
-                downloadLink.href = compressedUrl;
-                downloadLink.download = 'compressed_' + file.name.replace(/\.[^/.]+$/, "") + '.wav';
+                    status.textContent = 'ဖိုင်ဆိုဒ် လျှော့ချခြင်း အောင်မြင်ပါပြီ!';
+                    resultArea.classList.remove('hidden');
+                    URL.revokeObjectURL(fileURL);
+                };
 
-                status.textContent = 'ဖိုင်ဆိုဒ် လျှော့ချခြင်း အောင်မြင်ပါပြီ!';
-                resultArea.classList.remove('hidden');
+                mediaElement.onended = () => {
+                    if (recorder.state === 'recording') {
+                        recorder.stop();
+                    }
+                };
+
+                recorder.start();
+                mediaElement.play().catch(err => {
+                    recorder.stop();
+                    status.textContent = 'အမှား: ဖိုင်ကို ဖွင့်ရန် ခလုတ်နှိပ်ခွင့် လိုအပ်နိုင်ပါသည်။';
+                });
+
             } catch (error) {
-                status.textContent = 'အမှား: ဖိုင်ကို ဖတ်မရပါ။ ဗီဒီယို/အသံဖိုင် ဖော်မတ် မမှန်ကန်ပါ။';
+                status.textContent = 'အမှား: ' + error.message;
             }
         });
-
-        function bufferToWaveBlob(audioBuffer) {
-            const numOfChan = 1;
-            const length = audioBuffer.length * numOfChan * 2 + 44;
-            const buffer = new ArrayBuffer(length);
-            const view = new DataView(buffer);
-            let sample, offset = 0, pos = 0;
-
-            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
-            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
-
-            setUint32(0x46464952); // "RIFF"
-            setUint32(length - 8); 
-            setUint32(0x45564157); // "WAVE"
-            setUint32(0x20746d66); // "fmt "
-            setUint32(16);         // PCM chunk size
-            setUint16(1);          // Audio format 1 (PCM)
-            setUint16(numOfChan);
-            setUint32(audioBuffer.sampleRate);
-            setUint32(audioBuffer.sampleRate * 2 * numOfChan); // Byte rate
-            setUint16(numOfChan * 2); // Block align
-            setUint16(16);         // Bits per sample
-            setUint32(0x61746164); // "data"
-            setUint32(length - pos - 4);
-
-            const channelData = audioBuffer.getChannelData(0);
-            while (pos < length && offset < channelData.length) {
-                sample = Math.max(-1, Math.min(1, channelData[offset]));
-                sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
-                view.setInt16(pos, sample, true);
-                pos += 2;
-                offset++;
-            }
-
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
     </script>
 </body>
 </html>
