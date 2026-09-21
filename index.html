@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Groq Only Version</title>
+    <title>AI Video Studio Pro - Fixed Version</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -11,7 +11,7 @@
     <div class="max-w-2xl mx-auto space-y-6">
         <header class="mb-4">
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
-                <span>⚡</span> AI Video Studio Pro (Groq)
+                <span>⚡</span> AI Video Studio Pro
             </h1>
             <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း၊ Groq ဖြင့် မြန်မာလိုဘာသာပြန်ခြင်း၊ အသံထွက်ခြင်းနှင့် ဖိုင်သိမ်းဆည်းခြင်း</p>
         </header>
@@ -149,7 +149,7 @@
             }
         });
 
-        // Option 2: Translate using Groq API with Auto-Fallback Models
+        // Option 2: Translate using Groq API with robust fallback
         document.getElementById('translateBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('translateApiKeyInput').value.trim();
             const chineseText = document.getElementById('resultOutput').value.trim();
@@ -166,7 +166,7 @@
 
             if (!chineseText) {
                 translateStatusBox.classList.remove('hidden');
-                translateStatusText.innerHTML = '<span class="text-red-400">ဘာသာပြန်ရန် တရုတ်စာသား မရှိသေးပါ။ (အရင်ဆုံး အသံမှ စာသားထုတ်ပါ)</span>';
+                translateStatusText.innerHTML = '<span class="text-red-400">ဘာသာပြန်ရန် တရုတ်စာသား မရှိသေးပါ။</span>';
                 return;
             }
 
@@ -174,7 +174,7 @@
             translateStatusBox.classList.remove('hidden');
             translateStatusText.textContent = 'Groq API ဖြင့် မြန်မာဘာသာသို့ ဘာသာပြန်ဆိုနေပါပြီ...';
 
-            const modelsList = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'];
+            const modelsList = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'gemma2-9b-it'];
             let translatedText = null;
 
             try {
@@ -186,8 +186,7 @@
                         body: JSON.stringify({
                             model: model,
                             messages: [
-                                { role: 'system', content: 'You are a professional Chinese to Burmese translator for video recaps. Translate accurately and naturally into Burmese dialogue. Output only the Burmese translation.' },
-                                { role: 'user', content: chineseText }
+                                { role: 'user', content: `Translate this Chinese text to natural Burmese language for video recaps. Only output the Burmese translation:\n\n${chineseText}` }
                             ],
                             temperature: 0.3
                         })
@@ -195,8 +194,10 @@
 
                     if (res.ok) {
                         const data = await res.json();
-                        translatedText = data.choices[0].message.content.trim();
-                        break;
+                        if (data.choices && data.choices.length > 0) {
+                            translatedText = data.choices[0].message.content.trim();
+                            break;
+                        }
                     }
                 }
 
@@ -205,7 +206,7 @@
                     translationOutput.value = translatedText;
                     translationArea.classList.remove('hidden');
                 } else {
-                    throw new Error('ဘာသာပြန်စာသား ထွက်မလာပါ။ Model အားလုံး အလုပ်မလုပ်နိုင်ပါ။');
+                    throw new Error('ဘာသာပြန်စာသား ထွက်မလာပါ။');
                 }
 
             } catch (error) {
