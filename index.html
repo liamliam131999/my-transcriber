@@ -199,8 +199,13 @@ function startCountdown(seconds) {
     const errorBox = document.getElementById('errorBox');
     const transcribeBtn = document.getElementById('transcribeBtn');
     
+    // မဆီမဆိုင် အချိန်အများကြီး ထွက်မလာအောင် စက္ကန့် ၆၀၀ (၁၀ မိနစ်) ထက်ကျော်ရင် ၁ မိနစ်ပဲ စောင့်ခိုင်းမည်
+    if (isNaN(seconds) || seconds > 600 || seconds <= 0) {
+        seconds = 60; 
+    }
+
     transcribeBtn.disabled = true;
-    let timeLeft = seconds;
+    let timeLeft = Math.round(seconds);
 
     if (countdownInterval) clearInterval(countdownInterval);
 
@@ -272,16 +277,17 @@ async function transcribe() {
             const errorMsg = data.error ? data.error.message : 'API Error ဖြစ်ပွားပါသည်';
             
             if (errorMsg.includes('Rate limit reached') || response.status === 429) {
-                let waitSec = 180;
+                let waitSec = 60; // Default 1 မိနစ်
                 
-                const mMatch = errorMsg.match(/(\d+)m/);
-                const sMatch = errorMsg.match(/(\d+)s/);
+                // Groq ရဲ့ "try again in XmYS" သို့မဟုတ် "try again in XS" Format ကို တိကျစွာ ဖတ်ယူခြင်း
+                const timeMatch = errorMsg.match(/try again in (?:(\d+)m)?(?:(\d+(?:\.\d+)?)s)?/i);
                 
-                let extractedSec = 0;
-                if (mMatch) extractedSec += parseInt(mMatch[1]) * 60;
-                if (sMatch) extractedSec += parseInt(sMatch[1]);
-
-                if (extractedSec > 0) waitSec = extractedSec;
+                if (timeMatch) {
+                    const mins = timeMatch[1] ? parseFloat(timeMatch[1]) : 0;
+                    const secs = timeMatch[2] ? parseFloat(timeMatch[2]) : 0;
+                    const calculated = (mins * 60) + secs;
+                    if (calculated > 0) waitSec = calculated;
+                }
 
                 status.innerText = "❌ Rate Limit ရောက်သွားပါပြီ။ အောက်ပါ အချိန်အတိုင်း ခေတ္တစောင့်ပေးပါ:";
                 startCountdown(waitSec);
