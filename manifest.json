@@ -1,0 +1,17 @@
+{
+  "name": "Groq Audio Transcriber",
+  "short_name": "Transcriber",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "description": "Audio to Burmese Text Transcriber App",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/primer/octicons/main/icons/file-audio-16.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
