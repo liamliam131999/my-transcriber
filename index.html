@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Fixed Version</title>
+    <title>AI Video Studio Pro - Google Translate Version</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -13,7 +13,7 @@
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
                 <span>⚡</span> AI Video Studio Pro
             </h1>
-            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း၊ Groq ဖြင့် မြန်မာလိုဘာသာပြန်ခြင်း၊ အသံထွက်ခြင်းနှင့် ဖိုင်သိမ်းဆည်းခြင်း</p>
+            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း (Groq)၊ Google ဖြင့် မြန်မာလိုဘာသာပြန်ခြင်း၊ အသံထွက်ခြင်းနှင့် ဖိုင်သိမ်းဆည်းခြင်း</p>
         </header>
 
         <!-- Option 1: Chinese Audio to Chinese Text (Groq Whisper) -->
@@ -51,16 +51,12 @@
             </div>
         </div>
 
-        <!-- Option 2: Translate Chinese Text to Burmese (Groq API) + Voiceover & Download -->
+        <!-- Option 2: Translate Chinese Text to Burmese (Google Translate - No Key Needed) -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🇲🇲</span> ၂။ ထွက်လာတဲ့တရုတ်စာကို မြန်မာဘာသာသို့ ဘာသာပြန်ရန် (Groq API)
+                <span>🇲🇲</span> ၂။ ထွက်လာတဲ့တရုတ်စာကို မြန်မာဘာသာသို့ ဘာသာပြန်ရန် (Google Translate)
             </h2>
-            
-            <div>
-                <label class="block text-xs text-slate-400 mb-1">🔑 Groq API Key (အောက်ပိုင်း ဘာသာပြန်အတွက်):</label>
-                <input type="password" id="translateApiKeyInput" placeholder="gsk_..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-            </div>
+            <p class="text-[11px] text-slate-400">💡 ဒီအပိုင်းအတွက် API Key ထည့်စရာမလိုပါ၊ အခမဲ့ တိုက်ရိုက်ဘာသာပြန်ပေးပါသည်။</p>
 
             <button id="translateBtn" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
                 <span>🔄</span> မြန်မာဘာသာသို့ အလိုအလျောက် ဘာသာပြန်မည် (Translate)
@@ -104,7 +100,7 @@
 
             if (!apiKey) {
                 statusBox.classList.remove('hidden');
-                statusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ အပေါ်က Groq API Key ထည့်သွင်းပါ။</span>';
+                statusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ Groq API Key ထည့်သွင်းပါ။</span>';
                 return;
             }
 
@@ -149,56 +145,36 @@
             }
         });
 
-        // Option 2: Translate using Groq API with robust fallback
+        // Option 2: Translate Chinese to Burmese using Google Translate API (No Key Needed)
         document.getElementById('translateBtn').addEventListener('click', async () => {
-            const apiKey = document.getElementById('translateApiKeyInput').value.trim();
             const chineseText = document.getElementById('resultOutput').value.trim();
             const translateStatusBox = document.getElementById('translateStatusBox');
             const translateStatusText = document.getElementById('translateStatusText');
             const translationArea = document.getElementById('translationArea');
             const translationOutput = document.getElementById('translationOutput');
 
-            if (!apiKey) {
-                translateStatusBox.classList.remove('hidden');
-                translateStatusText.innerHTML = '<span class="text-red-400">ကျေးဇူးပြု၍ အောက်က Groq API Key ထည့်သွင်းပါ။</span>';
-                return;
-            }
-
             if (!chineseText) {
                 translateStatusBox.classList.remove('hidden');
-                translateStatusText.innerHTML = '<span class="text-red-400">ဘာသာပြန်ရန် တရုတ်စာသား မရှိသေးပါ။</span>';
+                translateStatusText.innerHTML = '<span class="text-red-400">ဘာသာပြန်ရန် တရုတ်စာသား မရှိသေးပါ။ (အရင်ဆုံး အသံမှ စာသားထုတ်ပါ)</span>';
                 return;
             }
 
             translationArea.classList.add('hidden');
             translateStatusBox.classList.remove('hidden');
-            translateStatusText.textContent = 'Groq API ဖြင့် မြန်မာဘာသာသို့ ဘာသာပြန်ဆိုနေပါပြီ...';
-
-            const modelsList = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'gemma2-9b-it'];
-            let translatedText = null;
+            translateStatusText.textContent = 'Google Translate ဖြင့် မြန်မာဘာသာသို့ ဘာသာပြန်ဆိုနေပါပြီ...';
 
             try {
-                for (let model of modelsList) {
-                    translateStatusText.textContent = `Model (${model}) ဖြင့် ဘာသာပြန်နေသည်...`;
-                    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: model,
-                            messages: [
-                                { role: 'user', content: `Translate this Chinese text to natural Burmese language for video recaps. Only output the Burmese translation:\n\n${chineseText}` }
-                            ],
-                            temperature: 0.3
-                        })
-                    });
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh&tl=my&dt=t&q=${encodeURIComponent(chineseText)}`;
+                const res = await fetch(url);
+                
+                if (!res.ok) throw new Error('ဘာသာပြန်ဆိုမှု မအောင်မြင်ပါ။');
 
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.choices && data.choices.length > 0) {
-                            translatedText = data.choices[0].message.content.trim();
-                            break;
-                        }
-                    }
+                const data = await res.json();
+                let translatedText = '';
+                if (data && data[0]) {
+                    data[0].forEach(item => {
+                        if (item[0]) translatedText += item[0];
+                    });
                 }
 
                 if (translatedText) {
