@@ -1,17 +1,15 @@
 {
-  "name": "Groq Audio Transcriber",
+  "name": "Video Transcriber",
   "short_name": "Transcriber",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1a73e8",
-  "description": "Audio to Burmese Text Transcriber App",
+  "background_color": "#020617",
+  "theme_color": "#10b981",
   "icons": [
     {
-      "src": "./4670132.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
