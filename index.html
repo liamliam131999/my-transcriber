@@ -97,6 +97,17 @@
         button:disabled { background: #94a3b8; cursor: not-allowed; }
 
         #status { margin-top: 15px; font-weight: bold; font-size: 14px; color: #334155; }
+        
+        .limit-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #475569;
+        }
+
         .error-box { 
             background: #fef2f2; 
             border: 1px solid #fecaca;
@@ -141,6 +152,7 @@
     <button id="transcribeBtn" class="main-btn" onclick="transcribe()">🚀 မြန်မာလို တိုက်ရိုက် ဘာသာပြန်မည်</button>
     
     <div id="status"></div>
+    <div id="limitInfo" class="limit-box" style="display:none;"></div>
     <div id="errorBox" class="error-box"></div>
     
     <label style="margin-top:22px;">📝 မြန်မာဘာသာပြန် ရလဒ်:</label>
@@ -182,9 +194,11 @@ async function transcribe() {
     const status = document.getElementById('status');
     const result = document.getElementById('result');
     const errorBox = document.getElementById('errorBox');
+    const limitInfo = document.getElementById('limitInfo');
     const speakBtn = document.getElementById('speakBtn');
 
     errorBox.style.display = 'none';
+    limitInfo.style.display = 'none';
     if (!apiKey) { alert('⚠️ API Key ထည့်ပါ'); return; }
     if (!fileInput.files[0]) { alert('⚠️ Audio ဖိုင် ရွေးပေးပါ'); return; }
 
@@ -208,7 +222,29 @@ async function transcribe() {
         });
 
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error?.message || 'API Error');
+        
+        // Response ထဲက Header သို့မဟုတ် Error ထဲက Rate Limit အချက်အလက်များကို ဖမ်းယူရန်
+        const remainingTimeHeader = response.headers.get('x-ratelimit-remaining-audio-seconds');
+        
+        if (!response.ok) {
+            // Rate Limit ပြည့်သွားတဲ့အခါ Groq က ပို့ပေးတဲ့ Error message ထဲက စက္ကန့်နဲ့ အချက်အလက်များကို ထုတ်ယူပြသရန်
+            let errMessage = data.error?.message || 'API Error';
+            
+            // Regex သုံးပြီး "try again in XmX.Xs" ကို ရှာထုတ်ခြင်း
+            const matchTime = errMessage.match(/try again in ([0-9ms\.]+)/);
+            const matchLimit = errMessage.match(/Limit ([0-9]+), Used ([0-9]+)/);
+            
+            if (matchLimit) {
+                limitInfo.style.display = 'block';
+                limitInfo.innerHTML = `📊 <b>Rate Limit အခြေအနေ:</b><br>• အသုံးပြုခွင့် အများဆုံး: ${matchLimit[1]} စက္ကန့်<br>• သုံးပြီးသား: ${matchLimit[2]} စက္ကန့်`;
+            }
+            
+            if (matchTime) {
+                throw new Error(`Rate limit ပြည့်သွားပါပြီ။ ကျေးဇူးပြု၍ (${matchTime[1]}) ခန့် စောင့်ပြီးမှ ပြန်လွှတ်ပါ။`);
+            } else {
+                throw new Error(errMessage);
+            }
+        }
 
         status.innerText = "⏳ ၂။ မြန်မာဘာသာသို့ ဘာသာပြန်နေပါသည်...";
         let originalTexts = data.segments.map((seg, idx) => `[${idx}] ${seg.text.trim()}`).join('\n');
@@ -252,7 +288,9 @@ async function transcribe() {
         speakBtn.disabled = false;
 
     } catch (err) {
-        status.innerText = "❌ အမှား: " + err.message;
+        status.innerText = "❌ အမှားတွေ့ရှိပါသည်";
+        errorBox.style.display = 'block';
+        errorBox.innerText = err.message;
     }
 }
 
