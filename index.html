@@ -5,26 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Hacker Studio Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Hacker Matrix Background Effect */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: #020617;
-        }
-    </style>
 </head>
-<body class="text-slate-100 min-h-screen p-3 font-sans relative">
-    <!-- Hacker Matrix Canvas -->
-    <canvas id="matrix-canvas"></canvas>
-
-    <div class="max-w-4xl mx-auto space-y-4 relative z-10">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-3 font-sans">
+    <div class="max-w-4xl mx-auto space-y-4">
         <!-- Header -->
-        <header class="text-center space-y-1 bg-slate-900/90 p-3 rounded-2xl border border-emerald-500/30 shadow-2xl backdrop-blur-md">
+        <header class="text-center space-y-1 bg-slate-900 p-3 rounded-2xl border border-emerald-500/30 shadow-lg">
             <h1 class="text-base font-bold text-emerald-400 flex items-center justify-center gap-2 font-mono">
                 <span>💻</span> AI HACKER STUDIO PRO
             </h1>
@@ -37,7 +22,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             <!-- 1. Groq Key & Transcript Section -->
-            <div class="bg-slate-900/90 p-4 rounded-2xl border border-emerald-500/30 shadow-2xl backdrop-blur-md space-y-3 flex flex-col justify-between">
+            <div class="bg-slate-900 p-4 rounded-2xl border border-emerald-500/30 shadow-lg space-y-3 flex flex-col justify-between">
                 <div class="space-y-3">
                     <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
                         <span class="text-base">🎙️</span> Groq Whisper Transcript
@@ -78,7 +63,7 @@
             </div>
 
             <!-- 2. Gemini Key & Transcript Section -->
-            <div class="bg-slate-900/90 p-4 rounded-2xl border border-emerald-500/30 shadow-2xl backdrop-blur-md space-y-3 flex flex-col justify-between">
+            <div class="bg-slate-900 p-4 rounded-2xl border border-emerald-500/30 shadow-lg space-y-3 flex flex-col justify-between">
                 <div class="space-y-3">
                     <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
                         <span class="text-base">✨</span> Gemini Audio Transcript
@@ -120,16 +105,16 @@
 
         </div>
 
-        <!-- 3. Audio File Size Compressor Option (Full Width at bottom) -->
-        <div class="bg-slate-900/90 p-4 rounded-2xl border border-emerald-500/30 shadow-2xl backdrop-blur-md space-y-3">
+        <!-- 3. Audio / Video File Size Compressor Option (Full Width at bottom) -->
+        <div class="bg-slate-900 p-4 rounded-2xl border border-emerald-500/30 shadow-lg space-y-3">
             <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
-                <span class="text-base">📉</span> ၃။ အသံဖိုင် အရွယ်အစား လျှော့ချရန် (Audio Compressor - 25MB Downscaler)
+                <span class="text-base">📉</span> ၃။ အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ဆိုဒ်လျှော့ချရန် (Compressor)
             </h2>
-            <p class="text-[10px] text-slate-400 font-mono">💡 25MB ကျော်နေသော အသံဖိုင်များကို ဆိုဒ်သေးအောင် ပြုလုပ်နိုင်ပါသည်။</p>
+            <p class="text-[10px] text-slate-400 font-mono">💡 25MB ကျော်နေသော ဗီဒီယို သို့မဟုတ် အသံဖိုင်များကို ဖိုင်ဆိုဒ်သေးငယ်သော အသံဖိုင် (WAV) အဖြစ်သို့ ပြောင်းလဲပေးပါသည်။</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
                 <div class="sm:col-span-2">
-                    <input type="file" id="compressAudioInput" accept="audio/*" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-emerald-300 hover:file:bg-slate-700 cursor-pointer">
+                    <input type="file" id="compressAudioInput" accept="audio/*,video/*" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-emerald-300 hover:file:bg-slate-700 cursor-pointer">
                 </div>
                 <div>
                     <button id="compressBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5 font-mono">
@@ -141,64 +126,21 @@
             <div id="compressStatus" class="text-[11px] text-emerald-400 hidden text-center font-mono"></div>
 
             <div id="compressedResultArea" class="hidden pt-2 space-y-2">
-                <p class="text-[11px] text-emerald-400 font-medium font-mono">✨ ဖိုင်ဆိုဒ် လျှော့ချပြီးသား အသံဖိုင် -</p>
+                <p class="text-[11px] text-emerald-400 font-medium font-mono">✨ ဆိုဒ်လျှော့ချပြီးသား အသံဖိုင် (ရလဒ်) -</p>
                 <audio id="compressedAudioPlayer" controls class="w-full h-8"></audio>
                 <a id="downloadCompressedLink" class="block w-full text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded-xl text-xs transition shadow-md font-mono">
-                    📥 ဒေါင်းလုပ်ဆွဲရန် (Download MP3)
+                    📥 ဒေါင်းလုပ်ဆွဲရန် (Download WAV)
                 </a>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Hacker Matrix Background Animation ---
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモユョロヲゴゾドボポヴッン';
-        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const alphabet = katakana + latin;
-
-        const fontSize = 14;
-        let columns = canvas.width / fontSize;
-        const rainDrops = [];
-
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
-        }
-
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(2, 6, 23, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#10b981'; // Hacker Green
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
-        }
-        setInterval(drawMatrix, 30);
-
         // --- LocalStorage API Key Management System ---
         function setupKeyManagement(inputId, selectId, storageKey) {
             const input = document.getElementById(inputId);
             const select = document.getElementById(selectId);
 
-            // Load saved keys from localStorage
             function loadSavedKeys() {
                 const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
                 select.innerHTML = '<option value="">မှတ်ထားသော Key များ...</option>';
@@ -212,21 +154,19 @@
 
             loadSavedKeys();
 
-            // When a key is selected from dropdown
             select.addEventListener('change', () => {
                 if (select.value) {
                     input.value = select.value;
                 }
             });
 
-            // Save key when user types or uses it
             input.addEventListener('blur', () => {
                 const val = input.value.trim();
                 if (!val) return;
                 let saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
                 if (!saved.includes(val)) {
-                    saved.unshift(val); // Add to beginning
-                    if (saved.length > 5) saved.pop(); // Keep max 5 keys
+                    saved.unshift(val);
+                    if (saved.length > 5) saved.pop();
                     localStorage.setItem(storageKey, JSON.stringify(saved));
                     loadSavedKeys();
                 }
@@ -244,17 +184,17 @@
             const output = document.getElementById('groqOutput');
 
             if (!apiKey || fileInput.files.length === 0) {
-                alert('Groq API Key နှင့် အသံဖိုင်ကို ထည့်သွင်းပေးပါ။');
+                alert('Groq API Key နှင့် ဖိုင်ကို ထည့်သွင်းပေးပါ။');
                 return;
             }
 
             if(fileInput.files[0].size > 25 * 1024 * 1024) {
-                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။');
+                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ အောက်ပါ Compressor ဖြင့် ဆိုဒ်လျှော့ချပါ။');
                 return;
             }
 
             status.classList.remove('hidden');
-            status.textContent = 'Groq Whisper ဖြင့် Transcript ထုတ်နေပါပြီ...';
+            status.textContent = 'Groq ဖြင့် Transcript ထုတ်နေပါပြီ...';
             output.value = '';
 
             try {
@@ -292,17 +232,17 @@
             const output = document.getElementById('geminiOutput');
 
             if (!apiKey || fileInput.files.length === 0) {
-                alert('Gemini API Key နှင့် အသံဖိုင်ကို ထည့်သွင်းပေးပါ။');
+                alert('Gemini API Key နှင့် ဖိုင်ကို ထည့်သွင်းပေးပါ။');
                 return;
             }
 
             if(fileInput.files[0].size > 25 * 1024 * 1024) {
-                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။');
+                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ အောက်ပါ Compressor ဖြင့် ဆိုဒ်လျှော့ချပါ။');
                 return;
             }
 
             status.classList.remove('hidden');
-            status.textContent = 'Gemini သို့ ပို့ဆောင်ပြီး Transcript ထုတ်နေပါပြီ...';
+            status.textContent = 'Gemini ဖြင့် Transcript ထုတ်နေပါပြီ...';
             output.value = '';
 
             try {
@@ -315,7 +255,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Please provide the exact transcript of this audio file without adding extra conversational text." },
+                                { text: "Please provide the exact transcript of this media file without adding extra conversational text." },
                                 {
                                     inline_data: {
                                         mime_type: file.type || "audio/mp3",
@@ -352,7 +292,7 @@
             });
         }
 
-        // --- 3. Audio Compressor Logic ---
+        // --- 3. Audio/Video File Size Compressor Logic ---
         document.getElementById('compressBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('compressAudioInput');
             const status = document.getElementById('compressStatus');
@@ -361,13 +301,13 @@
             const downloadLink = document.getElementById('downloadCompressedLink');
 
             if (fileInput.files.length === 0) {
-                alert('အသံဖိုင်ကို ရွေးချယ်ပေးပါ။');
+                alert('အသံဖိုင် (သို့) ဗီဒီယိုဖိုင်ကို ရွေးချယ်ပေးပါ။');
                 return;
             }
 
             const file = fileInput.files[0];
             status.classList.remove('hidden');
-            status.textContent = 'အသံဖိုင် ဆိုဒ်လျှော့ချနေပါပြီ...';
+            status.textContent = 'ဖိုင်ကို ဖတ်ရှုပြီး ဆိုဒ်လျှော့ချနေပါပြီ (ခဏစောင့်ပါ)...';
             resultArea.classList.add('hidden');
 
             try {
@@ -375,10 +315,11 @@
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
+                const targetSampleRate = 16000;
                 const offlineCtx = new OfflineAudioContext(
-                    audioBuffer.numberOfChannels,
-                    audioBuffer.length,
-                    audioBuffer.sampleRate
+                    1, 
+                    Math.ceil(audioBuffer.duration * targetSampleRate), 
+                    targetSampleRate
                 );
 
                 const source = offlineCtx.createBufferSource();
@@ -394,41 +335,47 @@
                 downloadLink.href = compressedUrl;
                 downloadLink.download = 'compressed_' + file.name.replace(/\.[^/.]+$/, "") + '.wav';
 
-                status.textContent = 'ပြီးမြောက်ပါပြီ!';
+                status.textContent = 'ဖိုင်ဆိုဒ် လျှော့ချခြင်း အောင်မြင်ပါပြီ!';
                 resultArea.classList.remove('hidden');
             } catch (error) {
-                status.textContent = 'အမှား: ' + error.message;
+                status.textContent = 'အမှား: ဖိုင်ကို ဖတ်မရပါ။ ဗီဒီယို/အသံဖိုင် ဖော်မတ် မမှန်ကန်ပါ။';
             }
         });
 
         function bufferToWaveBlob(audioBuffer) {
-            const numOfChan = audioBuffer.numberOfChannels;
+            const numOfChan = 1;
             const length = audioBuffer.length * numOfChan * 2 + 44;
             const buffer = new ArrayBuffer(length);
             const view = new DataView(buffer);
             let sample, offset = 0, pos = 0;
 
-            setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
-            setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
-            setUint32(audioBuffer.sampleRate); setUint32(audioBuffer.sampleRate * 2 * numOfChan);
-            setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4);
-
-            const channels = [];
-            for (let i = 0; i < numOfChan; i++) channels.push(audioBuffer.getChannelData(i));
-
-            while (pos < audioBuffer.length) {
-                for (let i = 0; i < numOfChan; i++) {
-                    sample = Math.max(-1, Math.min(1, channels[i][pos]));
-                    sample = (sample < 0 ? sample * 32768 : sample * 32767);
-                    view.setInt16(offset, sample, true);
-                    offset += 2;
-                }
-                pos++;
-            }
-            return new Blob([buffer], { type: 'audio/wav' });
-
-            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
             function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+
+            setUint32(0x46464952); // "RIFF"
+            setUint32(length - 8); 
+            setUint32(0x45564157); // "WAVE"
+            setUint32(0x20746d66); // "fmt "
+            setUint32(16);         // PCM chunk size
+            setUint16(1);          // Audio format 1 (PCM)
+            setUint16(numOfChan);
+            setUint32(audioBuffer.sampleRate);
+            setUint32(audioBuffer.sampleRate * 2 * numOfChan); // Byte rate
+            setUint16(numOfChan * 2); // Block align
+            setUint16(16);         // Bits per sample
+            setUint32(0x61746164); // "data"
+            setUint32(length - pos - 4);
+
+            const channelData = audioBuffer.getChannelData(0);
+            while (pos < length && offset < channelData.length) {
+                sample = Math.max(-1, Math.min(1, channelData[offset]));
+                sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
+                view.setInt16(pos, sample, true);
+                pos += 2;
+                offset++;
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
         }
     </script>
 </body>
