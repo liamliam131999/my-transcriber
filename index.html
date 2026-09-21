@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Multi-API Studio (Groq & Gemini)</title>
+    <title>AI Video Studio Pro - Multi-API Studio with Voiceover & Download</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -13,7 +13,7 @@
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
                 <span>⚡</span> AI Video Studio Pro
             </h1>
-            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ယူခြင်းနှင့် Groq / Gemini နှစ်မျိုးစလုံး သုံးနိုင်သော ဘာသာပြန်စနစ်</p>
+            <p class="text-xs text-slate-400">တရုတ်အသံမှ စာသားထုတ်ခြင်း၊ ဘာသာပြန်ခြင်း၊ အသံထွက်ခြင်း (Voiceover) နှင့် ဖိုင်ဒေါင်းလုပ်ဆွဲခြင်းစနစ်</p>
         </header>
 
         <!-- Option 1: Chinese Audio to Chinese Text (Groq Whisper) -->
@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <!-- Option 2: Translate Chinese Text to Burmese (Choose API: Groq or Gemini) -->
+        <!-- Option 2: Translate Chinese Text to Burmese (Groq or Gemini) + Voiceover & Download -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
                 <span>🇲🇲</span> ၂။ ထွက်လာတဲ့တရုတ်စာကို မြန်မာဘာသာသို့ ဘာသာပြန်ရန်
@@ -75,7 +75,7 @@
             </div>
 
             <button id="translateBtn" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
-                <span>🔄</span> မြန်မာဘာသာသို့ ဘာသာပြန်မည် (Translate)
+                <span>🔄</span> မြန်မာဘာသာသို့ အလိုအလျောက် ဘာသာပြန်မည် (Translate)
             </button>
 
             <!-- Translation Status Box -->
@@ -84,12 +84,22 @@
             </div>
 
             <!-- Result Box (Burmese) -->
-            <div id="translationArea" class="hidden space-y-2">
+            <div id="translationArea" class="hidden space-y-3">
                 <label class="block text-xs text-slate-300 font-semibold">🇲🇲 ဘာသာပြန်ထားသော မြန်မာစာ Dialogue များ:</label>
                 <textarea id="translationOutput" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
-                <button id="copyBurmeseBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg text-xs transition">
-                    📋 မြန်မာစာသားများ ကူးယူရန် (Copy)
-                </button>
+                
+                <!-- Action Buttons: Copy, Voiceover, Download -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button id="copyBurmeseBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                        <span>📋</span> ကူးယူရန် (Copy)
+                    </button>
+                    <button id="voiceoverBtn" class="bg-purple-600 hover:bg-purple-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                        <span>🔊</span> အသံထွက်ဖတ်ရန် (Voiceover)
+                    </button>
+                    <button id="downloadBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                        <span>💾</span> ဖိုင်သိမ်းရန် (Download)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -221,7 +231,7 @@
                         }
                     }
                 } else {
-                    // Google Gemini API Logic (Updated to gemini-3.6-flash)
+                    // Google Gemini API Logic
                     translateStatusText.textContent = 'Google Gemini API ဖြင့် ဘာသာပြန်နေသည်...';
                     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
                     
@@ -261,7 +271,7 @@
             }
         });
 
-        // Copy buttons
+        // Copy button
         document.getElementById('copyChineseBtn').addEventListener('click', () => {
             const el = document.getElementById('resultOutput');
             el.select();
@@ -272,6 +282,46 @@
             const el = document.getElementById('translationOutput');
             el.select();
             navigator.clipboard.writeText(el.value).then(() => alert('မြန်မာစာသားများကို ကူးယူပြီးပါပြီ!'));
+        });
+
+        // NEW: Free Voiceover Feature (Web Speech API)[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span)
+        document.getElementById('voiceoverBtn').addEventListener('click', () => {
+            const textToSpeak = document.getElementById('translationOutput').value.trim();
+            if (!textToSpeak) {
+                alert('ဖတ်ပြရန် မြန်မာစာသား မရှိသေးပါ။');
+                return;
+            }
+
+            if ('speechSynthesis' in window) {
+                // အရင်ပြောနေတာရှိရင် ရပ်မည်
+                window.speechSynthesis.cancel();
+
+                let utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'my-MM'; // မြန်မာဘာသာစကား သတ်မှတ်ခြင်း[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)
+                utterance.rate = 1.0;     // အသံထွက်အမြန်နှုန်း[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('သင့်ဘရောက်ဆာ သို့မဟုတ် စက်တွင် Voiceover စနစ်ကို မပံ့ပိုးပါ။');
+            }
+        });
+
+        // NEW: Save and Download Feature (.txt file export)[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span)
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const textContent = document.getElementById('translationOutput').value.trim();
+            if (!textContent) {
+                alert('ဒေါင်းလုပ်ဆွဲရန် စာသား မရှိသေးပါ။');
+                return;
+            }
+
+            const filename = 'movie_recap_burmese.txt';
+            let element = document.createElement('a');
+            let file = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            element.href = URL.createObjectURL(file);
+            element.download = filename;
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         });
     </script>
 </body>
