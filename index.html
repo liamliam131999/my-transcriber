@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 Groq Audio Transcriber Pro 🎙️</title>
+    <title>🎬 Groq Audio Transcriber & Auto Translator Pro 🎙️🇲🇲</title>
     <style>
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
@@ -23,7 +23,7 @@
         h2 { 
             margin-top: 0; 
             color: #1a73e8; 
-            font-size: 24px; 
+            font-size: 22px; 
             text-align: center;
             border-bottom: 2px dashed #e0e0e0;
             padding-bottom: 12px;
@@ -102,7 +102,7 @@
 <body>
 
 <div class="card">
-    <h2>🎙️ Groq Audio Transcriber Pro ✨</h2>
+    <h2>🎙️ Groq Audio Transcriber & Auto Translator 🇲🇲</h2>
     
     <label>🔑 Groq API Key:</label>
     <input type="password" id="apiKey" placeholder="gsk_..." onchange="saveApiKey()">
@@ -132,16 +132,26 @@
         <option value="7200">⏩ Part 7 (part6.mp3) - 02:00:00 မှ စမည်</option>
     </select>
 
+    <label>🗣️ မူရင်း အသံဖိုင် ဘာသာစကား:</label>
+    <select id="langSelect">
+        <option value="zh">🇨🇳 တရုတ်ဘာသာ (Chinese)</option>
+        <option value="en">🇬🇧 အင်္ဂလိပ်ဘာသာ (English)</option>
+        <option value="th">🇹🇭 ထိုင်းဘာသာ (Thai)</option>
+        <option value="ja">🇯🇵 ဂျပန်ဘာသာ (Japanese)</option>
+        <option value="ko">🇰🇷 ကိုရီးယားဘာသာ (Korean)</option>
+        <option value="auto">🌐 အလိုအလျောက် ရှာဖွေရန် (Auto Detect)</option>
+    </select>
+
     <label>📁 Audio File တင်ပါ:</label>
     <input type="file" id="fileInput" accept="audio/*,video/*">
     
-    <button id="transcribeBtn" onclick="transcribe()">🚀 Timestamp စာသား ထုတ်ယူမည်</button>
+    <button id="transcribeBtn" onclick="transcribe()">🚀 မြန်မာလို တိုက်ရိုက် ဘာသာပြန်မည်</button>
     
     <div id="status"></div>
     <div id="errorBox" class="error-box"></div>
     
-    <label style="margin-top:22px;">📝 အတိအကျ အချိန်နှင့် စာသား ရလဒ်:</label>
-    <textarea id="result" rows="12" readonly placeholder="✨ ရလဒ် စာသားများ ဒီနေရာမှာ လှပစွာ ပေါ်လာပါမည်..."></textarea>
+    <label style="margin-top:22px;">📝 မြန်မာဘာသာပြန် အချိန်နှင့် စာသား ရလဒ်:</label>
+    <textarea id="result" rows="12" readonly placeholder="✨ မူရင်းအသံကို မြန်မာလို ဘာသာပြန်ထားသော ရလဒ်များ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
 </div>
 
 <script>
@@ -199,7 +209,6 @@ function startCountdown(seconds) {
     const errorBox = document.getElementById('errorBox');
     const transcribeBtn = document.getElementById('transcribeBtn');
     
-    // မဆီမဆိုင် အချိန်အများကြီး ထွက်မလာအောင် စက္ကန့် ၆၀၀ (၁၀ မိနစ်) ထက်ကျော်ရင် ၁ မိနစ်ပဲ စောင့်ခိုင်းမည်
     if (isNaN(seconds) || seconds > 600 || seconds <= 0) {
         seconds = 60; 
     }
@@ -233,6 +242,7 @@ async function transcribe() {
     const apiKey = document.getElementById('apiKey').value.trim();
     const fileInput = document.getElementById('fileInput');
     const offsetSeconds = parseInt(document.getElementById('partSelect').value);
+    const selectedLang = document.getElementById('langSelect').value;
     const status = document.getElementById('status');
     const result = document.getElementById('result');
     const errorBox = document.getElementById('errorBox');
@@ -250,14 +260,18 @@ async function transcribe() {
     formData.append('file', file);
     formData.append('model', 'whisper-large-v3');
     formData.append('response_format', 'verbose_json');
+    
+    if (selectedLang !== 'auto') {
+        formData.append('language', selectedLang);
+    }
 
-    status.innerText = "⏳ စာသားနှင့် အချိန်များ ထုတ်ယူနေပါသည်... ခဏစောင့်ပေးပါ...";
+    status.innerText = "⏳ ၁။ အသံဖိုင်မှ မူရင်းစာသားနှင့် အချိန်များကို ထုတ်ယူနေပါသည်...";
     result.value = "";
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${apiKey}` },
+            headers: { 'Authorization': `Bearer ` + apiKey },
             body: formData
         });
 
@@ -275,21 +289,16 @@ async function transcribe() {
 
         if (!response.ok) {
             const errorMsg = data.error ? data.error.message : 'API Error ဖြစ်ပွားပါသည်';
-            
             if (errorMsg.includes('Rate limit reached') || response.status === 429) {
-                let waitSec = 60; // Default 1 မိနစ်
-                
-                // Groq ရဲ့ "try again in XmYS" သို့မဟုတ် "try again in XS" Format ကို တိကျစွာ ဖတ်ယူခြင်း
+                let waitSec = 60;
                 const timeMatch = errorMsg.match(/try again in (?:(\d+)m)?(?:(\d+(?:\.\d+)?)s)?/i);
-                
                 if (timeMatch) {
                     const mins = timeMatch[1] ? parseFloat(timeMatch[1]) : 0;
                     const secs = timeMatch[2] ? parseFloat(timeMatch[2]) : 0;
                     const calculated = (mins * 60) + secs;
                     if (calculated > 0) waitSec = calculated;
                 }
-
-                status.innerText = "❌ Rate Limit ရောက်သွားပါပြီ။ အောက်ပါ အချိန်အတိုင်း ခေတ္တစောင့်ပေးပါ:";
+                status.innerText = "❌ Rate Limit ရောက်သွားပါပြီ။ ခေတ္တစောင့်ပေးပါ:";
                 startCountdown(waitSec);
             } else {
                 status.innerText = "❌ အမှားအယွင်း: " + errorMsg;
@@ -297,19 +306,64 @@ async function transcribe() {
             return;
         }
 
-        status.innerText = "✅ အောင်မြင်စွာ စာသားထုတ်ယူပြီးပါပြီ!";
-        
-        if (data.segments) {
-            let output = "";
-            data.segments.forEach(seg => {
-                const start = formatTime(seg.start + offsetSeconds);
-                const end = formatTime(seg.end + offsetSeconds);
-                output += `[${start} - ${end}] ${seg.text.trim()}\n`;
-            });
-            result.value = output;
-        } else {
-            result.value = data.text;
+        if (!data.segments || data.segments.length === 0) {
+            status.innerText = "❌ စာသား တစ်စုံတစ်ရာ မတွေ့ရှိပါ။";
+            return;
         }
+
+        status.innerText = "⏳ ၂။ ထွက်လာသော စာသားများကို မြန်မာဘာသာသို့ အလိုအလျောက် ဘာသာပြန်နေပါသည်...";
+
+        let originalTexts = data.segments.map((seg, idx) => `[${idx}] ${seg.text.trim()}`).join('\n');
+
+        const translateResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ` + apiKey,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a professional translator for C-Drama/Donghua and multi-language videos. Translate the following indexed text lines into natural, fluent Burmese (မြန်မာဘာသာ). Keep the exact format `[index] Translated text` without missing any indices. Do not omit any lines.'
+                    },
+                    {
+                        role: 'user',
+                        content: originalTexts
+                    }
+                ],
+                temperature: 0.3
+            })
+        });
+
+        const translateData = await translateResponse.json();
+        
+        if (!translateResponse.ok) {
+            throw new Error(translateData.error?.message || 'Translation failed');
+        }
+
+        const translatedTextContent = translateData.choices[0].message.content;
+        
+        const translatedMap = {};
+        translatedTextContent.split('\n').forEach(line => {
+            const match = line.match(/\[(\d+)\]\s*(.*)/);
+            if (match) {
+                translatedMap[match[1]] = match[2];
+            }
+        });
+
+        status.innerText = "✅ အောင်မြင်စွာ မြန်မာဘာသာဖြင့် ဘာသာပြန်ဆိုပြီးပါပြီ!";
+        
+        let output = "";
+        data.segments.forEach((seg, idx) => {
+            const start = formatTime(seg.start + offsetSeconds);
+            const end = formatTime(seg.end + offsetSeconds);
+            const text = translatedMap[idx] || seg.text.trim();
+            output += `[${start} - ${end}] ${text}\n`;
+        });
+        
+        result.value = output;
 
     } catch (err) {
         status.innerText = "❌ အမှားအယွင်း: " + err.message;
