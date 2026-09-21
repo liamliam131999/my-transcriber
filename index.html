@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq Audio Transcriber & Voice Reader</title>
+    <title>Groq Audio Transcriber & Voice 🇲🇲</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a73e8">
@@ -117,6 +117,7 @@
             color: #991b1b; 
             margin-top: 15px; 
             display: none; 
+            word-break: break-all;
         }
     </style>
 </head>
@@ -223,14 +224,8 @@ async function transcribe() {
 
         const data = await response.json();
         
-        // Response ထဲက Header သို့မဟုတ် Error ထဲက Rate Limit အချက်အလက်များကို ဖမ်းယူရန်
-        const remainingTimeHeader = response.headers.get('x-ratelimit-remaining-audio-seconds');
-        
         if (!response.ok) {
-            // Rate Limit ပြည့်သွားတဲ့အခါ Groq က ပို့ပေးတဲ့ Error message ထဲက စက္ကန့်နဲ့ အချက်အလက်များကို ထုတ်ယူပြသရန်
-            let errMessage = data.error?.message || 'API Error';
-            
-            // Regex သုံးပြီး "try again in XmX.Xs" ကို ရှာထုတ်ခြင်း
+            let errMessage = data.error?.message || 'Transcription API Error';
             const matchTime = errMessage.match(/try again in ([0-9ms\.]+)/);
             const matchLimit = errMessage.match(/Limit ([0-9]+), Used ([0-9]+)/);
             
@@ -256,7 +251,7 @@ async function transcribe() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
+                model: 'llama3-8b-8192',
                 messages: [
                     { role: 'system', content: 'Translate the following indexed text lines into fluent Burmese. Keep the exact format `[index] text`.' },
                     { role: 'user', content: originalTexts }
@@ -266,7 +261,10 @@ async function transcribe() {
         });
 
         const translateData = await translateResponse.json();
-        if (!translateResponse.ok) throw new Error('Translation failed');
+        if (!translateResponse.ok) {
+            let transErr = translateData.error?.message || JSON.stringify(translateData);
+            throw new Error('Translation Error: ' + transErr);
+        }
 
         const translatedTextContent = translateData.choices[0].message.content;
         const translatedMap = {};
