@@ -28,7 +28,7 @@
             <div class="bg-slate-900 p-4 rounded-2xl border border-emerald-500/30 shadow-lg space-y-3 flex flex-col justify-between">
                 <div class="space-y-3">
                     <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
-                        <span class="text-base">🎙️</span> Groq Whisper Transcript
+                        <span class="text-base">🎙️</span> Groq Whisper Transcript (Multi-Language)
                     </h2>
                     
                     <div>
@@ -69,7 +69,7 @@
             <div class="bg-slate-900 p-4 rounded-2xl border border-emerald-500/30 shadow-lg space-y-3 flex flex-col justify-between">
                 <div class="space-y-3">
                     <h2 class="text-xs font-bold text-emerald-300 flex items-center gap-2 font-mono">
-                        <span class="text-base">✨</span> Gemini Audio Transcript
+                        <span class="text-base">✨</span> Gemini Audio Transcript (Multi-Language)
                     </h2>
                     
                     <div>
@@ -211,7 +211,7 @@
         setupKeyManagement('groqApiKeyInput', 'groqKeyHistory', 'groq_keys_list');
         setupKeyManagement('geminiApiKeyInput', 'geminiKeyHistory', 'gemini_keys_list');
 
-        // --- 1. Groq Transcription Logic ---
+        // --- 1. Groq Transcription Logic (Multi-Language Auto Detect) ---
         document.getElementById('groqTranscribeBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('groqApiKeyInput').value.trim();
             const fileInput = document.getElementById('groqAudioInput');
@@ -229,13 +229,14 @@
             }
 
             status.classList.remove('hidden');
-            status.textContent = 'Groq ဖြင့် Transcript ထုတ်နေပါပြီ...';
+            status.textContent = 'Groq ဖြင့် ဘာသာစကားစုံ Transcript ထုတ်နေပါပြီ...';
             output.value = '';
 
             try {
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
                 formData.append('model', 'whisper-large-v3');
+                // ထည့်သွင်းထားသော ဖိုင်၏ မူရင်းဘာသာစကားအတိုင်း အလိုအလျောက်ဖော်ပြရန် (Multi-language support)
 
                 const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
                     method: 'POST',
@@ -259,7 +260,7 @@
             navigator.clipboard.writeText(el.value).then(() => alert('ကူးယူပြီးပါပြီ!'));
         });
 
-        // --- 2. Gemini Transcription Logic ---
+        // --- 2. Gemini Transcription Logic (Multi-Language Auto Detect) ---
         document.getElementById('geminiTranscribeBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('geminiApiKeyInput').value.trim();
             const fileInput = document.getElementById('geminiAudioInput');
@@ -277,7 +278,7 @@
             }
 
             status.classList.remove('hidden');
-            status.textContent = 'Gemini ဖြင့် Transcript ထုတ်နေပါပြီ...';
+            status.textContent = 'Gemini ဖြင့် ဘာသာစကားစုံ Transcript ထုတ်နေပါပြီ...';
             output.value = '';
 
             try {
@@ -290,7 +291,7 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: "Please provide the exact transcript of this media file without adding extra conversational text." },
+                                { text: "Listen to the audio/video file carefully, detect its spoken language automatically, and provide the exact verbatim transcript in its original language without adding extra conversational text." },
                                 {
                                     inline_data: {
                                         mime_type: file.type || "audio/mp3",
@@ -401,7 +402,7 @@
 
             } catch (error) {
                 status.textContent = 'အမှား: ' + error.message;
-            }
+    }
         });
     </script>
 </body>
