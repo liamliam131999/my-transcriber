@@ -7,106 +7,116 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-3 font-sans">
-    <div class="max-w-md mx-auto space-y-4">
+    <div class="max-w-4xl mx-auto space-y-4">
         <!-- Header -->
         <header class="text-center space-y-1 bg-slate-900/80 p-3 rounded-2xl border border-slate-800 shadow-lg">
-            <h1 class="text-lg font-bold text-amber-400 flex items-center justify-center gap-2">
+            <h1 class="text-base font-bold text-amber-400 flex items-center justify-center gap-2">
                 <span>⚡</span> AI Video Studio Pro
             </h1>
             <!-- ထိပ်ဆုံးမှ သတိပေးချက် -->
-            <p class="text-[11px] text-rose-400 font-medium bg-rose-950/50 py-1.5 px-2 rounded-xl border border-rose-900/50">
+            <p class="text-[11px] text-rose-400 font-medium bg-rose-950/50 py-1.5 px-2 rounded-xl border border-rose-900/50 inline-block">
                 ⚠️ သတိပြုရန် - အသံဖိုင်/ဗီဒီယိုဖိုင်သည် 25MB size ထက် မကျော်ရပါ။
             </p>
         </header>
 
-        <!-- 1. Groq API Option (Transcription) -->
-        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3">
-            <h2 class="text-xs font-bold text-amber-300 flex items-center gap-2">
-                <span class="text-base">🎙️</span> ၁။ Groq Whisper ဖြင့် Transcript ထုတ်ရန်
-            </h2>
+        <!-- Main Grid Layout (ဘေးတိုက် ကွက်လပ်များ) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            <div>
-                <label class="block text-[11px] text-slate-400 mb-1">🔑 Groq API Key:</label>
-                <input type="password" id="groqApiKeyInput" placeholder="gsk_..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+            <!-- 1. Groq API Option (Transcription) -->
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <h2 class="text-xs font-bold text-amber-300 flex items-center gap-2">
+                        <span class="text-base">🎙️</span> ၁။ Groq Whisper (Transcript)
+                    </h2>
+                    
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">🔑 Groq API Key:</label>
+                        <input type="password" id="groqApiKeyInput" placeholder="gsk_..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">📁 အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ရွေးပါ:</label>
+                        <input type="file" id="groqAudioInput" accept="audio/*,video/*" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <button id="groqTranscribeBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium py-2 px-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+                        <span>🎯</span> စာသားထုတ်မည်
+                    </button>
+
+                    <div id="groqStatus" class="text-[11px] text-slate-400 hidden text-center"></div>
+
+                    <div id="groqResultArea" class="hidden space-y-2">
+                        <textarea id="groqOutput" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-100 focus:outline-none" placeholder="ထွက်လာမည့် စာသားများ..."></textarea>
+                        <button id="copyGroqBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-1.5 px-2 rounded-xl text-xs transition">
+                            📋 ကူးယူရန် (Copy)
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-[11px] text-slate-400 mb-1">📁 အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ရွေးပါ:</label>
-                <input type="file" id="groqAudioInput" accept="audio/*,video/*" class="block w-full text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700 cursor-pointer">
+            <!-- 2. Gemini API Option -->
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3 flex flex-col justify-between">
+                <div class="space-y-3">
+                    <h2 class="text-xs font-bold text-amber-300 flex items-center gap-2">
+                        <span class="text-base">✨</span> ၂။ Gemini API ဖြင့် လုပ်ဆောင်ရန်
+                    </h2>
+                    
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">🔑 Gemini API Key:</label>
+                        <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">💬 မေးမြန်းရန်:</label>
+                        <textarea id="geminiPromptInput" rows="2" placeholder="မေးခွန်း သို့မဟုတ် ညွှန်ကြားချက်..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-100 focus:outline-none mb-1"></textarea>
+                        
+                        <input type="file" id="geminiFileInput" accept="audio/*,video/*,image/*" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700 cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <button id="geminiRunBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-2 px-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+                        <span>🚀</span> Gemini ဖြင့် လုပ်မည်
+                    </button>
+
+                    <div id="geminiStatus" class="text-[11px] text-slate-400 hidden text-center"></div>
+
+                    <div id="geminiResultArea" class="hidden space-y-2">
+                        <textarea id="geminiOutput" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-100 focus:outline-none" placeholder="တုံ့ပြန်ချက်..."></textarea>
+                    </div>
+                </div>
             </div>
 
-            <button id="groqTranscribeBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium py-2.5 px-4 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-                <span>🎯</span> စာသားများ ထုတ်ယူမည် (Transcript)
-            </button>
-
-            <div id="groqStatus" class="text-[11px] text-slate-400 hidden text-center"></div>
-
-            <div id="groqResultArea" class="hidden space-y-2">
-                <label class="block text-[11px] text-slate-300 font-semibold">📜 ထွက်လာသော စာသားများ:</label>
-                <textarea id="groqOutput" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none"></textarea>
-                <button id="copyGroqBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-3 rounded-xl text-xs transition">
-                    📋 စာသားများ ကူးယူရန် (Copy)
-                </button>
-            </div>
         </div>
 
-        <!-- 2. Gemini API Option -->
+        <!-- 3. Audio File Size Compressor Option (Full Width at bottom) -->
         <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3">
             <h2 class="text-xs font-bold text-amber-300 flex items-center gap-2">
-                <span class="text-base">✨</span> ၂။ Gemini API ဖြင့် အလုပ်လုပ်ရန်
-            </h2>
-            
-            <div>
-                <label class="block text-[11px] text-slate-400 mb-1">🔑 Gemini API Key:</label>
-                <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-            </div>
-
-            <div>
-                <label class="block text-[11px] text-slate-400 mb-1">💬 မေးမြန်းလိုသည်များကို ရေးပါ:</label>
-                <textarea id="geminiPromptInput" rows="2" placeholder="ဤဖိုင်ကို မြန်မာလို ဘာသာပြန်ပေးပါ..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none mb-2"></textarea>
-                
-                <label class="block text-[11px] text-slate-400 mb-1">📁 ဖိုင်တွဲထည့်ရန် (Optional):</label>
-                <input type="file" id="geminiFileInput" accept="audio/*,video/*,image/*" class="block w-full text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700 cursor-pointer">
-            </div>
-
-            <button id="geminiRunBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium py-2.5 px-4 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-                <span>🚀</span> Gemini ဖြင့် လုပ်ဆောင်မည်
-            </button>
-
-            <div id="geminiStatus" class="text-[11px] text-slate-400 hidden text-center"></div>
-
-            <div id="geminiResultArea" class="hidden space-y-2">
-                <label class="block text-[11px] text-slate-300 font-semibold">📜 တုံ့ပြန်ချက်:</label>
-                <textarea id="geminiOutput" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none"></textarea>
-            </div>
-        </div>
-
-        <!-- 3. Audio File Size Compressor Option -->
-        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3">
-            <h2 class="text-xs font-bold text-amber-300 flex items-center gap-2">
-                <span class="text-base">📉</span> ၃။ အသံဖိုင် အရွယ်အစား လျှော့ချရန်
+                <span class="text-base">📉</span> ၃။ အသံဖိုင် အရွယ်အစား လျှော့ချရန် (Audio Compressor)
             </h2>
             <p class="text-[10px] text-slate-400">💡 25MB ကျော်နေသော အသံဖိုင်များကို ဆိုဒ်သေးအောင် ပြုလုပ်နိုင်ပါသည်။</p>
 
-            <div class="space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                <div class="sm:col-span-2">
+                    <input type="file" id="compressAudioInput" accept="audio/*" class="block w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700 cursor-pointer">
+                </div>
                 <div>
-                    <label class="block text-[11px] text-slate-300 mb-1">🎵 အသံဖိုင် ရွေးချယ်ပါ (MP3, WAV):</label>
-                    <input type="file" id="compressAudioInput" accept="audio/*" class="block w-full text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-amber-300 hover:file:bg-slate-700 cursor-pointer">
+                    <button id="compressBtn" class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-medium py-2 px-3 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
+                        <span>⚡</span> ဆိုဒ်လျှော့မည်
+                    </button>
                 </div>
+            </div>
 
-                <button id="compressBtn" class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-medium py-2.5 px-4 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-1.5">
-                    <span>⚡</span> အသံဖိုင် ဆိုဒ်လျှော့မည် (Compress)
-                </button>
+            <div id="compressStatus" class="text-[11px] text-slate-400 hidden text-center"></div>
 
-                <div id="compressStatus" class="text-[11px] text-slate-400 hidden text-center"></div>
-
-                <div id="compressedResultArea" class="hidden pt-2 space-y-2">
-                    <p class="text-[11px] text-emerald-400 font-medium">✨ ဖိုင်ဆိုဒ် လျှော့ချပြီးသား အသံဖိုင် -</p>
-                    <audio id="compressedAudioPlayer" controls class="w-full h-9"></audio>
-                    <a id="downloadCompressedLink" class="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-xl text-xs transition shadow-md">
-                        📥 ဒေါင်းလုပ်ဆွဲရန် (Download MP3)
-                    </a>
-                </div>
+            <div id="compressedResultArea" class="hidden pt-2 space-y-2">
+                <p class="text-[11px] text-emerald-400 font-medium">✨ ဖိုင်ဆိုဒ် လျှော့ချပြီးသား အသံဖိုင် -</p>
+                <audio id="compressedAudioPlayer" controls class="w-full h-8"></audio>
+                <a id="downloadCompressedLink" class="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-medium py-1.5 rounded-xl text-xs transition shadow-md">
+                    📥 ဒေါင်းလုပ်ဆွဲရန် (Download MP3)
+                </a>
             </div>
         </div>
     </div>
