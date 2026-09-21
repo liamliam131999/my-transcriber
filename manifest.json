@@ -8,16 +8,10 @@
   "description": "Audio to Burmese Text Transcriber App",
   "icons": [
     {
-      "src": "https://api.iconify.design/fluent-emoji:studio-microphone.svg",
-      "sizes": "512x512",
+      "src": "https://www.svgrepo.com/show/532981/microphone.svg",
+      "sizes": "192x192 512x512",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "https://api.iconify.design/fluent-emoji:studio-microphone.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
