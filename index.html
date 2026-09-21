@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-API Key Audio & Video Transcriber 🇲🇲</title>
+    <title>Auto Video Silence Remover & Transcriber 🇲🇲</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a73e8">
+
+    <!-- FFmpeg.wasm for Browser-side Video Editing -->
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
 
     <style>
         body { 
@@ -53,80 +56,48 @@
             outline: none; 
             box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
         }
-        .key-row {
-            display: flex;
-            gap: 10px;
-        }
+        .key-row { display: flex; gap: 10px; }
         .save-key-btn {
-            margin-top: 8px;
-            width: 120px;
-            background: #059669;
-            color: white;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 10px;
+            margin-top: 8px; width: 120px; background: #059669; color: white;
+            border: none; font-weight: bold; cursor: pointer; border-radius: 10px;
         }
         .save-key-btn:hover { background: #047857; }
         
         button.main-btn { 
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
-            color: white; 
-            border: none; 
-            font-weight: bold; 
-            font-size: 16px;
-            cursor: pointer; 
-            margin-top: 22px; 
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-            padding: 14px;
+            color: white; border: none; font-weight: bold; font-size: 16px;
+            cursor: pointer; margin-top: 22px; border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3); padding: 14px;
         }
         button.main-btn:hover { transform: translateY(-1px); }
 
-        button.script-btn {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            color: white;
-            border: none;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 12px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(124,58,237,0.3);
-            padding: 12px;
+        button.cut-btn {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white; border: none; font-weight: bold; font-size: 16px;
+            cursor: pointer; margin-top: 12px; border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(5,150,105,0.3); padding: 14px;
         }
-        button.script-btn:hover { background: #5b21b6; }
+        button.cut-btn:hover { background: #065f46; }
         button:disabled { background: #94a3b8; cursor: not-allowed; }
 
-        #status { margin-top: 15px; font-weight: bold; font-size: 14px; color: #334155; }
+        #status, #editStatus { margin-top: 12px; font-weight: bold; font-size: 14px; color: #334155; }
         
-        .limit-box {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 13px;
-            color: #475569;
-        }
-
         .error-box { 
-            background: #fef2f2; 
-            border: 1px solid #fecaca;
-            border-left: 5px solid #ef4444; 
-            padding: 14px; 
-            border-radius: 10px; 
-            color: #991b1b; 
-            margin-top: 15px; 
-            display: none; 
-            word-break: break-all;
+            background: #fef2f2; border: 1px solid #fecaca; border-left: 5px solid #ef4444; 
+            padding: 14px; border-radius: 10px; color: #991b1b; margin-top: 15px; display: none; word-break: break-all;
+        }
+        video {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 10px;
+            background: #000;
         }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🎬 Multi-API Key Audio & Video Transcriber 🇲🇲</h2>
+    <h2>🎬 Auto Video Silence Remover & Transcriber 🇲🇲</h2>
     
     <label>🔑 သုံးမည့် API Key ကို ရွေးပါ:</label>
     <select id="activeKeySelect" onchange="onKeySelectionChange()">
@@ -141,40 +112,36 @@
         <button type="button" class="save-key-btn" onclick="saveActiveApiKey()">💾 Save</button>
     </div>
 
-    <label>🧩 Part ရွေးပါ:</label>
-    <select id="partSelect">
-        <option value="0">▶️ Part 1 (00:00:00 မှ စမည်)</option>
-        <option value="1200">⏩ Part 2 (00:20:00 မှ စမည်)</option>
-        <option value="2400">⏩ Part 3 (00:40:00 မှ စမည်)</option>
-        <option value="3600">⏩ Part 4 (01:00:00 မှ စမည်)</option>
-    </select>
-
-    <label>🗣️ မူရင်း အသံ/ဗီဒီယို ဘာသာစကား:</label>
-    <select id="langSelect">
-        <option value="zh">🇨🇳 တရုတ်ဘာသာ (Chinese)</option>
-        <option value="en">🇬🇧 အင်္ဂလိပ်ဘာသာ (English)</option>
-        <option value="auto">🌐 အလိုအလျောက် (Auto Detect)</option>
-    </select>
-
-    <label>📁 Audio သို့မဟုတ် Video ဖိုင် တင်ပါ:</label>
-    <input type="file" id="fileInput" accept="audio/*,video/*">
+    <label>📁 ဗီဒီယို (သို့) အသံဖိုင် တင်ပါ:</label>
+    <input type="file" id="fileInput" accept="video/*,audio/*">
     
-    <button id="transcribeBtn" class="main-btn" onclick="transcribe()">🚀 ရွေးထားသော Key ဖြင့် စာသားထုတ်ယူမည်</button>
+    <button id="transcribeBtn" class="main-btn" onclick="transcribe()">🚀 ဇာတ်ကောင်စပြောမည့်အချိန် ညှိပြီး စာထုတ်မည်</button>
     
     <div id="status"></div>
-    <div id="limitInfo" class="limit-box" style="display:none;"></div>
     <div id="errorBox" class="error-box"></div>
     
     <label style="margin-top:22px;">📝 ထွက်လာသည့် စာသားရလဒ် (Transcript):</label>
-    <textarea id="result" rows="8" readonly placeholder="✨ ဇာတ်ကောင်စပြောသည့် အချိန်မှစတင်၍ စာများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+    <textarea id="result" rows="6" readonly placeholder="✨ စာများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
 
-    <button id="scriptBtn" class="script-btn" onclick="generateRecapScript()" disabled>✨ ဤစာသားများမှ ဇာတ်လမ်း Recap Script ရေးပေးမည်</button>
+    <!-- Auto Silence Removal / Video Editor Section -->
+    <hr style="margin: 25px 0; border: 0; border-top: 1px solid #cbd5e1;">
+    <h3 style="color: #059669; font-size: 18px; margin-bottom: 5px;">✂️ Auto Silence Remover (အသံတိတ်အပိုင်းများ အလိုအလျောက် ဖြတ်ထုတ်ရန်)</h3>
+    <p style="font-size: 13px; color: #64748b; margin-top: 0;">ဗီဒီယိုထဲမှ စကားမပြောဘဲ တိတ်ဆိတ်နေသော နေရာများကို ဖယ်ရှားပြီး ဇာတ်ကောင်စကားပြောသည့် အပိုင်းများကိုသာ အလိုအလျောက် ဆက်ပေးပါမည်။</p>
 
-    <label style="margin-top:22px;">🎬 ဗီဒီယို Recap Script ရလဒ်:</label>
-    <textarea id="scriptResult" rows="10" readonly placeholder="✨ Recap ဇာတ်ညွှန်းများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+    <button id="autoCutBtn" class="cut-btn" onclick="autoRemoveSilence()" disabled>✂️ အသံတိတ်အပိုင်းများ ဖြတ်ထုတ်ပြီး ဗီဒီယိုအချောထည် ထုတ်မည်</button>
+    <div id="editStatus"></div>
+
+    <label style="margin-top:15px;">▶️ တည်းဖြတ်ပြီး ဗီဒီယိုအချောထည် (Preview & Download):</label>
+    <video id="outputVideo" controls style="display:none;"></video>
+    <a id="downloadLink" style="display:none; margin-top: 12px;" download="edited_final_video.mp4">
+        <button class="main-btn" style="background: #0d9488; margin-top: 5px;">📥 ဗီဒီယိုကို ဖုန်းထဲသို့ Save / Download လုပ်ရန်</button>
+    </a>
 </div>
 
 <script>
+const { createFFmpeg, fetchFile } = FFmpeg;
+let ffmpeg = null;
+
 window.onload = function() {
     loadKeyForSelection();
 };
@@ -187,7 +154,6 @@ function onKeySelectionChange() {
     const selected = getSelectedKeyName();
     const selectElem = document.getElementById('activeKeySelect');
     const labelElem = document.getElementById('keyInputLabel');
-    
     labelElem.innerText = `🔑 ${selectElem.options[selectElem.selectedIndex].text} ထည့်ရန်:`;
     loadKeyForSelection();
 }
@@ -218,45 +184,33 @@ function formatTime(seconds) {
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
 }
 
+let activeSegments = []; // သိမ်းဆည်းထားမည့် ဇာတ်ကောင်စပြောသော အပိုင်းများ
+
 async function transcribe() {
     const keyName = getSelectedKeyName();
     const apiKey = localStorage.getItem('groq_' + keyName) || document.getElementById('apiKeyInput').value.trim();
-    
     const fileInput = document.getElementById('fileInput');
-    const offsetSeconds = parseInt(document.getElementById('partSelect').value);
-    const selectedLang = document.getElementById('langSelect').value;
     const status = document.getElementById('status');
     const result = document.getElementById('result');
-    const scriptResult = document.getElementById('scriptResult');
     const errorBox = document.getElementById('errorBox');
-    const limitInfo = document.getElementById('limitInfo');
-    const scriptBtn = document.getElementById('scriptBtn');
+    const autoCutBtn = document.getElementById('autoCutBtn');
 
     errorBox.style.display = 'none';
-    limitInfo.style.display = 'none';
 
-    if (!apiKey) { 
-        alert('⚠️ ကျေးဇူးပြု၍ ရွေးချယ်ထားသော API Key ထည့်ပြီး Save ခလုတ်ကို အရင်နှိပ်ပါ'); 
-        return; 
-    }
-    if (!fileInput.files[0]) { 
-        alert('⚠️ ကျေးဇူးပြု၍ Audio သို့မဟုတ် Video ဖိုင် ရွေးပေးပါ'); 
-        return; 
-    }
+    if (!apiKey) { alert('⚠️ ကျေးဇူးပြု၍ API Key ထည့်ပါ'); return; }
+    if (!fileInput.files[0]) { alert('⚠️ ဗီဒီယို သို့မဟုတ် အသံဖိုင် ရွေးပေးပါ'); return; }
 
     localStorage.setItem('groq_' + keyName, apiKey);
-
     const file = fileInput.files[0];
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('model', 'whisper-large-v3');
     formData.append('response_format', 'verbose_json');
-    if (selectedLang !== 'auto') formData.append('language', selectedLang);
 
-    status.innerText = "⏳ ဖိုင်မှ စာသားထုတ်ယူနေပါသည် (ခဏစောင့်ပါ)...";
+    status.innerText = "⏳ ဖိုင်မှ အချက်အလက်များ ထုတ်ယူနေပါသည်...";
     result.value = "";
-    scriptResult.value = "";
-    scriptBtn.disabled = true;
+    autoCutBtn.disabled = true;
 
     try {
         const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -266,40 +220,23 @@ async function transcribe() {
         });
 
         const data = await response.json();
-        
-        if (!response.ok) {
-            let errMessage = data.error?.message || 'Transcription API Error';
-            const matchTime = errMessage.match(/try again in ([0-9ms\.]+)/);
-            const matchLimit = errMessage.match(/Limit ([0-9]+), Used ([0-9]+)/);
-            
-            if (matchLimit) {
-                limitInfo.style.display = 'block';
-                limitInfo.innerHTML = `📊 <b>Rate Limit အခြေအနေ:</b><br>• အသုံးပြုခွင့် အများဆုံး: ${matchLimit[1]} စက္ကန့်<br>• သုံးပြီးသား: ${matchLimit[2]} စက္ကန့်<br><br>💡 <i>အကြံပြုချက်: အခြား API Key သို့ ပြောင်းသုံးပါ။</i>`;
-            }
-            
-            if (matchTime) {
-                throw new Error(`Rate limit ပြည့်သွားပါပြီ။ (${matchTime[1]}) စောင့်ပါ (သို့) အခြား API Key သို့ ပြောင်းသုံးပါ။`);
-            } else {
-                throw new Error(errMessage);
-            }
-        }
+        if (!response.ok) throw new Error(data.error?.message || 'API Error');
 
-        status.innerText = "✅ စာသားထုတ်ယူခြင်း အောင်မြင်ပါသည်။";
+        status.innerText = "✅ စာသားထုတ်ယူခြင်း ပြီးစီးပါပြီ။";
         let output = "";
-        
-        // Filter: အလွတ်ဖြစ်နေသော သို့မဟုတ် အဓိပ္ပာယ်မရှိသော အစောပိုင်းတိတ်ဆိတ်မှုများကို စစ်ထုတ်ပြီး
-        // ဇာတ်ကောင် အမှန်တကယ် စတင်ပြောဆိုသည့် အချိန် (segments) များကိုသာ အစပြု၍ ထုတ်ပေးပါမည်။
+        activeSegments = [];
+
         let validSegments = data.segments.filter(seg => seg.text && seg.text.trim().length > 0);
 
         validSegments.forEach((seg) => {
-            const start = formatTime(seg.start + offsetSeconds);
-            const end = formatTime(seg.end + offsetSeconds);
-            const text = seg.text.trim();
-            output += `[${start} - ${end}] ${text}\n`;
+            activeSegments.push({ start: seg.start, end: seg.end });
+            output += `[${formatTime(seg.start)} - ${formatTime(seg.end)}] ${seg.text.trim()}\n`;
         });
         
         result.value = output;
-        scriptBtn.disabled = false;
+        if (activeSegments.length > 0 && file.type.startsWith('video')) {
+            autoCutBtn.disabled = false;
+        }
 
     } catch (err) {
         status.innerText = "❌ အမှားတွေ့ရှိပါသည်";
@@ -308,56 +245,77 @@ async function transcribe() {
     }
 }
 
-async function generateRecapScript() {
-    const keyName = getSelectedKeyName();
-    const apiKey = localStorage.getItem('groq_' + keyName) || document.getElementById('apiKeyInput').value.trim();
-    const transcriptText = document.getElementById('result').value;
-    const status = document.getElementById('status');
-    const scriptResult = document.getElementById('scriptResult');
-    const errorBox = document.getElementById('errorBox');
+// FFmpeg ဖြင့် အသံတိတ်အပိုင်းများ ဖယ်ရှားပြီး ဗီဒီယိုအချောထည်ထုတ်ခြင်း
+async function autoRemoveSilence() {
+    const fileInput = document.getElementById('fileInput');
+    const editStatus = document.getElementById('editStatus');
+    const outputVideo = document.getElementById('outputVideo');
+    const downloadLink = document.getElementById('downloadLink');
 
-    if (!transcriptText) {
-        alert('⚠️ ထုတ်ယူထားသော စာသားများ မရှိသေးပါ။');
+    if (!fileInput.files[0] || activeSegments.length === 0) {
+        alert('⚠️ ဖြတ်ထုတ်ရန် အချက်အလက် မလုံလောက်ပါ။');
         return;
     }
 
-    status.innerText = "⏳ ဗီဒီယို Recap Script ဖန်တီးနေပါသည်...";
+    if (!ffmpeg) {
+        editStatus.innerText = "⏳ ဗီဒီယိုတည်းဖြတ်စနစ်ကို စတင်ဒေါင်းလုပ်လုပ်နေပါသည် (ခဏစောင့်ပါ)...";
+        try {
+            ffmpeg = createFFmpeg({ log: true });
+            await ffmpeg.load();
+        } catch (e) {
+            editStatus.innerText = "❌ FFmpeg စတင်၍မရပါ။";
+            return;
+        }
+    }
+
+    editStatus.innerText = "⏳ ဗီဒီယိုကို အသံတိတ်နေရာများ ဖယ်ရှားကာ တည်းဖြတ်နေပါပြီ...";
+    const file = fileInput.files[0];
+    const inputName = 'input.mp4';
+    
+    ffmpeg.FS('writeFile', inputName, await fetchFile(file));
+
+    // FFmpeg filter complex တည်ဆောက်ခြင်း (ဇာတ်ကောင်စပြောသော အပိုင်းများကိုသာ ညှပ်ဆက်ရန်)
+    let filterParts = [];
+    let concatInputs = [];
+    
+    activeSegments.forEach((seg, index) => {
+        // အချိန်အကွာအဝေး အနည်းဆုံး 0.3 စက္ကန့်ရှိမှသာ ယူမည်
+        if (seg.end - seg.start > 0.2) {
+            filterParts.push(`[0:v]trim=start=${seg.start}:end=${seg.end},setpts=PTS-STARTPTS[v${index}];[0:a]atrim=start=${seg.start}:end=${seg.end},asetpts=PTS-STARTPTS[a${index}]`);
+            concatInputs.push(`[v${index}][a${index}]`);
+        }
+    });
+
+    if (concatInputs.length === 0) {
+        editStatus.innerText = "❌ ညှပ်ထုတ်ရန် အပိုင်းအစ မတွေ့ပါ။";
+        return;
+    }
+
+    let filterScript = filterParts.join(';') + `;${concatInputs.join('')}concat=n=${concatInputs.length}:v=1:a=1[outv][outa]`;
 
     try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ` + apiKey,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    { 
-                        role: 'system', 
-                        content: 'You are an expert movie and video recap scriptwriter. Read the provided transcript lines, extract the core storyline, and write an engaging, smooth narrative recap script in fluent Burmese language suitable for YouTube or TikTok video storytelling. Organize it neatly with headings or paragraphs.' 
-                    },
-                    { 
-                        role: 'user', 
-                        content: `ဒီ Transcript စာသားတွေကို အခြေခံပြီး စိတ်ဝင်စားစရာကောင်းတဲ့ ဗီဒီယို Recap ဇာတ်ညွှန်း (Storyline Recap Script) တစ်ခုကို မြန်မာလို ရေးပေးပါ:\n\n${transcriptText}` 
-                    }
-                ],
-                temperature: 0.7
-            })
-        });
+        await ffmpeg.run(
+            '-i', inputName,
+            '-filter_complex', filterScript,
+            '-map', '[outv]',
+            '-map', '[outa]',
+            'output.mp4'
+        );
 
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error?.message || 'Script Generation Error');
-        }
-
-        scriptResult.value = data.choices[0].message.content;
-        status.innerText = "✅ Recap Script ရေးသားခြင်း အောင်မြင်ပါသည်။";
+        editStatus.innerText = "✅ ဗီဒီယို တည်းဖြတ်ခြင်း အောင်မြင်ပါသည်။ Save ပြုလုပ်နိုင်ပါပြီ!";
+        const data = ffmpeg.FS('readFile', 'output.mp4');
+        
+        const videoBlob = new Blob([data.buffer], { type: 'video/mp4' });
+        const videoUrl = URL.createObjectURL(videoBlob);
+        
+        outputVideo.src = videoUrl;
+        outputVideo.style.display = 'block';
+        downloadLink.href = videoUrl;
+        downloadLink.style.display = 'block';
 
     } catch (err) {
-        status.innerText = "❌ Script ရေးရာတွင် အမှားတွေ့ရှိပါသည်";
-        errorBox.style.display = 'block';
-        errorBox.innerText = err.message;
+        editStatus.innerText = "❌ ဗီဒီယိုတည်းဖြတ်ရာတွင် အမှားဖြစ်သွားပါသည်။";
+        console.error(err);
     }
 }
 </script>
