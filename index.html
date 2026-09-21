@@ -1,48 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq Transcriber (with Auto Offset)</title>
+    <title>🎬 Groq Audio Transcriber Pro 🎙️</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 650px; margin: 30px auto; padding: 20px; background: #f4f4f9; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input, select, button, textarea { width: 100%; margin-top: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-        button { background: #4CAF50; color: white; border: none; font-weight: bold; cursor: pointer; }
-        button:hover { background: #45a049; }
-        #status { margin-top: 10px; font-weight: bold; color: #333; word-break: break-all; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            max-width: 680px; 
+            margin: 20px auto; 
+            padding: 15px; 
+            background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%); 
+            min-height: 100vh;
+            color: #2c3e50; 
+        }
+        .card { 
+            background: #ffffff; 
+            padding: 28px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12); 
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #1a73e8; 
+            font-size: 24px; 
+            text-align: center;
+            border-bottom: 2px dashed #e0e0e0;
+            padding-bottom: 12px;
+        }
+        label { 
+            font-weight: 600; 
+            margin-top: 18px; 
+            display: block; 
+            font-size: 15px; 
+        }
+        input, select, button, textarea { 
+            width: 100%; 
+            margin-top: 8px; 
+            padding: 12px 14px; 
+            border-radius: 10px; 
+            border: 1px solid #cbd5e1; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            transition: all 0.2s ease;
+        }
+        input:focus, select:focus { 
+            border-color: #1a73e8; 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
+        }
+        button { 
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
+            color: white; 
+            border: none; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            margin-top: 22px; 
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+        button:hover { 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(37,99,235,0.4);
+        }
+        button:disabled { 
+            background: #94a3b8; 
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .usage-box { 
+            background: #f0f9ff; 
+            border: 1px solid #bae6fd;
+            border-left: 5px solid #0284c7; 
+            padding: 14px; 
+            border-radius: 10px; 
+            margin-top: 18px; 
+            font-size: 13.5px; 
+        }
+        .usage-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .usage-row:last-child { margin-bottom: 0; }
+        .progress-bar-bg { background: #e0f2fe; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 8px; }
+        .progress-bar-fill { background: #0284c7; height: 100%; width: 0%; transition: width 0.4s ease; }
+        
+        #status { margin-top: 15px; font-weight: bold; font-size: 14px; word-break: break-all; }
+        .error-box { 
+            background: #fef2f2; 
+            border: 1px solid #fecaca;
+            border-left: 5px solid #ef4444; 
+            padding: 14px; 
+            border-radius: 10px; 
+            color: #991b1b; 
+            margin-top: 15px; 
+            display: none; 
+        }
+        .timer-highlight { font-size: 18px; color: #dc2626; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🎙️ Transcriber (With Real Timestamps)</h2>
+    <h2>🎙️ Groq Audio Transcriber Pro ✨</h2>
     
-    <label>Groq API Key:</label>
-    <input type="password" id="apiKey" placeholder="gsk_...">
+    <label>🔑 Groq API Key:</label>
+    <input type="password" id="apiKey" placeholder="gsk_..." onchange="saveApiKey()">
     
-    <label style="margin-top:15px; display:block;">ဘယ် Part ကို တင်မှာလဲ ရွေးပါ:</label>
+    <div class="usage-box" id="usageBox" style="display:none;">
+        <div class="usage-row">
+            <span>📊 <strong>၁ နာရီအတွင်း သုံးစွဲထားမှု:</strong></span>
+            <span id="usageText">0 / 7200 စက္ကန့် (0%)</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="usage-row" style="margin-top: 8px;">
+            <span>⏳ <strong>လက်ကျန် ခွင့်ပြုချိန်:</strong></span>
+            <span id="remainingText">7200 စက္ကန့် (မိနစ် 120)</span>
+        </div>
+    </div>
+
+    <label>🧩 ဘယ် Part ကို တင်မှာလဲ ရွေးပါ:</label>
     <select id="partSelect">
-        <option value="0">Part 1 (part0.mp3) - 00:00:00 မှ စမည်</option>
-        <option value="1200">Part 2 (part1.mp3) - 00:20:00 မှ စမည်</option>
-        <option value="2400">Part 3 (part2.mp3) - 00:40:00 မှ စမည်</option>
-        <option value="3600">Part 4 (part3.mp3) - 01:00:00 မှ စမည်</option>
-        <option value="4800">Part 5 (part4.mp3) - 01:20:00 မှ စမည်</option>
-        <option value="6000">Part 6 (part5.mp3) - 01:40:00 မှ စမည်</option>
+        <option value="0">▶️ Part 1 (part0.mp3) - 00:00:00 မှ စမည်</option>
+        <option value="1200">⏩ Part 2 (part1.mp3) - 00:20:00 မှ စမည်</option>
+        <option value="2400">⏩ Part 3 (part2.mp3) - 00:40:00 မှ စမည်</option>
+        <option value="3600">⏩ Part 4 (part3.mp3) - 01:00:00 မှ စမည်</option>
+        <option value="4800">⏩ Part 5 (part4.mp3) - 01:20:00 မှ စမည်</option>
+        <option value="6000">⏩ Part 6 (part5.mp3) - 01:40:00 မှ စမည်</option>
+        <option value="7200">⏩ Part 7 (part6.mp3) - 02:00:00 မှ စမည်</option>
     </select>
 
-    <label style="margin-top:15px; display:block;">Audio File တင်ပါ:</label>
+    <label>📁 Audio File တင်ပါ:</label>
     <input type="file" id="fileInput" accept="audio/*,video/*">
     
-    <button onclick="transcribe()">Timestamp စာသား ထုတ်ယူမည်</button>
+    <button id="transcribeBtn" onclick="transcribe()">🚀 Timestamp စာသား ထုတ်ယူမည်</button>
     
     <div id="status"></div>
+    <div id="errorBox" class="error-box"></div>
     
-    <label style="margin-top:15px; display:block;">အတိအကျ အချိန်နှင့် စာသား ရလဒ်:</label>
-    <textarea id="result" rows="12" readonly></textarea>
+    <label style="margin-top:22px;">📝 အတိအကျ အချိန်နှင့် စာသား ရလဒ်:</label>
+    <textarea id="result" rows="12" readonly placeholder="✨ ရလဒ် စာသားများ ဒီနေရာမှာ လှပစွာ ပေါ်လာပါမည်..."></textarea>
 </div>
 
 <script>
+let countdownInterval = null;
+
+window.onload = function() {
+    const savedKey = localStorage.getItem('groq_api_key');
+    if (savedKey) {
+        document.getElementById('apiKey').value = savedKey;
+    }
+};
+
+function saveApiKey() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (key) {
+        localStorage.setItem('groq_api_key', key);
+    }
+}
+
 function formatTime(seconds) {
     const pad = (num) => String(num).padStart(2, '0');
     const hrs = Math.floor(seconds / 3600);
@@ -51,15 +169,76 @@ function formatTime(seconds) {
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
 }
 
+function updateUsageUI(usedSec, limitSec = 7200) {
+    const usageBox = document.getElementById('usageBox');
+    const usageText = document.getElementById('usageText');
+    const progressBar = document.getElementById('progressBar');
+    const remainingText = document.getElementById('remainingText');
+
+    usageBox.style.display = 'block';
+    
+    const remainingSec = Math.max(0, limitSec - usedSec);
+    const percent = Math.min(100, Math.round((usedSec / limitSec) * 100));
+
+    usageText.innerText = `${usedSec} / ${limitSec} စက္ကန့် (${percent}%)`;
+    progressBar.style.width = `${percent}%`;
+    
+    const remMins = (remainingSec / 60).toFixed(1);
+    remainingText.innerText = `${remainingSec} စက္ကန့် (ခန့်မှန်းခြေ ${remMins} မိနစ်)`;
+
+    if (percent > 90) {
+        progressBar.style.background = '#ef4444';
+    } else if (percent > 70) {
+        progressBar.style.background = '#f59e0b';
+    } else {
+        progressBar.style.background = '#0284c7';
+    }
+}
+
+function startCountdown(seconds) {
+    const errorBox = document.getElementById('errorBox');
+    const transcribeBtn = document.getElementById('transcribeBtn');
+    
+    transcribeBtn.disabled = true;
+    let timeLeft = seconds;
+
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        
+        errorBox.style.display = 'block';
+        errorBox.innerHTML = `🛑 <strong>Groq API Rate Limit ပြည့်သွားပါပြီ!</strong><br>` +
+                             `⏱️ ပြန်လည် သုံးစွဲနိုင်ရန် စောင့်ရမည့် အချိန်: <span class="timer-highlight">${mins} မိနစ် ${secs} စက္ကန့်</span><br>` +
+                             `<small>💡 အချိန်စေ့လျှင် ခလုတ် ပြန်ဖွင့်ပေးပါမည်။</small>`;
+
+        timeLeft--;
+
+        if (timeLeft < 0) {
+            clearInterval(countdownInterval);
+            errorBox.style.display = 'none';
+            transcribeBtn.disabled = false;
+            document.getElementById('status').innerText = "🎉 စောင့်ဆိုင်းချိန် ပြည့်ပါပြီ။ ပြန်လည် စမ်းသပ်နိုင်ပါပြီ!";
+        }
+    }, 1000);
+}
+
 async function transcribe() {
     const apiKey = document.getElementById('apiKey').value.trim();
     const fileInput = document.getElementById('fileInput');
     const offsetSeconds = parseInt(document.getElementById('partSelect').value);
     const status = document.getElementById('status');
     const result = document.getElementById('result');
+    const errorBox = document.getElementById('errorBox');
 
-    if (!apiKey) { alert('Groq API Key ထည့်ပေးပါ'); return; }
-    if (!fileInput.files[0]) { alert('File တစ်ခုခု ရွေးပေးပါ'); return; }
+    errorBox.style.display = 'none';
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    if (!apiKey) { alert('⚠️ Groq API Key ထည့်ပေးပါဦး'); return; }
+    if (!fileInput.files[0]) { alert('⚠️ Audio ဖိုင်တစ်ခုခု ရွေးပေးပါဦး'); return; }
+
+    saveApiKey();
 
     const file = fileInput.files[0];
     const formData = new FormData();
@@ -67,7 +246,7 @@ async function transcribe() {
     formData.append('model', 'whisper-large-v3');
     formData.append('response_format', 'verbose_json');
 
-    status.innerText = "⏳ စာသားနှင့် အချိန်များ ထုတ်ယူနေပါသည်... ခဏစောင့်ပါ...";
+    status.innerText = "⏳ စာသားနှင့် အချိန်များ ထုတ်ယူနေပါသည်... ခဏစောင့်ပေးပါ...";
     result.value = "";
 
     try {
@@ -77,13 +256,42 @@ async function transcribe() {
             body: formData
         });
 
+        const limitASPH = response.headers.get('x-ratelimit-limit-audio-seconds-per-hour');
+        const remainingASPH = response.headers.get('x-ratelimit-remaining-audio-seconds-per-hour');
+
+        if (limitASPH && remainingASPH) {
+            const limit = parseInt(limitASPH);
+            const remaining = parseInt(remainingASPH);
+            const used = limit - remaining;
+            updateUsageUI(used, limit);
+        }
+
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error ? data.error.message : 'API Error ဖြစ်ပွားပါသည်');
+            const errorMsg = data.error ? data.error.message : 'API Error ဖြစ်ပွားပါသည်';
+            
+            if (errorMsg.includes('Rate limit reached') || response.status === 429) {
+                let waitSec = 180;
+                
+                const mMatch = errorMsg.match(/(\d+)m/);
+                const sMatch = errorMsg.match(/(\d+)s/);
+                
+                let extractedSec = 0;
+                if (mMatch) extractedSec += parseInt(mMatch[1]) * 60;
+                if (sMatch) extractedSec += parseInt(sMatch[1]);
+
+                if (extractedSec > 0) waitSec = extractedSec;
+
+                status.innerText = "❌ Rate Limit ရောက်သွားပါပြီ။ အောက်ပါ အချိန်အတိုင်း ခေတ္တစောင့်ပေးပါ:";
+                startCountdown(waitSec);
+            } else {
+                status.innerText = "❌ အမှားအယွင်း: " + errorMsg;
+            }
+            return;
         }
 
-        status.innerText = "✅ အောင်မြင်စွာ ပြီးဆုံးပါပြီ!";
+        status.innerText = "✅ အောင်မြင်စွာ စာသားထုတ်ယူပြီးပါပြီ!";
         
         if (data.segments) {
             let output = "";
