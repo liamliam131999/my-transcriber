@@ -3,45 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Burmese AI Voice Studio</title>
+    <title>AI Video Studio Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-4">
     <div class="max-w-2xl mx-auto space-y-6">
-        <header class="mb-4">
+        <header class="mb-2">
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
-                <span>🎙️</span> Free Burmese Voice Generator
+                <span>⚡</span> AI Video Studio Pro
             </h1>
-            <p class="text-xs text-slate-400">မြန်မာစာများကို အခမဲ့ အသံဖိုင် (MP3) အဖြစ် ပြောင်းလဲရန်</p>
+            <!-- ထိပ်ဆုံးမှ သတိပေးစာသား -->
+            <p class="text-xs text-rose-400 font-semibold mt-1 bg-rose-950/40 p-2 rounded border border-rose-900">
+                ⚠️ သတိပြုရန် - အသံဖိုင်/ဗီဒီယိုဖိုင်သည် 25MB size ထက် မကျော်ရပါ။
+            </p>
         </header>
 
-        <!-- Burmese Text to Voiceover Audio Download Tool (100% Free) -->
+        <!-- 1. Groq API Option (Transcription) -->
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🇲🇲</span> မြန်မာစာမှ အသံဖိုင် (Voiceover MP3) ထုတ်ရန်
+                <span>⚡</span> ၁။ Groq API ဖြင့် အသံမှ စာသားထုတ်ရန် (Transcript)
             </h2>
-            <p class="text-[11px] text-slate-400">💡 API Key လုံးဝ မလိုပါ။ လုံးဝ အခမဲ့ (Free) အသုံးပြုနိုင်ပါသည်။</p>
+            
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">🔑 Groq API Key:</label>
+                <input type="password" id="groqApiKeyInput" placeholder="gsk_..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+            </div>
 
-            <div class="space-y-2">
-                <label class="block text-xs text-slate-300 font-semibold">✍️ မြန်မာစာသားများ ထည့်ရန်:</label>
-                <textarea id="burmeseInput" rows="5" placeholder="အသံဖိုင်ထုတ်မည့် မြန်မာစာများကို ဤနေရာတွင် Paste လုပ်ပါ..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed"></textarea>
-                
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
-                    <button id="generateAudioBtn" class="bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
-                        <span>🔊</span> အသံဖိုင် အခမဲ့ထုတ်မည်
-                    </button>
-                    <button id="downloadTextBtn" class="bg-teal-600 hover:bg-teal-500 text-white font-medium py-2.5 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1 shadow-lg">
-                        <span>💾</span> စာသားဖိုင်သိမ်းရန် (.txt)
-                    </button>
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">🎵 အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ရွေးပါ:</label>
+                <input type="file" id="groqAudioInput" accept="audio/*,video/*" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 cursor-pointer">
+            </div>
+
+            <button id="groqTranscribeBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition shadow-lg">
+                🎯 Groq ဖြင့် Transcript ထုတ်မည်
+            </button>
+
+            <div id="groqStatus" class="text-xs text-slate-400 hidden"></div>
+
+            <div id="groqResultArea" class="hidden space-y-2">
+                <label class="block text-xs text-slate-300 font-semibold">📜 ထွက်လာသော စာသားများ:</label>
+                <textarea id="groqOutput" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none"></textarea>
+                <button id="copyGroqBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded-lg text-xs transition">
+                    📋 စာသားများ ကူးယူရန် (Copy)
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. Gemini API Option -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
+            <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
+                <span>✨</span> ၂။ Gemini API ဖြင့် အလုပ်လုပ်ရန်
+            </h2>
+            
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">🔑 Gemini API Key:</label>
+                <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">💬 မေးမြန်းလိုသည်များကို ရေးပါ (သို့) ဖိုင်တင်ပါ:</label>
+                <textarea id="geminiPromptInput" rows="3" placeholder="ဤအသံဖိုင်ကို မြန်မာလို ဘာသာပြန်ပေးပါ..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none mb-2"></textarea>
+                <input type="file" id="geminiFileInput" accept="audio/*,video/*,image/*" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 cursor-pointer">
+            </div>
+
+            <button id="geminiRunBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition shadow-lg">
+                🚀 Gemini ဖြင့် လုပ်ဆောင်မည်
+            </button>
+
+            <div id="geminiStatus" class="text-xs text-slate-400 hidden"></div>
+
+            <div id="geminiResultArea" class="hidden space-y-2">
+                <label class="block text-xs text-slate-300 font-semibold">📜 Gemini ၏ တုံ့ပြန်ချက်:</label>
+                <textarea id="geminiOutput" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none"></textarea>
+            </div>
+        </div>
+
+        <!-- 3. Audio File Size Compressor Option -->
+        <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
+            <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
+                <span>📉</span> ၃။ အသံဖိုင် အရွယ်အစား လျှော့ချရန် (Audio Compressor)
+            </h2>
+            <p class="text-[11px] text-slate-400">💡 25MB ကျော်နေသော အသံဖိုင်များကို ဆိုဒ်သေးသွားအောင် ပြုလုပ်နိုင်ပါသည်။</p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">🎵 အသံဖိုင် ရွေးချယ်ပါ (MP3, WAV):</label>
+                    <input type="file" id="compressAudioInput" accept="audio/*" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 cursor-pointer">
                 </div>
 
-                <!-- Audio Player & Download Area -->
-                <div id="audioPlayerArea" class="hidden pt-3 space-y-2">
-                    <p class="text-xs text-emerald-400 font-medium">✨ အသံဖိုင် အဆင်သင့် ဖြစ်ပါပြီ -</p>
-                    <audio id="audioResult" controls class="w-full h-10"></audio>
-                    <a id="downloadAudioLink" class="block w-full text-center bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 rounded-lg text-xs transition shadow-lg">
-                        📥 အသံဖိုင် (MP3) ဒေါင်းလုပ်ဆွဲရန်
+                <button id="compressBtn" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition shadow-lg">
+                    ⚡ အသံဖိုင် ဆိုဒ်လျှော့မည် (Compress Audio)
+                </button>
+
+                <div id="compressStatus" class="text-xs text-slate-400 hidden"></div>
+
+                <div id="compressedResultArea" class="hidden pt-2 space-y-2">
+                    <p class="text-xs text-emerald-400 font-medium">✨ ဖိုင်ဆိုဒ် လျှော့ချပြီးသား အသံဖိုင် -</p>
+                    <audio id="compressedAudioPlayer" controls class="w-full h-10"></audio>
+                    <a id="downloadCompressedLink" class="block w-full text-center bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg text-xs transition shadow-lg">
+                        📥 ဒေါင်းလုပ်ဆွဲရန် (Download MP3)
                     </a>
                 </div>
             </div>
@@ -49,49 +109,171 @@
     </div>
 
     <script>
-        // Free Google Translate TTS API Integration (CORS-Safe)
-        document.getElementById('generateAudioBtn').addEventListener('click', () => {
-            const text = document.getElementById('burmeseInput').value.trim();
-            const audioPlayerArea = document.getElementById('audioPlayerArea');
-            const audioResult = document.getElementById('audioResult');
-            const downloadAudioLink = document.getElementById('downloadAudioLink');
+        // 1. Groq Transcription Logic
+        document.getElementById('groqTranscribeBtn').addEventListener('click', async () => {
+            const apiKey = document.getElementById('groqApiKeyInput').value.trim();
+            const fileInput = document.getElementById('groqAudioInput');
+            const status = document.getElementById('groqStatus');
+            const resultArea = document.getElementById('groqResultArea');
+            const output = document.getElementById('groqOutput');
 
-            if (!text) {
-                alert('အသံဖိုင်ထုတ်ရန် စာသား ထည့်သွင်းပေးပါ။');
+            if (!apiKey || fileInput.files.length === 0) {
+                alert('Groq API Key နှင့် အသံဖိုင်ကို ထည့်သွင်းပေးပါ။');
                 return;
             }
 
-            // Google Translate TTS Public Endpoint (Free & No Key Required)
-            // Maximum text length per request is around 200 characters. For longer text, it splits or uses browser speech.
-            if (text.length > 200) {
-                alert('စာသားအရှည်လွန်းပါသည်။ စာကြောင်းရေအနည်းငယ်စီ ခွဲ၍ (သို့မဟုတ်) အောက်ပါ Browser Speech ကို သုံးပေးပါ။');
-            }
-
-            const encodedText = encodeURIComponent(text);
-            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=my&client=tw-ob`;
-
-            audioResult.src = ttsUrl;
-            downloadAudioLink.href = ttsUrl;
-            downloadAudioLink.download = 'burmese_voice.mp3';
-
-            audioPlayerArea.classList.remove('hidden');
-            alert('အသံဖိုင် အောင်မြင်စွာ ထွက်လာပါပြီ!');
-        });
-
-        // Text Download
-        document.getElementById('downloadTextBtn').addEventListener('click', () => {
-            const textContent = document.getElementById('burmeseInput').value.trim();
-            if (!textContent) {
-                alert('ဒေါင်းလုပ်ဆွဲရန် စာသား မရှိသေးပါ။');
+            if(fileInput.files[0].size > 25 * 1024 * 1024) {
+                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။');
                 return;
             }
 
-            let element = document.createElement('a');
-            let file = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-            element.href = URL.createObjectURL(file);
-            element.download = 'burmese_script.txt';
-            element.click();
+            status.classList.remove('hidden');
+            status.textContent = 'Groq Whisper ဖြင့် Transcript ထုတ်နေပါပြီ...';
+            resultArea.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('model', 'whisper-large-v3');
+
+                const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${apiKey}` },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Groq API တောင်းဆိုမှု မအောင်မြင်ပါ။');
+
+                const data = await response.json();
+                status.textContent = 'အောင်မြင်ပါပြီ!';
+                output.value = data.text;
+                resultArea.classList.remove('hidden');
+            } catch (error) {
+                status.textContent = 'အမှား: ' + error.message;
+            }
         });
+
+        document.getElementById('copyGroqBtn').addEventListener('click', () => {
+            const el = document.getElementById('groqOutput');
+            el.select();
+            navigator.clipboard.writeText(el.value).then(() => alert('ကူးယူပြီးပါပြီ!'));
+        });
+
+        // 2. Gemini API Logic
+        document.getElementById('geminiRunBtn').addEventListener('click', async () => {
+            const apiKey = document.getElementById('geminiApiKeyInput').value.trim();
+            const prompt = document.getElementById('geminiPromptInput').value.trim();
+            const status = document.getElementById('geminiStatus');
+            const resultArea = document.getElementById('geminiResultArea');
+            const output = document.getElementById('geminiOutput');
+
+            if (!apiKey) {
+                alert('Gemini API Key ထည့်သွင်းပေးပါ။');
+                return;
+            }
+
+            status.classList.remove('hidden');
+            status.textContent = 'Gemini သို့ ပို့ဆောင်နေပါပြီ...';
+            resultArea.classList.add('hidden');
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt || "ဤဖိုင်ကို လေ့လာပေးပါ။" }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error('Gemini API အမှားရှိနေပါသည်။');
+
+                const data = await response.json();
+                status.textContent = 'အောင်မြင်ပါပြီ!';
+                output.value = data.candidates[0].content.parts[0].text;
+                resultArea.classList.remove('hidden');
+            } catch (error) {
+                status.textContent = 'အမှား: ' + error.message;
+            }
+        });
+
+        // 3. Audio Compressor Logic
+        document.getElementById('compressBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('compressAudioInput');
+            const status = document.getElementById('compressStatus');
+            const resultArea = document.getElementById('compressedResultArea');
+            const audioPlayer = document.getElementById('compressedAudioPlayer');
+            const downloadLink = document.getElementById('downloadCompressedLink');
+
+            if (fileInput.files.length === 0) {
+                alert('အသံဖိုင်ကို ရွေးချယ်ပေးပါ။');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            status.classList.remove('hidden');
+            status.textContent = 'အသံဖိုင် ဆိုဒ်လျှော့ချနေပါပြီ...';
+            resultArea.classList.add('hidden');
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                const offlineCtx = new OfflineAudioContext(
+                    audioBuffer.numberOfChannels,
+                    audioBuffer.length,
+                    audioBuffer.sampleRate
+                );
+
+                const source = offlineCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(offlineCtx.destination);
+                source.start(0);
+
+                const renderedBuffer = await offlineCtx.startRendering();
+                const wavBlob = bufferToWaveBlob(renderedBuffer);
+                const compressedUrl = URL.createObjectURL(wavBlob);
+
+                audioPlayer.src = compressedUrl;
+                downloadLink.href = compressedUrl;
+                downloadLink.download = 'compressed_' + file.name.replace(/\.[^/.]+$/, "") + '.wav';
+
+                status.textContent = 'ပြီးမြောက်ပါပြီ!';
+                resultArea.classList.remove('hidden');
+            } catch (error) {
+                status.textContent = 'အမှား: ' + error.message;
+            }
+        });
+
+        function bufferToWaveBlob(audioBuffer) {
+            const numOfChan = audioBuffer.numberOfChannels;
+            const length = audioBuffer.length * numOfChan * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+            let sample, offset = 0, pos = 0;
+
+            setUint32(0x46464952); setUint32(length - 8); setUint32(0x45564157);
+            setUint32(0x20746d66); setUint32(16); setUint16(1); setUint16(numOfChan);
+            setUint32(audioBuffer.sampleRate); setUint32(audioBuffer.sampleRate * 2 * numOfChan);
+            setUint16(numOfChan * 2); setUint16(16); setUint32(0x61746164); setUint32(length - pos - 4);
+
+            const channels = [];
+            for (let i = 0; i < numOfChan; i++) channels.push(audioBuffer.getChannelData(i));
+
+            while (pos < audioBuffer.length) {
+                for (let i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][pos]));
+                    sample = (sample < 0 ? sample * 32768 : sample * 32767);
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+                pos++;
+            }
+            return new Blob([buffer], { type: 'audio/wav' });
+
+            function setUint32(data) { view.setUint32(pos, data, true); pos += 4; }
+            function setUint16(data) { view.setUint16(pos, data, true); pos += 2; }
+        }
     </script>
 </body>
 </html>
