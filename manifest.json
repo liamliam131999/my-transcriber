@@ -8,9 +8,15 @@
   "description": "Audio to Burmese Text Transcriber App",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/primer/octicons/main/icons/file-audio-16.svg",
+      "src": "https://via.placeholder.com/192.png/1a73e8/ffffff?text=AI",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://via.placeholder.com/512.png/1a73e8/ffffff?text=AI",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
