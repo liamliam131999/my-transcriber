@@ -166,7 +166,7 @@
     <div id="errorBox" class="error-box"></div>
     
     <label style="margin-top:22px;">📝 ထွက်လာသည့် စာသားရလဒ် (Transcript):</label>
-    <textarea id="result" rows="8" readonly placeholder="✨ စာသားများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
+    <textarea id="result" rows="8" readonly placeholder="✨ ဇာတ်ကောင်စပြောသည့် အချိန်မှစတင်၍ စာများ ဤနေရာတွင် ပေါ်လာပါမည်..."></textarea>
 
     <button id="scriptBtn" class="script-btn" onclick="generateRecapScript()" disabled>✨ ဤစာသားများမှ ဇာတ်လမ်း Recap Script ရေးပေးမည်</button>
 
@@ -286,7 +286,12 @@ async function transcribe() {
 
         status.innerText = "✅ စာသားထုတ်ယူခြင်း အောင်မြင်ပါသည်။";
         let output = "";
-        data.segments.forEach((seg) => {
+        
+        // Filter: အလွတ်ဖြစ်နေသော သို့မဟုတ် အဓိပ္ပာယ်မရှိသော အစောပိုင်းတိတ်ဆိတ်မှုများကို စစ်ထုတ်ပြီး
+        // ဇာတ်ကောင် အမှန်တကယ် စတင်ပြောဆိုသည့် အချိန် (segments) များကိုသာ အစပြု၍ ထုတ်ပေးပါမည်။
+        let validSegments = data.segments.filter(seg => seg.text && seg.text.trim().length > 0);
+
+        validSegments.forEach((seg) => {
             const start = formatTime(seg.start + offsetSeconds);
             const end = formatTime(seg.end + offsetSeconds);
             const text = seg.text.trim();
