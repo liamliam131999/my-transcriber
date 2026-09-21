@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Studio Pro - Dialogue Transcription</title>
+    <title>AI Video Studio Pro - Chinese Audio Transcription</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -13,12 +13,12 @@
             <h1 class="text-xl font-bold text-amber-400 flex items-center gap-2">
                 <span>⚡</span> AI Video Studio Pro
             </h1>
-            <p class="text-xs text-slate-400">အသံဖိုင်မှ မြန်မာစာ Dialogue စာသားများ အလိုအလျောက် ထုတ်ယူခြင်း</p>
+            <p class="text-xs text-slate-400">တရုတ်အသံဖိုင်မှ မူရင်းစာသားများ ထုတ်ယူခြင်း (Chinese Transcription)</p>
         </header>
 
         <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
             <h2 class="text-sm font-semibold text-amber-300 flex items-center gap-2">
-                <span>🎙️</span> အသံဖိုင်မှ စာသားထုတ်ယူရန် (Groq API)
+                <span>🇨🇳</span> တရုတ်အသံမှ စာသားထုတ်ရန် (Groq API - Whisper)
             </h2>
 
             <!-- Groq API Key Input -->
@@ -29,12 +29,12 @@
             
             <!-- Audio File Input -->
             <div>
-                <label class="block text-xs text-slate-400 mb-1">🎵 အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ရွေးပါ:</label>
+                <label class="block text-xs text-slate-400 mb-1">🎵 တရုတ်အသံဖိုင် (သို့) ဗီဒီယိုဖိုင် ရွေးပါ:</label>
                 <input type="file" id="audioInput" accept="audio/*,video/*" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-amber-300 hover:file:bg-slate-600 cursor-pointer">
             </div>
 
-            <button id="transcribeBtn" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
-                <span>✨</span> စာသားများ ထုတ်ယူမည် (Transcribe)
+            <button id="transcribeBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 px-4 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-lg">
+                <span>🎯</span> တရုတ်စာသားများ ထုတ်ယူမည် (Transcribe)
             </button>
 
             <!-- Status Box -->
@@ -44,10 +44,10 @@
 
             <!-- Result Box -->
             <div id="resultArea" class="hidden space-y-2">
-                <label class="block text-xs text-slate-300 font-semibold">📜 ထွက်လာသော မြန်မာစာ Dialogue များ:</label>
+                <label class="block text-xs text-slate-300 font-semibold">📜 ထွက်လာသော မူရင်းတရုတ်စာသားများ (Copy ကူးပြီး ဘာသာပြန်ရန်):</label>
                 <textarea id="resultOutput" rows="8" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none leading-relaxed" readonly></textarea>
                 <button id="copyBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-4 rounded-lg text-xs transition">
-                    📋 စာသားများ ကူးယူရန် (Copy)
+                    📋 တရုတ်စာသားများ တိုက်ရိုက်ကူးယူရန် (Copy)
                 </button>
             </div>
         </div>
@@ -77,13 +77,13 @@
             const mediaFile = fileInput.files[0];
             resultArea.classList.add('hidden');
             statusBox.classList.remove('hidden');
-            statusText.textContent = 'အသံဖိုင်ကို Groq API သို့ ပို့ဆောင်နေပါပြီ (ခဏစောင့်ပါ)...';
+            statusText.textContent = 'တရုတ်အသံဖိုင်ကို Groq API သို့ ပို့ဆောင်နေပါပြီ (ခဏစောင့်ပါ)...';
 
             try {
                 const formData = new FormData();
                 formData.append('file', mediaFile);
                 formData.append('model', 'whisper-large-v3');
-                formData.append('language', 'my'); // မြန်မာဘာသာစကား သတ်မှတ်ချက်
+                formData.append('language', 'zh'); 
                 formData.append('response_format', 'json');
 
                 const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -101,7 +101,7 @@
 
                 const data = await response.json();
                 
-                statusText.textContent = 'စာသားများ အောင်မြင်စွာ ထွက်ရှိလာပါပြီ!';
+                statusText.textContent = 'တရုတ်စာသားများ အောင်မြင်စွာ ထွက်ရှိလာပါပြီ!';
                 resultOutput.value = data.text;
                 resultArea.classList.remove('hidden');
 
@@ -115,8 +115,11 @@
         document.getElementById('copyBtn').addEventListener('click', () => {
             const resultOutput = document.getElementById('resultOutput');
             resultOutput.select();
-            document.execCommand('copy');
-            alert('စာသားများကို ကူးယူပြီးပါပြီ!');
+            navigator.clipboard.writeText(resultOutput.value).then(() => {
+                alert('တရုတ်စာသားများကို ကူးယူပြီးပါပြီ!');
+            }).catch(err => {
+                alert('ကူးယူခြင်း မအောင်မြင်ပါ: ' + err);
+            });
         });
     </script>
 </body>
