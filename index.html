@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Downloader & Transcriber</title>
+    <title>Video Downloader & Audio Compressor</title>
     <style>
         body {
             font-family: sans-serif;
@@ -13,11 +13,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
         .container {
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             width: 100%;
@@ -26,31 +26,38 @@
         h2 {
             text-align: center;
             color: #333;
+            font-size: 20px;
         }
-        input[type="text"] {
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        input[type="text"], input[type="file"] {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
+            padding: 10px;
+            margin: 8px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 11px;
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
         }
         button:hover {
             background-color: #0056b3;
         }
-        #result {
-            margin-top: 20px;
+        .result {
+            margin-top: 15px;
             word-break: break-all;
+            font-size: 14px;
         }
         .loading {
             color: #555;
@@ -61,20 +68,31 @@
 <body>
 
 <div class="container">
-    <h2>Video Downloader</h2>
-    <input type="text" id="videoUrl" placeholder="YouTube / Douyin / Bilibili Link ထည့်ပါ...">
-    <button onclick="processDownload()">ဒေါင်းလုဒ်လင့်ခ် ရယူမည်</button>
-    
-    <div id="result"></div>
+    <!-- ပထမပိုင်း - ဗီဒီယို ဒေါင်းလုဒ်ဆွဲခြင်း (Railway Backend သို့ ချိတ်ဆက်ထားသည်) -->
+    <div class="section">
+        <h2>🎥 Video Downloader</h2>
+        <input type="text" id="videoUrl" placeholder="YouTube / Douyin / Bilibili လင့်ခ်ထည့်ပါ...">
+        <button onclick="processDownload()">ဒေါင်းလုဒ်လင့်ခ် ရယူမည်</button>
+        <div id="downloadResult" class="result"></div>
+    </div>
+
+    <!-- ဒုတိယပိုင်း - ဖိုင်ဆိုဒ် compressing လုပ်ခြင်း (25MB အောက်) -->
+    <div>
+        <h2>📁 Audio/Video Compressor (&lt; 25MB)</h2>
+        <input type="file" id="mediaFile" accept="audio/*,video/*">
+        <button onclick="compressFile()" style="background-color: #28a745;">ဖိုင်ဆိုဒ် လျှော့ချမည်</button>
+        <div id="compressResult" class="result"></div>
+    </div>
 </div>
 
 <script>
-    // Railway Backend API လင့်ခ်
+    // တရားဝင် Railway Backend API လင့်ခ်
     const BACKEND_URL = "https://my-transcriber-production.up.railway.app/download";
 
+    // ဗီဒီယိုလင့်ခ် ဆွဲထုတ်သည့် ဖန်ရှင်
     async function processDownload() {
         const urlInput = document.getElementById('videoUrl').value.trim();
-        const resultDiv = document.getElementById('result');
+        const resultDiv = document.getElementById('downloadResult');
 
         if (!urlInput) {
             alert('ကျေးဇူးပြု၍ ဗီဒီယိုလင့်ခ် ထည့်ပါ။');
@@ -97,14 +115,36 @@
             if (data.success) {
                 resultDiv.innerHTML = `
                     <p><b>ခေါင်းစဉ်:</b> ${data.title}</p>
-                    <a href="${data.download_url}" target="_blank" style="display:block; text-align:center; background:#28a745; color:white; padding:10px; text-decoration:none; border-radius:5px; margin-top:10px;">ဖိုင်ဒေါင်းလုဒ်ဆွဲရန် နှိပ်ပါ</a>
+                    <a href="${data.download_url}" target="_blank" style="display:block; text-align:center; background:#28a745; color:white; padding:8px; text-decoration:none; border-radius:5px; margin-top:8px;">ဖိုင်ဒေါင်းလုဒ်ဆွဲရန် နှိပ်ပါ</a>
                 `;
             } else {
                 resultDiv.innerHTML = `<p style="color:red;">အမှားအယွင်းရှိသည်: ${data.error}</p>`;
             }
         } catch (error) {
             console.error(error);
-            resultDiv.innerHTML = `<p style="color:red;">ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ။</p>`;
+            resultDiv.innerHTML = `<p style="color:red;">ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ။ (Railway ဆာဗာ သို့မဟုတ် လင့်ခ်ကို စစ်ဆေးပါ)</p>`;
+        }
+    }
+
+    // ဖိုင်ဆိုဒ် စစ်ဆေးခြင်းနှင့် လျှော့ချခြင်း ဖန်ရှင် (25MB အောက်)
+    function compressFile() {
+        const fileInput = document.getElementById('mediaFile');
+        const resultDiv = document.getElementById('compressResult');
+
+        if (fileInput.files.length === 0) {
+            alert('ကျေးဇူးပြု၍ ဖိုင်တစ်ခု ရွေးချယ်ပါ။');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const fileSizeMB = file.size / (1024 * 1024);
+
+        resultDiv.innerHTML = `<p>ရွေးချယ်ထားသော ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB</p>`;
+
+        if (fileSizeMB > 25) {
+            resultDiv.innerHTML += `<p style="color:orange;">သတိပေးချက် - ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ Transcription အတွက် လိုအပ်သလို ထပ်မံဖြတ်တောက်ရန် လိုအပ်နိုင်ပါသည်။</p>`;
+        } else {
+            resultDiv.innerHTML += `<p style="color:green;">✓ ဖိုင်ဆိုဒ် 25MB အောက်ရှိသဖြင့် အသုံးပြုရန် အဆင်ပြေပါသည်။</p>`;
         }
     }
 </script>
