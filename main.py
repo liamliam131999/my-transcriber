@@ -14,10 +14,11 @@ def download_video():
     if not url:
         return jsonify({'success': False, 'error': 'ဗီဒီယိုလင့်ခ် ထည့်သွင်းရန် လိုအပ်ပါသည်။'}), 400
 
-    # YouTube နှင့် Douyin နှစ်ခုစလုံးအတွက် cookies လိုအပ်မှုကို ရှောင်ရှားရန်နှင့် extractor options များကို အကောင်းဆုံးဖြစ်အောင် ပြင်ဆင်ထားသည်
+    # cookies.txt ကို ချိတ်ဆက်ပေးထားသော yt_opts configuration
     ydl_opts = {
         'format': 'best',
         'noplaylist': True,
+        'cookiefile': 'cookies.txt',  # YouTube bot စစ်ဆေးမှုကို ကျော်လွှတ်ရန် Cookies ဖိုင်ချိတ်ဆက်ခြင်း
         'extractor_args': {
             'youtube': {'player_client': ['ios', 'android', 'web']},
             'douyin': {}
@@ -51,7 +52,7 @@ def download_video():
     except Exception as e:
         error_message = str(e)
         if "cookies" in error_message.lower():
-            error_message = "ဆာဗာဘက်တွင် Cookies ကန့်သတ်ချက်ရှိနေပါသည်။ ကျေးဇူးပြု၍ ခဏစောင့်ပါ သို့မဟုတ် အခြားလင့်ခ်ဖြင့် ပြန်ကြိုးစားပါ။"
+            error_message = "ဆာဗာဘက်တွင် Cookies သက်တမ်းကုန်ဆုံးနေပါသည် သို့မဟုတ် မှားယွင်းနေပါသည်။ ကျေးဇူးပြု၍ cookies.txt ကို အသစ်လဲလှယ်ပေးပါ။"
         return jsonify({'success': False, 'error': error_message}), 500
 
 if __name__ == '__main__':
