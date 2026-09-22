@@ -44,32 +44,6 @@
             font-size: 12px;
             text-align: left;
         }
-        .nav-tabs {
-            display: flex;
-            background-color: #161b22;
-            padding: 5px;
-            border-radius: 10px;
-            overflow-x: auto;
-            margin-bottom: 15px;
-            gap: 5px;
-            border: 1px solid #30363d;
-        }
-        .nav-tab {
-            background: none;
-            border: none;
-            color: #8b949e;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-        .nav-tab.active {
-            background-color: #21262d;
-            color: #58a6ff;
-            border: 1px solid #30363d;
-            font-weight: bold;
-        }
         .card {
             background-color: #161b22;
             border: 1px solid #30363d;
@@ -77,49 +51,13 @@
             border-radius: 14px;
             margin-bottom: 15px;
         }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        /* Home Grid Cards Style */
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .grid-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 14px;
-            padding: 18px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: left;
-        }
-        .grid-card:hover {
-            border-color: #58a6ff;
-            background-color: #1b222c;
-        }
-        .grid-card h4 {
-            color: #58a6ff;
-            margin: 10px 0 5px 0;
-            font-size: 15px;
-        }
-        .grid-card p {
-            color: #8b949e;
-            font-size: 11px;
-            margin: 0;
-            line-height: 1.4;
-        }
         label {
             font-size: 13px;
             color: #8b949e;
             display: block;
             margin-bottom: 5px;
         }
-        input[type="text"], input[type="file"] {
+        input[type="text"], input[type="file"], textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
@@ -128,6 +66,11 @@
             color: white;
             border-radius: 8px;
             box-sizing: border-box;
+            font-family: sans-serif;
+        }
+        textarea {
+            resize: vertical;
+            height: 80px;
         }
         .btn-primary {
             width: 100%;
@@ -168,9 +111,6 @@
             cursor: pointer;
             color: #58a6ff;
         }
-        .saved-key-chip:hover {
-            background: #30363d;
-        }
         .result-box {
             margin-top: 15px;
             background: #0d1117;
@@ -179,6 +119,28 @@
             border: 1px solid #30363d;
             word-break: break-all;
             font-size: 13px;
+        }
+        .contact-section {
+            text-align: center;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            padding: 15px;
+            border-radius: 14px;
+            margin-bottom: 15px;
+        }
+        .telegram-btn {
+            display: inline-block;
+            background-color: #2ea043;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .telegram-btn:hover {
+            background-color: #2c974b;
         }
         .footer {
             text-align: center;
@@ -201,50 +163,15 @@
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('home')">🏠 ပင်မ</button>
-        <button class="nav-tab" onclick="switchTab('groq')">🤖 Groq</button>
-        <button class="nav-tab" onclick="switchTab('gemini')">✨ Gemini</button>
-        <button class="nav-tab" onclick="switchTab('downloader')">📥 Downloader</button>
-        <button class="nav-tab" onclick="switchTab('compressor')">📁 Compressor</button>
-    </div>
-
-    <!-- 1. HOME TAB (Grid Design) -->
-    <div id="home" class="tab-content active">
-        <div class="grid-container">
-            <div class="grid-card" onclick="switchTab('groq')">
-                <div style="font-size: 20px;">🎙️</div>
-                <h4>Groq Whisper</h4>
-                <p>Fast multilingual transcription</p>
-            </div>
-            <div class="grid-card" onclick="switchTab('gemini')">
-                <div style="font-size: 20px;">✨</div>
-                <h4>Gemini</h4>
-                <p>Audio / Video transcription</p>
-            </div>
-            <div class="grid-card" onclick="switchTab('compressor')">
-                <div style="font-size: 20px;">📉</div>
-                <h4>Smart Compressor</h4>
-                <p>25MB အောက်ရအောင် local processing</p>
-            </div>
-            <div class="grid-card" onclick="switchTab('downloader')">
-                <div style="font-size: 20px;">📥</div>
-                <h4>Downloader</h4>
-                <p>YouTube / Bilibili / Douyin tools</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- 2. GROQ TAB -->
-    <div id="groq" class="tab-content card">
-        <h3>Groq Transcript</h3>
+    <!-- 1. GROQ WHISPER CARD -->
+    <div class="card">
+        <h3>🎙️ Groq Whisper Transcript</h3>
         <label>Groq API Key ထည့်ရန်</label>
         <input type="text" id="groqKeyInput" placeholder="gsk_...">
         <button class="btn-success" onclick="saveKey('groq')">💾 Key ကို သိမ်းဆည်းမည်</button>
         
         <div class="saved-keys-container">
-            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Groq Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
+            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Keys များ:</label>
             <div id="savedGroqKeys"></div>
         </div>
 
@@ -254,15 +181,15 @@
         <div id="groqResult" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- 3. GEMINI TAB -->
-    <div id="gemini" class="tab-content card">
-        <h3>Gemini Transcript</h3>
+    <!-- 2. GEMINI CARD -->
+    <div class="card">
+        <h3>✨ Gemini Transcript</h3>
         <label>Gemini API Key ထည့်ရန်</label>
         <input type="text" id="geminiKeyInput" placeholder="AIza...">
         <button class="btn-success" onclick="saveKey('gemini')">💾 Key ကို သိမ်းဆည်းမည်</button>
 
         <div class="saved-keys-container">
-            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Gemini Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
+            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Keys များ:</label>
             <div id="savedGeminiKeys"></div>
         </div>
 
@@ -272,47 +199,48 @@
         <div id="geminiResult" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- 4. DOWNLOADER TAB -->
-    <div id="downloader" class="tab-content card">
-        <h3>YouTube Video Downloader</h3>
-        
-        <label>ဗီဒီယို လင့်ခ် (URL) ထည့်ရန်</label>
-        <input type="text" id="videoUrl" placeholder="https://youtube.com/...">
-
-        <button class="btn-primary" onclick="processDownload()">ဖိုင်ရယူရန် (Download Link ဖန်တီးမည်)</button>
-        
-        <div id="downloadResult" class="result-box" style="display:none;"></div>
-    </div>
-
-    <!-- 5. COMPRESSOR TAB -->
-    <div id="compressor" class="tab-content card">
-        <h3>Audio / Video Compressor (&lt; 25MB)</h3>
+    <!-- 3. SMART COMPRESSOR CARD -->
+    <div class="card">
+        <h3>📉 Smart Compressor (&lt; 25MB)</h3>
         <label>ဖိုင်ရွေးချယ်ပါ</label>
         <input type="file" id="compressFile" accept="audio/*,video/*">
         <button class="btn-primary" onclick="checkFileSize()" style="background-color: #238636;">ဖိုင်ဆိုဒ် စစ်ဆေးမည်</button>
         <div id="compressResult" class="result-box" style="display:none;"></div>
     </div>
 
+    <!-- 4. DOWNLOADER CARD -->
+    <div class="card">
+        <h3>📥 YouTube Video Downloader</h3>
+        <label>ဗီဒီယို လင့်ခ် (URL) ထည့်ရန်</label>
+        <input type="text" id="videoUrl" placeholder="https://youtube.com/...">
+        <button class="btn-primary" onclick="processDownload()">ဖိုင်ရယူရန် (Download Link ဖန်တီးမည်)</button>
+        <div id="downloadResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- 5. FEEDBACK CARD -->
+    <div class="card">
+        <h3>💬 အကြံပြုချက်ပေးရန် (Feedback)</h3>
+        <label>သင့်အမည် သို့မဟုတ် Contact (မထည့်လည်းရ)</label>
+        <input type="text" id="feedbackName" placeholder="Name or Contact">
+        
+        <label>အကြံပြုလိုသည်များ / အမှားအယွင်းများ ပြောပြပေးပါ</label>
+        <textarea id="feedbackText" placeholder="ကျေးဇူးပြု၍ အကြံပြုချက်ရေးပါ..."></textarea>
+        
+        <button class="btn-primary" onclick="sendFeedbackToTelegram()" style="background-color: #1f6feb;">အကြံပြုချက် ပို့မည်</button>
+        <div id="feedbackResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- 6. CONTACT / TELEGRAM CARD -->
+    <div class="contact-section">
+        <h4 style="color: #58a6ff; margin: 0 0 5px 0;">📱 ဆက်သွယ်ရန်</h4>
+        <p style="font-size: 12px; color: #8b949e; margin: 0 0 10px 0;">အဆင်မပြေသည်များရှိပါက Telegram မှ တိုက်ရိုက်ဆက်သွယ်နိုင်ပါသည်။</p>
+        <a href="https://t.me/liamliam131999" target="_blank" class="telegram-btn">💬 Telegram သို့ ဆက်သွယ်ရန်</a>
+    </div>
+
     <div class="footer">My Transcriber</div>
 </div>
 
 <script>
-    // Tab Switching Function
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        
-        // Tab button active state update
-        const tabButtons = document.querySelectorAll('.nav-tab');
-        if (tabId === 'home') tabButtons[0].classList.add('active');
-        if (tabId === 'groq') tabButtons[1].classList.add('active');
-        if (tabId === 'gemini') tabButtons[2].classList.add('active');
-        if (tabId === 'downloader') tabButtons[3].classList.add('active');
-        if (tabId === 'compressor') tabButtons[4].classList.add('active');
-    }
-
     // API Key Saving Logic (localStorage)
     function saveKey(type) {
         const inputId = type === 'groq' ? 'groqKeyInput' : 'geminiKeyInput';
@@ -415,18 +343,73 @@
 
         resultDiv.style.display = 'block';
         if (fileSizeMB > 25) {
-            resultDiv.innerHTML = `<span style="color:#d29922;">ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB ကျော်လွန်နေပါသည်၊ Transcript အတွက် ဖြတ်တောက်ရန် လိုအပ်သည်)</span>`;
+            resultDiv.innerHTML = `<span style="color:#d29922;">ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB ကျော်လွန်နေပါသည်)</span>`;
         } else {
-            resultDiv.innerHTML = `<span style="color:#3fb950;">✓ ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB အောက်ရှိသဖြင့် အသုံးပြုရန် အဆင်ပြေသည်)</span>`;
+            resultDiv.innerHTML = `<span style="color:#3fb950;">✓ ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB အောက်ရှိသည်)</span>`;
+        }
+    }
+
+    // Telegram Feedback Integration Logic
+    async function sendFeedbackToTelegram() {
+        const name = document.getElementById('feedbackName').value.trim() || 'Anonymous';
+        const text = document.getElementById('feedbackText').value.trim();
+        const resultDiv = document.getElementById('feedbackResult');
+
+        if (!text) {
+            alert('ကျေးဇူးပြု၍ အကြံပြုချက် ရေးသားပါ။');
+            return;
+        }
+
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = 'အကြံပြုချက် ပို့ဆောင်နေပါပြီ...';
+
+        // Bot Token နဲ့ Bot ဆီကနေ Chat ID အလိုအလျောက် ယူမယ့် API (သို့မဟုတ် Direct Chat ID ထည့်လို့ရပါတယ်)
+        const botToken = "8859398416:AAHgPSmwgHFHDed1f5MfrKj_vh-IGczVJVs";[span_1](start_span)[span_1](end_span)
+        
+        // ပထမဆုံး Bot ထံ စာပို့ထားဖူးသူများဆီက Chat ID ကို getUpdates ကနေ အလိုအလျောက် ညှိယူပါမယ်
+        try {
+            const updatesRes = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates`);
+            const updatesData = await updatesRes.json();
+
+            if (!updatesData.ok || updatesData.result.length === 0) {
+                throw new Error("Bot ထံသို့ အရင်ဆုံး /start (သို့) စာတစ်စောင် ပို့ထားပေးရန် လိုအပ်ပါသည်။");
+            }
+
+            // နောက်ဆုံး ဆက်သွယ်လာတဲ့ Chat ID ကို ယူမည်
+            const chatId = updatesData.result[updatesData.result.length - 1].message.chat.id;
+
+            const message = `📩 New Feedback!\n\n👤 From: ${name}\n💬 Message: ${text}`;
+
+            const sendRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: message
+                })
+            });
+
+            const sendData = await sendRes.json();
+
+            if (sendData.ok) {
+                resultDiv.innerHTML = '<span style="color:#3fb950;">✓ ကျေးဇူးတင်ပါသည်! သင့်အကြံပြုချက်ကို Telegram သို့ အောင်မြင်စွာ ပို့ပြီးပါပြီ။</span>';
+                document.getElementById('feedbackText').value = '';
+                document.getElementById('feedbackName').value = '';
+            } else {
+                resultDiv.innerHTML = `<span style="color:#f85149;">ပို့၍မရပါ။ အမှား: ${sendData.description}</span>`;
+            }
+
+        } catch (error) {
+            resultDiv.innerHTML = `<span style="color:#f85149;">အမှားအယွင်းရှိသည်: ${error.message}</span>`;
         }
     }
 
     function runGroqTranscript() {
-        alert('Groq Transcript လုပ်ဆောင်ချက်ကို ဤနေရာတွင် ချိတ်ဆက်နိုင်ပါသည်။');
+        alert('Groq Transcript လုပ်ဆောင်ချက်ကို ချိတ်ဆက်ရန် အဆင်သင့်ဖြစ်ပါပြီ။');
     }
 
     function runGeminiTranscript() {
-        alert('Gemini Transcript လုပ်ဆောင်ချက်ကို ဤနေရာတွင် ချိတ်ဆက်နိုင်ပါသည်။');
+        alert('Gemini Transcript လုပ်ဆောင်ချက်ကို ချိတ်ဆက်ရန် အဆင်သင့်ဖြစ်ပါပြီ။');
     }
 </script>
 
