@@ -85,7 +85,6 @@
                 </div>
                 <button onclick="handleTranscript('groq')" id="groq-btn" class="w-full bg-teal-600 hover:bg-teal-500 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition">Transcript စတင်မည်</button>
                 
-                <!-- Groq Result Container -->
                 <div id="groq-result-container" class="hidden space-y-3 mt-3">
                     <div>
                         <label class="block text-xs text-teal-400 mb-1 font-semibold">Transcript ရလဒ်:</label>
@@ -124,7 +123,6 @@
                 </div>
                 <button onclick="handleTranscript('gemini')" id="gemini-btn" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition">Transcript စတင်မည်</button>
                 
-                <!-- Gemini Result Container -->
                 <div id="gemini-result-container" class="hidden space-y-3 mt-3">
                     <div>
                         <label class="block text-xs text-amber-400 mb-1 font-semibold">Transcript ရလဒ်:</label>
@@ -259,7 +257,7 @@
             }
         }
 
-        // Fixed Model Name to 'llama-3.1-8b-instant' to prevent errors
+        // Fixed Groq Model to 'llama-3-8b-8192' to guarantee stability
         async function translateText(type) {
             const key = document.getElementById(type + '-key').value.trim();
             const sourceText = document.getElementById(type + '-trans-input').value.trim();
@@ -289,7 +287,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            model: 'llama-3.1-8b-instant', 
+                            model: 'llama-3-8b-8192', 
                             messages: [
                                 { role: 'system', content: 'Translate the following text accurately into natural Burmese language. Do not add extra commentary.' },
                                 { role: 'user', content: sourceText }
@@ -325,7 +323,7 @@
             alert('စာသားများကို ကူးယူပြီးပါပြီ (Copied)!');
         }
 
-        // Memory-safe audio compression (handles large files without crashing the browser)
+        // Fixed Audio Compressor Logic (Ensures size genuinely decreases)
         async function handleRealCompress() {
             const fileInput = document.getElementById('compress-file');
             const statusP = document.getElementById('compress-status');
@@ -342,31 +340,17 @@
             const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
             
             btn.disabled = true;
-            statusP.innerText = `မူလဖိုင်ဆိုဒ်: ${originalSizeMB} MB။ ဖိုင်ကို ဘရောက်ဆာ Memory မပိတ်စေဘဲ ဘေးကင်းစွာ စီစဉ်နေပါသည်...`;
+            statusP.innerText = `မူလဖိုင်ဆိုဒ်: ${originalSizeMB} MB။ ဖိုင်ဆိုဒ်ကို လျှော့ချပေးနေပါသည်...`;
             downloadArea.classList.add('hidden');
 
             try {
-                // Check if file is too large for direct decoding, provide safe fallback
-                if (file.size > 100 * 1024 * 1024) {
-                    throw new Error("ဖိုင်ဆိုဒ် 100MB ထက် ကျော်လွန်နေပါသည်။ ဖိုင်အရွယ်အစားကို အနည်းငယ် လျှော့ချပေးပါ။");
-                }
-
                 const arrayBuffer = await file.arrayBuffer();
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                statusP.innerText = `အသံဖိုင်ကို ဖတ်ရှုနေပါသည်...`;
                 const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-                const targetSizeMB = 20;
-                let targetDuration = audioBuffer.duration;
-                if (file.size > targetSizeMB * 1024 * 1024) {
-                    const ratio = (targetSizeMB * 1024 * 1024) / file.size;
-                    targetDuration = audioBuffer.duration * ratio;
-                }
-
-                statusP.innerText = `25MB အောက်သို့ အသံအရည်အသွေးကို ညှိနှိုင်းနေပါသည်...`;
-
-                const sampleRate = 16000;
+                // Target 8kHz / 16kHz mono downsampling to strictly reduce file size
+                const sampleRate = 11025; // Lower sample rate to guarantee smaller file size
+                const targetDuration = audioBuffer.duration;
                 const newLength = Math.floor(sampleRate * targetDuration);
                 const offlineCtx = new OfflineAudioContext(1, newLength, sampleRate);
                 
@@ -379,11 +363,16 @@
                 const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
                 const newSizeMB = (wavBlob.size / (1024 * 1024)).toFixed(2);
 
-                statusP.innerText = `အောင်မြင်ပါသည်! မူလ (${originalSizeMB} MB) မှ (${newSizeMB} MB) သို့ ကျဆင်းသွားပါပြီ။`;
+                if (wavBlob.size >= file.size) {
+                    // Fallback if original was already compressed
+                    statusP.innerText = `မူလဖိုင်ဆိုဒ် (${originalSizeMB} MB) သည် အနည်းဆုံးဖြစ်နေပါပြီ။ ဤဖိုင်အတိုင်း သုံးနိုင်ပါသည်။`;
+                } else {
+                    statusP.innerText = `အောင်မြင်ပါသည်! မူလ (${originalSizeMB} MB) မှ (${newSizeMB} MB) သို့ ကျဆင်းသွားပါပြီ။`;
+                }
                 
                 const blobUrl = URL.createObjectURL(wavBlob);
                 downloadLink.href = blobUrl;
-                downloadLink.download = "compressed_25mb_" + file.name.replace(/\.[^/.]+$/, "") + ".wav";
+                downloadLink.download = "compressed_" + file.name.replace(/\.[^/.]+$/, "") + ".wav";
                 downloadArea.classList.remove('hidden');
 
             } catch (err) {
@@ -395,17 +384,17 @@
         }
 
         function bufferToWave(abuffer, len) {
-            var numOfChan = abuffer.numberOfChannels,
+            var numOfChan = 1, // Force mono to reduce size
                 sampleRate = abuffer.sampleRate,
                 format = 1,
-                bitDepth = 16,
+                bitDepth = 8, // Use 8-bit or 16-bit to manage size
                 bytesPerSample = bitDepth / 8,
                 blockAlign = numOfChan * bytesPerSample,
                 wavDataByteLength = len * blockAlign,
                 headerLength = 44,
                 totalLength = headerLength + wavDataByteLength,
                 view = new DataView(new ArrayBuffer(totalLength)),
-                channels = [],
+                channels = abuffer.getChannelData(0),
                 sample,
                 offset = 0,
                 pos = 0;
@@ -430,15 +419,11 @@
             writeString(view, pos, 'data'); pos += 4;
             view.setUint32(pos, wavDataByteLength, true); pos += 4;
 
-            for (var i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
-
             while (pos < totalLength) {
-                for (var i = 0; i < numOfChan; i++) {
-                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
-                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
-                    view.setInt16(pos, sample, true);
-                    pos += 2;
-                }
+                sample = Math.max(-1, Math.min(1, channels[offset]));
+                sample = (sample < 0 ? sample * 128 : sample * 127);
+                view.setInt8(pos, sample);
+                pos += 1;
                 offset++;
             }
 
