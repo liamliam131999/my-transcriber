@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: sans-serif;
-            background-color: #0b0f19;
+            background-color: #0d1117;
             color: #c9d1d9;
             margin: 0;
             padding: 15px;
@@ -18,100 +18,54 @@
             width: 100%;
             max-width: 480px;
         }
-        .header-box {
-            background-color: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 16px;
-            padding: 20px;
+        h2 {
             text-align: center;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .lightning-icon {
-            font-size: 28px;
-            color: #fbbf24;
+            color: #58a6ff;
             margin-bottom: 5px;
         }
-        h2 {
-            color: #38bdf8;
-            margin: 5px 0;
-            font-size: 22px;
-        }
         .subtitle {
-            font-size: 12px;
-            color: #9ca3af;
+            text-align: center;
+            font-size: 13px;
+            color: #8b949e;
             margin-bottom: 15px;
         }
         .warning-box {
-            background-color: #1f1717;
-            border: 1px solid #7f1d1d;
-            color: #fca5a5;
+            background-color: #21262d;
+            border: 1px solid #d29922;
+            color: #f0883e;
             padding: 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            text-align: left;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
         }
         .nav-tabs {
             display: flex;
-            background-color: #111827;
-            padding: 6px;
-            border-radius: 12px;
+            background-color: #161b22;
+            padding: 5px;
+            border-radius: 8px;
             overflow-x: auto;
             margin-bottom: 15px;
             gap: 5px;
-            border: 1px solid #1f2937;
         }
         .nav-tab {
             background: none;
             border: none;
-            color: #9ca3af;
+            color: #8b949e;
             padding: 8px 12px;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             white-space: nowrap;
         }
         .nav-tab.active {
-            background-color: #065f46;
+            background-color: #238636;
             color: white;
         }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        .dashboard-card {
-            background-color: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 16px;
-            padding: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .dashboard-card:hover {
-            border-color: #38bdf8;
-        }
-        .card-icon {
-            font-size: 22px;
-            margin-bottom: 8px;
-        }
-        .card-title {
-            font-size: 15px;
-            font-weight: bold;
-            color: #f3f4f6;
-            margin-bottom: 4px;
-        }
-        .card-desc {
-            font-size: 11px;
-            color: #9ca3af;
-            line-height: 1.3;
-        }
-        .full-card {
-            background-color: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 16px;
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
             padding: 20px;
+            border-radius: 10px;
             margin-bottom: 15px;
         }
         .tab-content {
@@ -121,8 +75,8 @@
             display: block;
         }
         label {
-            font-size: 12px;
-            color: #9ca3af;
+            font-size: 13px;
+            color: #8b949e;
             display: block;
             margin-bottom: 5px;
         }
@@ -130,154 +84,133 @@
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
-            background-color: #030712;
-            border: 1px solid #1f2937;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
             color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             box-sizing: border-box;
-            font-size: 13px;
         }
         .btn-primary {
             width: 100%;
             padding: 11px;
-            background-color: #7c3aed;
+            background-color: #8957e5;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 6px;
+            font-size: 14px;
             cursor: pointer;
             font-weight: bold;
         }
+        .btn-primary:hover {
+            background-color: #7b4edf;
+        }
         .btn-success {
-            background-color: #059669;
+            background-color: #238636;
             color: white;
             border: none;
             padding: 6px 12px;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
-            margin-bottom: 10px;
+        }
+        .saved-keys-container {
+            margin-top: 5px;
+            margin-bottom: 12px;
         }
         .saved-key-chip {
             display: inline-block;
-            background: #1f2937;
-            border: 1px solid #374151;
+            background: #21262d;
+            border: 1px solid #30363d;
             padding: 4px 8px;
             margin: 2px;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 11px;
             cursor: pointer;
-            color: #38bdf8;
+            color: #58a6ff;
+        }
+        .saved-key-chip:hover {
+            background: #30363d;
         }
         .result-box {
             margin-top: 15px;
-            background: #030712;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #1f2937;
+            background: #0d1117;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
             word-break: break-all;
-            font-size: 12px;
-        }
-        .back-btn {
-            background: none;
-            border: none;
-            color: #38bdf8;
             font-size: 13px;
-            cursor: pointer;
-            margin-bottom: 12px;
-            padding: 0;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Header Section -->
-    <div class="header-box">
-        <div class="lightning-icon">⚡</div>
-        <h2>My Transcriber</h2>
-        <div class="subtitle">Audio • Video • Transcript • Compressor</div>
-        <div class="warning-box">
-            ⚠️ Groq သို့မဟုတ် Gemini သို့ တိုက်ရိုက်တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်။
-        </div>
+    <h2>My Transcriber</h2>
+    <div class="subtitle">Transcript • Downloader • Compressor</div>
+
+    <div class="warning-box">
+        ⚠️ Groq သို့မဟုတ် Gemini သို့ တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်။
     </div>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('home')">🏠 Home</button>
+        <button class="nav-tab active" onclick="switchTab('home')">🏠 ပင်မစာမျက်နှာ</button>
         <button class="nav-tab" onclick="switchTab('groq')">🤖 Groq</button>
         <button class="nav-tab" onclick="switchTab('gemini')">✨ Gemini</button>
         <button class="nav-tab" onclick="switchTab('downloader')">📥 Downloader</button>
         <button class="nav-tab" onclick="switchTab('compressor')">📁 Compressor</button>
     </div>
 
-    <!-- 1. HOME TAB (Dashboard Grid) -->
-    <div id="home" class="tab-content active">
-        <div class="grid-container">
-            <div class="dashboard-card" onclick="switchTab('groq')">
-                <div class="card-icon">🎙️</div>
-                <div class="card-title">Groq Whisper</div>
-                <div class="card-desc">Fast multilingual transcription</div>
-            </div>
-            <div class="dashboard-card" onclick="switchTab('gemini')">
-                <div class="card-icon">✨</div>
-                <div class="card-title">Gemini</div>
-                <div class="card-desc">Audio / Video transcription</div>
-            </div>
-            <div class="dashboard-card" onclick="switchTab('compressor')">
-                <div class="card-icon">📉</div>
-                <div class="card-title">Smart Compressor</div>
-                <div class="card-desc">25MB အောက်ဖြစ်အောင် local processing</div>
-            </div>
-            <div class="dashboard-card" onclick="switchTab('downloader')">
-                <div class="card-icon">📥</div>
-                <div class="card-title">Downloader</div>
-                <div class="card-desc">YouTube video tools</div>
-            </div>
-        </div>
+    <!-- 1. HOME TAB -->
+    <div id="home" class="tab-content card active">
+        <h3>ကြိုဆိုပါတယ် (Welcome)</h3>
+        <p style="font-size: 13px; color: #8b949e;">ဗီဒီယိုများ ဒေါင်းလုဒ်လုပ်ခြင်း၊ AI ဖြင့် Transcript လုပ်ခြင်းနှင့် ဖိုင်ဆိုဒ်လျှော့ချခြင်းများကို ဤနေရာတွင် လွယ်ကူစွာ လုပ်ဆောင်နိုင်ပါသည်။</p>
     </div>
 
     <!-- 2. GROQ TAB -->
-    <div id="groq" class="tab-content full-card">
-        <button class="back-btn" onclick="switchTab('home')">← ပင်မသို့ ပြန်သွားရန်</button>
-        <h3>Groq Whisper Transcript</h3>
+    <div id="groq" class="tab-content card">
+        <h3>Groq Transcript</h3>
         <label>Groq API Key ထည့်ရန်</label>
         <input type="text" id="groqKeyInput" placeholder="gsk_...">
         <button class="btn-success" onclick="saveKey('groq')">💾 Key ကို သိမ်းဆည်းမည်</button>
         
-        <div style="margin-bottom: 12px;">
-            <label>သိမ်းဆည်းထားသော Groq Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
+        <div class="saved-keys-container">
+            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Groq Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
             <div id="savedGroqKeys"></div>
         </div>
 
-        <label>အော်ဒီယိုဖိုင် (Audio) ရွေးချယ်ရန်</label>
+        <label style="margin-top: 15px;">အော်ဒီယိုဖိုင် (Audio) ရွေးချယ်ရန်</label>
         <input type="file" id="groqFile" accept="audio/*">
         <button class="btn-primary" onclick="runGroqTranscript()">Groq ဖြင့် Transcript လုပ်မည်</button>
         <div id="groqResult" class="result-box" style="display:none;"></div>
     </div>
 
     <!-- 3. GEMINI TAB -->
-    <div id="gemini" class="tab-content full-card">
-        <button class="back-btn" onclick="switchTab('home')">← ပင်မသို့ ပြန်သွားရန်</button>
+    <div id="gemini" class="tab-content card">
         <h3>Gemini Transcript</h3>
         <label>Gemini API Key ထည့်ရန်</label>
         <input type="text" id="geminiKeyInput" placeholder="AIza...">
         <button class="btn-success" onclick="saveKey('gemini')">💾 Key ကို သိမ်းဆည်းမည်</button>
 
-        <div style="margin-bottom: 12px;">
-            <label>သိမ်းဆည်းထားသော Gemini Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
+        <div class="saved-keys-container">
+            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Gemini Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
             <div id="savedGeminiKeys"></div>
         </div>
 
-        <label>ဗီဒီယို သို့မဟုတ် အော်ဒီယိုဖိုင် ရွေးချယ်ရန်</label>
+        <label style="margin-top: 15px;">ဗီဒီယို သို့မဟုတ် အော်ဒီယိုဖိုင် ရွေးချယ်ရန်</label>
         <input type="file" id="geminiFile" accept="audio/*,video/*">
         <button class="btn-primary" onclick="runGeminiTranscript()">Gemini ဖြင့် Transcript လုပ်မည်</button>
         <div id="geminiResult" class="result-box" style="display:none;"></div>
     </div>
 
     <!-- 4. DOWNLOADER TAB -->
-    <div id="downloader" class="tab-content full-card">
-        <button class="back-btn" onclick="switchTab('home')">← ပင်မသို့ ပြန်သွားရန်</button>
+    <div id="downloader" class="tab-content card">
         <h3>YouTube Video Downloader</h3>
         
         <label>ဗီဒီယို လင့်ခ် (URL) ထည့်ရန်</label>
@@ -289,32 +222,28 @@
     </div>
 
     <!-- 5. COMPRESSOR TAB -->
-    <div id="compressor" class="tab-content full-card">
-        <button class="back-btn" onclick="switchTab('home')">← ပင်မသို့ ပြန်သွားရန်</button>
-        <h3>Smart Compressor (&lt; 25MB)</h3>
+    <div id="compressor" class="tab-content card">
+        <h3>Audio / Video Compressor (&lt; 25MB)</h3>
         <label>ဖိုင်ရွေးချယ်ပါ</label>
         <input type="file" id="compressFile" accept="audio/*,video/*">
-        <button class="btn-primary" onclick="checkFileSize()" style="background-color: #059669;">ဖိုင်ဆိုဒ် စစ်ဆေးမည်</button>
+        <button class="btn-primary" onclick="checkFileSize()" style="background-color: #238636;">ဖိုင်ဆိုဒ် စစ်ဆေးမည်</button>
         <div id="compressResult" class="result-box" style="display:none;"></div>
     </div>
 
-    <div style="text-align: center; font-size: 11px; color: #6b7280; margin-top: 15px;">My Transcriber</div>
+    <div class="footer">My Transcriber</div>
 </div>
 
 <script>
+    // Tab Switching Function
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
         
         document.getElementById(tabId).classList.add('active');
-        
-        // Match nav tab active state if exists
-        const tabs = {'home': 0, 'groq': 1, 'gemini': 2, 'downloader': 3, 'compressor': 4};
-        if(tabs[tabId] !== undefined) {
-            document.querySelectorAll('.nav-tab')[tabs[tabId]].classList.add('active');
-        }
+        event.currentTarget.classList.add('active');
     }
 
+    // API Key Saving Logic (localStorage)
     function saveKey(type) {
         const inputId = type === 'groq' ? 'groqKeyInput' : 'geminiKeyInput';
         const keyValue = document.getElementById(inputId).value.trim();
@@ -339,7 +268,7 @@
     function loadSavedKeys() {
         let groqKeys = JSON.parse(localStorage.getItem('groq_keys') || '[]');
         let groqContainer = document.getElementById('savedGroqKeys');
-        groqContainer.innerHTML = groqKeys.length === 0 ? '<span style="font-size:11px; color:#6b7280;">မရှိသေးပါ။</span>' : '';
+        groqContainer.innerHTML = groqKeys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
         groqKeys.forEach(k => {
             let masked = k.substring(0, 6) + '...' + k.slice(-4);
             groqContainer.innerHTML += `<span class="saved-key-chip" onclick="useKey('groq', '${k}')">${masked}</span>`;
@@ -347,7 +276,7 @@
 
         let geminiKeys = JSON.parse(localStorage.getItem('gemini_keys') || '[]');
         let geminiContainer = document.getElementById('savedGeminiKeys');
-        geminiContainer.innerHTML = geminiKeys.length === 0 ? '<span style="font-size:11px; color:#6b7280;">မရှိသေးပါ။</span>' : '';
+        geminiContainer.innerHTML = geminiKeys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
         geminiKeys.forEach(k => {
             let masked = k.substring(0, 6) + '...' + k.slice(-4);
             geminiContainer.innerHTML += `<span class="saved-key-chip" onclick="useKey('gemini', '${k}')">${masked}</span>`;
@@ -364,6 +293,7 @@
 
     window.onload = loadSavedKeys;
 
+    // Downloader Logic
     const BACKEND_URL = "https://my-transcriber-production-0f34.up.railway.app/download";
 
     async function processDownload() {
@@ -390,16 +320,17 @@
             if (data.success) {
                 resultDiv.innerHTML = `
                     <p><b>ခေါင်းစဉ်:</b> ${data.title}</p>
-                    <a href="${data.download_url}" target="_blank" style="display:block; text-align:center; background:#059669; color:white; padding:8px; text-decoration:none; border-radius:6px; margin-top:8px;">ဖိုင်ဒေါင်းလုဒ်ဆွဲရန် နှိပ်ပါ</a>
+                    <a href="${data.download_url}" target="_blank" style="display:block; text-align:center; background:#238636; color:white; padding:8px; text-decoration:none; border-radius:6px; margin-top:8px;">ဖိုင်ဒေါင်းလုဒ်ဆွဲရန် နှိပ်ပါ</a>
                 `;
             } else {
-                resultDiv.innerHTML = `<span style="color:#f87171;">အမှားအယွင်းရှိသည်: ${data.error}</span>`;
+                resultDiv.innerHTML = `<span style="color:#f85149;">အမှားအယွင်းရှိသည်: ${data.error}</span>`;
             }
         } catch (error) {
-            resultDiv.innerHTML = `<span style="color:#f87171;">ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ။</span>`;
+            resultDiv.innerHTML = `<span style="color:#f85149;">ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ။</span>`;
         }
     }
 
+    // Compressor Logic
     function checkFileSize() {
         const fileInput = document.getElementById('compressFile');
         const resultDiv = document.getElementById('compressResult');
@@ -414,9 +345,9 @@
 
         resultDiv.style.display = 'block';
         if (fileSizeMB > 25) {
-            resultDiv.innerHTML = `<span style="color:#fbbf24;">ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB ကျော်လွန်နေပါသည်၊ Transcript အတွက် ဖြတ်တောက်ရန် လိုအပ်သည်)</span>`;
+            resultDiv.innerHTML = `<span style="color:#d29922;">ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB ကျော်လွန်နေပါသည်၊ Transcript အတွက် ဖြတ်တောက်ရန် လိုအပ်သည်)</span>`;
         } else {
-            resultDiv.innerHTML = `<span style="color:#34d399;">✓ ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB အောက်ရှိသဖြင့် အသုံးပြုရန် အဆင်ပြေသည်)</span>`;
+            resultDiv.innerHTML = `<span style="color:#3fb950;">✓ ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB အောက်ရှိသဖြင့် အသုံးပြုရန် အဆင်ပြေသည်)</span>`;
         }
     }
 
