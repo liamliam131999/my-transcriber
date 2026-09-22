@@ -1,3 +1,4 @@
+yt-dlp>=2026.03.00
 flask
 flask-cors
 yt-dlp
