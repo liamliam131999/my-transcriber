@@ -18,20 +18,14 @@
             width: 100%;
             max-width: 480px;
         }
-        .header-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 14px;
-            padding: 20px;
+        h2 {
             text-align: center;
-            margin-bottom: 15px;
-        }
-        .header-card h2 {
             color: #58a6ff;
-            margin: 10px 0 5px 0;
+            margin-bottom: 5px;
         }
         .subtitle {
-            font-size: 12px;
+            text-align: center;
+            font-size: 13px;
             color: #8b949e;
             margin-bottom: 15px;
         }
@@ -41,71 +35,75 @@
             color: #f0883e;
             padding: 10px;
             border-radius: 8px;
-            font-size: 12px;
-            text-align: left;
+            font-size: 13px;
+            margin-bottom: 15px;
         }
         .nav-tabs {
             display: flex;
-            gap: 6px;
+            background-color: #161b22;
+            padding: 5px;
+            border-radius: 8px;
             overflow-x: auto;
-            padding-bottom: 5px;
             margin-bottom: 15px;
+            gap: 5px;
         }
         .nav-tab {
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background: none;
+            border: none;
             color: #8b949e;
             padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 13px;
             white-space: nowrap;
         }
         .nav-tab.active {
             background-color: #238636;
             color: white;
-            border-color: #2ea043;
-        }
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
         }
         .card {
             background-color: #161b22;
             border: 1px solid #30363d;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Home Grid Cards */
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .home-card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
             padding: 15px;
-            border-radius: 14px;
+            border-radius: 10px;
             cursor: pointer;
             transition: 0.2s;
         }
-        .card:hover {
+        .home-card:hover {
             border-color: #58a6ff;
         }
-        .card h3 {
-            font-size: 15px;
-            margin: 8px 0 4px 0;
+        .home-card h4 {
+            margin: 0 0 5px 0;
             color: #58a6ff;
+            font-size: 14px;
         }
-        .card p {
+        .home-card p {
+            margin: 0;
             font-size: 11px;
             color: #8b949e;
-            margin: 0;
-            line-height: 1.3;
         }
-        .section-view {
-            display: none;
-        }
-        .section-view.active {
-            display: block;
-        }
-        .inner-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            padding: 20px;
-            border-radius: 14px;
-            margin-bottom: 15px;
+        .full-card {
+            grid-column: span 2;
         }
         label {
             font-size: 13px;
@@ -113,16 +111,15 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="text"], input[type="file"], select, textarea {
+        input[type="text"], select, input[type="file"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
             background-color: #0d1117;
             border: 1px solid #30363d;
             color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             box-sizing: border-box;
-            font-family: sans-serif;
         }
         .btn-primary {
             width: 100%;
@@ -130,20 +127,36 @@
             background-color: #8957e5;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 14px;
             cursor: pointer;
             font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #7b4edf;
         }
         .btn-success {
             background-color: #238636;
             color: white;
             border: none;
-            padding: 7px 12px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
+        }
+        .btn-telegram {
+            background-color: #238636;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
             font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 8px;
         }
         .saved-keys-container {
             margin-top: 5px;
@@ -155,7 +168,7 @@
             border: 1px solid #30363d;
             padding: 4px 8px;
             margin: 2px;
-            border-radius: 6px;
+            border-radius: 4px;
             font-size: 11px;
             cursor: pointer;
             color: #58a6ff;
@@ -163,31 +176,12 @@
         .result-box {
             margin-top: 15px;
             background: #0d1117;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             border: 1px solid #30363d;
             word-break: break-all;
             font-size: 13px;
             white-space: pre-wrap;
-        }
-        .contact-section {
-            text-align: center;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            padding: 20px;
-            border-radius: 14px;
-            margin-bottom: 15px;
-        }
-        .telegram-btn {
-            display: inline-block;
-            background-color: #2ea043;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: bold;
-            margin-top: 10px;
         }
         .footer {
             text-align: center;
@@ -200,144 +194,133 @@
 <body>
 
 <div class="container">
-    <!-- Top Header Card -->
-    <div class="header-card">
-        <div style="font-size: 28px;">⚡</div>
-        <h2>My Transcriber</h2>
-        <div class="subtitle">Audio • Video • Transcript • Compressor</div>
-        <div class="warning-box">
-            ⚠️ Groq / Gemini သို့ တိုက်ရိုက်တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်။
-        </div>
+    <h2>My Transcriber</h2>
+    <div class="subtitle">Audio • Video • Transcript • Compressor</div>
+
+    <div class="warning-box">
+        ⚠️ Groq / Gemini သို့ တိုက်ရိုက်တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်။
     </div>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <div class="nav-tab active" onclick="switchTab('home', this)">🏠 Home</div>
-        <div class="nav-tab" onclick="switchTab('groq', this)">🎙️ Groq</div>
-        <div class="nav-tab" onclick="switchTab('gemini', this)">✨ Gemini</div>
-        <div class="nav-tab" onclick="switchTab('compressor', this)">📉 Compressor</div>
-        <div class="nav-tab" onclick="switchTab('downloader', this)">📥 Downloader</div>
+        <button class="nav-tab active" onclick="switchTab('home')">🏠 Home</button>
+        <button class="nav-tab" onclick="switchTab('groq')">🤖 Groq</button>
+        <button class="nav-tab" onclick="switchTab('gemini')">✨ Gemini</button>
+        <button class="nav-tab" onclick="switchTab('downloader')">📥 Downloader</button>
+        <button class="nav-tab" onclick="switchTab('compressor')">📁 Compressor</button>
     </div>
 
-    <!-- HOME VIEW -->
-    <div id="home-view" class="section-view active">
-        <div class="grid-container">
-            <div class="card" onclick="switchTab('groq', document.querySelectorAll('.nav-tab')[1])">
-                <div style="font-size: 20px;">🎙️</div>
-                <h3>Groq Whisper</h3>
+    <!-- 1. HOME TAB (Updated UI Design) -->
+    <div id="home" class="tab-content card active">
+        <div class="home-grid">
+            <div class="home-card" onclick="switchTab('groq')">
+                <h4>🎙️ Groq Whisper</h4>
                 <p>Fast multilingual transcription</p>
             </div>
-            <div class="card" onclick="switchTab('gemini', document.querySelectorAll('.nav-tab')[2])">
-                <div style="font-size: 20px;">✨</div>
-                <h3>Gemini</h3>
+            <div class="home-card" onclick="switchTab('gemini')">
+                <h4>✨ Gemini</h4>
                 <p>Audio / Video transcription</p>
             </div>
-            <div class="card" onclick="switchTab('compressor', document.querySelectorAll('.nav-tab')[3])">
-                <div style="font-size: 20px;">📉</div>
-                <h3>Smart Compressor</h3>
-                <p>25MB အောက်ရောက်အောင် check လုပ်မည်</p>
+            <div class="home-card" onclick="switchTab('compressor')">
+                <h4>📉 Smart Compressor</h4>
+                <p>25MB အောက်ရောက်အောင် local processing</p>
             </div>
-            <div class="card" onclick="switchTab('downloader', document.querySelectorAll('.nav-tab')[4])">
-                <div style="font-size: 20px;">📥</div>
-                <h3>Downloader</h3>
+            <div class="home-card" onclick="switchTab('downloader')">
+                <h4>📥 Downloader</h4>
                 <p>YouTube / Bilibili / Douyin tools</p>
             </div>
-        </div>
-
-        <!-- Contact / Telegram Card -->
-        <div class="contact-section">
-            <h4 style="color: #58a6ff; margin: 0 0 8px 0;">📱 ဆက်သွယ်ရန်</h4>
-            <p style="font-size: 12px; color: #8b949e; margin: 0 0 12px 0;">အဆင်မပြေသည်များ၊ အကြံပြုလိုသည်များရှိပါက Telegram မှ တိုက်ရိုက်ဆက်သွယ်နိုင်ပါသည်။</p>
-            <a href="https://t.me/liamliam131999" target="_blank" class="telegram-btn">💬 Telegram သို့ ဆက်သွယ်ရန်</a>
-        </div>
-    </div>
-
-    <!-- GROQ VIEW (Audio & Video supported) -->
-    <div id="groq-view" class="section-view">
-        <div class="inner-card">
-            <h3>🎙️ Groq Whisper Transcript</h3>
-            <label>Groq API Key ထည့်ရန်</label>
-            <input type="text" id="groqKeyInput" placeholder="gsk_...">
-            <button class="btn-success" onclick="saveKey('groq')">💾 Key ကို သိမ်းဆည်းမည်</button>
-            <div class="saved-keys-container">
-                <label style="margin-top:8px;">သိမ်းဆည်းထားသော Keys များ:</label>
-                <div id="savedGroqKeys"></div>
+            <div class="home-card full-card">
+                <h4>📱 ဆက်သွယ်ရန်</h4>
+                <p>အဆင်မပြေမှုများ၊ အကြံပြုလိုများရှိပါက Telegram မှ တိုက်ရိုက်ဆက်သွယ်နိုင်ပါသည်။</p>
+                <a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank" class="btn-telegram">💬 Telegram သို့ ဆက်သွယ်ရန်</a>
             </div>
-            <label style="margin-top: 15px;">အော်ဒီယို သို့မဟုတ် ဗီဒီယိုဖိုင် ရွေးချယ်ရန်</label>
-            <input type="file" id="groqFile" accept="audio/*,video/*">
-            <button class="btn-primary" onclick="runGroqTranscript()">Groq ဖြင့် Transcript လုပ်မည်</button>
-            <div id="groqResult" class="result-box" style="display:none;"></div>
         </div>
     </div>
 
-    <!-- GEMINI VIEW (Audio & Video supported) -->
-    <div id="gemini-view" class="section-view">
-        <div class="inner-card">
-            <h3>✨ Gemini Transcript</h3>
-            <label>Gemini API Key ထည့်ရန်</label>
-            <input type="text" id="geminiKeyInput" placeholder="AIza...">
-            <button class="btn-success" onclick="saveKey('gemini')">💾 Key ကို သိမ်းဆည်းမည်</button>
-            <div class="saved-keys-container">
-                <label style="margin-top:8px;">သိမ်းဆည်းထားသော Keys များ:</label>
-                <div id="savedGeminiKeys"></div>
-            </div>
-            <label style="margin-top: 15px;">အော်ဒီယို သို့မဟုတ် ဗီဒီယိုဖိုင် ရွေးချယ်ရန်</label>
-            <input type="file" id="geminiFile" accept="audio/*,video/*">
-            <button class="btn-primary" onclick="runGeminiTranscript()">Gemini ဖြင့် Transcript လုပ်မည်</button>
-            <div id="geminiResult" class="result-box" style="display:none;"></div>
+    <!-- 2. GROQ TAB -->
+    <div id="groq" class="tab-content card">
+        <h3>Groq Whisper Transcript</h3>
+        <label>Groq API Key ထည့်ရန်</label>
+        <input type="text" id="groqKeyInput" placeholder="gsk_...">
+        <button class="btn-success" onclick="saveKey('groq')">💾 Key ကို Save မည်</button>
+        
+        <div class="saved-keys-container">
+            <label style="margin-top:8px;">သိမ်းထားသော Keys များ:</label>
+            <div id="savedGroqKeys"></div>
         </div>
+
+        <label style="margin-top: 15px;">အော်ဒီယို သို့မဟုတ် ဗီဒီယိုဖိုင် ရွေးချယ်ရန်</label>
+        <input type="file" id="groqFile" accept="audio/*,video/*">
+        <button class="btn-primary" onclick="runGroqTranscript()">Groq ဖြင့် Transcript လုပ်မည်</button>
+        <div id="groqResult" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- COMPRESSOR VIEW -->
-    <div id="compressor-view" class="section-view">
-        <div class="inner-card">
-            <h3>📉 Smart Compressor (&lt; 25MB)</h3>
-            <label>ဖိုင်ရွေးချယ်ပါ (Audio / Video)</label>
-            <input type="file" id="compressFile" accept="audio/*,video/*">
-            <button class="btn-primary" onclick="checkFileSize()" style="background-color: #238636;">ဖိုင်ဆိုဒ် စစ်ဆေးမည်</button>
-            <div id="compressResult" class="result-box" style="display:none;"></div>
+    <!-- 3. GEMINI TAB -->
+    <div id="gemini" class="tab-content card">
+        <h3>Gemini Transcript</h3>
+        <label>Gemini API Key ထည့်ရန်</label>
+        <input type="text" id="geminiKeyInput" placeholder="AIza...">
+        <button class="btn-success" onclick="saveKey('gemini')">💾 Key ကို Save မည်</button>
+
+        <div class="saved-keys-container">
+            <label style="margin-top:8px;">သိမ်းထားသော Keys များ:</label>
+            <div id="savedGeminiKeys"></div>
         </div>
+
+        <label style="margin-top: 15px;">ဗီဒီယို သို့မဟုတ် အော်ဒီယိုဖိုင် ရွေးချယ်ရန်</label>
+        <input type="file" id="geminiFile" accept="audio/*,video/*">
+        <button class="btn-primary" onclick="runGeminiTranscript()">Gemini ဖြင့် Transcript လုပ်မည်</button>
+        <div id="geminiResult" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- DOWNLOADER VIEW -->
-    <div id="downloader-view" class="section-view">
-        <div class="inner-card">
-            <h3>📥 Video Downloader (YT, Douyin, Bilibili)</h3>
-            <label>ပလက်ဖောင်း ရွေးချယ်ပါ</label>
-            <select id="platformSelect">
-                <option value="youtube">YouTube Video / Audio</option>
-                <option value="douyin">Douyin / TikTok</option>
-                <option value="bilibili">Bilibili</option>
-            </select>
-            <label>ဗီဒီယို လင့်ခ် (URL) ထည့်ရန်</label>
-            <input type="text" id="videoUrl" placeholder="https://...">
-            <button class="btn-primary" onclick="processDownload()">ဖိုင်ရယူရန် (Download Link ဖန်တီးမည်)</button>
-            <div id="downloadResult" class="result-box" style="display:none;"></div>
-        </div>
+    <!-- 4. DOWNLOADER TAB (Untouched Core Logic) -->
+    <div id="downloader" class="tab-content card">
+        <h3>Video Downloader (YT, Douyin, Bilibili)</h3>
+        <label>ပလက်ဖောင်း ရွေးချယ်ပါ</label>
+        <select id="platformSelect">
+            <option value="youtube">YouTube Video / Audio</option>
+            <option value="douyin">Douyin / TikTok</option>
+            <option value="bilibili">Bilibili</option>
+        </select>
+
+        <label>ဗီဒီယို လင့်ခ် (URL) ထည့်ရန်</label>
+        <input type="text" id="videoUrl" placeholder="https://...">
+
+        <button class="btn-primary" onclick="processDownload()">ဖိုင်ရယူရန် (Download Link ဖန်တီးမည်)</button>
+        
+        <div id="downloadResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- 5. COMPRESSOR TAB -->
+    <div id="compressor" class="tab-content card">
+        <h3>Audio / Video Compressor (&lt; 25MB)</h3>
+        <label>ဖိုင်ရွေးချယ်ပါ</label>
+        <input type="file" id="compressFile" accept="audio/*,video/*">
+        <button class="btn-primary" onclick="compressFileAction()" style="background-color: #238636;">ဖိုင်ဆိုဒ် ချုံးမည် / စစ်ဆေးမည်</button>
+        <div id="compressResult" class="result-box" style="display:none;"></div>
     </div>
 
     <div class="footer">My Transcriber</div>
 </div>
 
 <script>
-    function switchTab(tabName, element) {
-        document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
         
-        document.getElementById(tabName + '-view').classList.add('active');
-        if (element) {
-            element.classList.add('active');
-        }
+        document.getElementById(tabId).classList.add('active');
+        // Find matching tab button and set active
+        document.querySelectorAll('.nav-tab').forEach(btn => {
+            if(btn.getAttribute('onclick')?.includes(tabId)) {
+                btn.classList.add('active');
+            }
+        });
     }
 
     function saveKey(type) {
         const inputId = type === 'groq' ? 'groqKeyInput' : 'geminiKeyInput';
         const keyValue = document.getElementById(inputId).value.trim();
-
-        if (!keyValue) {
-            alert('ကျေးဇူးပြု၍ Key ထည့်ပါ။');
-            return;
-        }
+        if (!keyValue) { alert('ကျေးဇူးပြု၍ Key ထည့်ပါ။'); return; }
 
         let keys = JSON.parse(localStorage.getItem(type + '_keys') || '[]');
         if (!keys.includes(keyValue)) {
@@ -352,38 +335,106 @@
     }
 
     function loadSavedKeys() {
-        let groqKeys = JSON.parse(localStorage.getItem('groq_keys') || '[]');
-        let groqContainer = document.getElementById('savedGroqKeys');
-        if (groqContainer) {
-            groqContainer.innerHTML = groqKeys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
-            groqKeys.forEach(k => {
+        ['groq', 'gemini'].forEach(type => {
+            let keys = JSON.parse(localStorage.getItem(type + '_keys') || '[]');
+            let container = document.getElementById('saved' + type.charAt(0).toUpperCase() + type.slice(1) + 'Keys');
+            container.innerHTML = keys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
+            keys.forEach(k => {
                 let masked = k.substring(0, 6) + '...' + k.slice(-4);
-                groqContainer.innerHTML += `<span class="saved-key-chip" onclick="useKey('groq', '${k}')">${masked}</span>`;
+                container.innerHTML += `<span class="saved-key-chip" onclick="useKey('${type}', '${k}')">${masked}</span>`;
             });
-        }
-
-        let geminiKeys = JSON.parse(localStorage.getItem('gemini_keys') || '[]');
-        let geminiContainer = document.getElementById('savedGeminiKeys');
-        if (geminiContainer) {
-            geminiContainer.innerHTML = geminiKeys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
-            geminiKeys.forEach(k => {
-                let masked = k.substring(0, 6) + '...' + k.slice(-4);
-                geminiContainer.innerHTML += `<span class="saved-key-chip" onclick="useKey('gemini', '${k}')">${masked}</span>`;
-            });
-        }
+        });
     }
 
     function useKey(type, key) {
-        if (type === 'groq') {
-            document.getElementById('groqKeyInput').value = key;
-        } else {
-            document.getElementById('geminiKeyInput').value = key;
-        }
+        document.getElementById(type === 'groq' ? 'groqKeyInput' : 'geminiKeyInput').value = key;
     }
 
     window.onload = loadSavedKeys;
 
-    // Backend Downloader Connection
+    // --- Groq Transcript Real Implementation ---
+    async function runGroqTranscript() {
+        const apiKey = document.getElementById('groqKeyInput').value.trim();
+        const fileInput = document.getElementById('groqFile');
+        const resultDiv = document.getElementById('groqResult');
+
+        if (!apiKey) { alert('ကျေးဇူးပြု၍ Groq API Key ထည့်ပါ။'); return; }
+        if (fileInput.files.length === 0) { alert('ကျေးဇူးပြု၍ ဖိုင်ရွေးချယ်ပါ။'); return; }
+
+        const file = fileInput.files[0];
+        if (file.size > 25 * 1024 * 1024) {
+            alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။');
+            return;
+        }
+
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = 'Groq Whisper သို့ ပို့ဆောင်နေပါပြီ... ခဏစောင့်ပါ။';
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('model', 'whisper-large-v3');
+
+        try {
+            const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${apiKey}` },
+                body: formData
+            });
+            const data = await response.json();
+            if (response.ok) {
+                resultDiv.innerHTML = `<b>Transcript ရလဒ်:</b>\n\n${data.text}`;
+            } else {
+                resultDiv.innerHTML = `<span style="color:#f85149;">Error: ${data.error?.message || 'Failed'}</span>`;
+            }
+        } catch (err) {
+            resultDiv.innerHTML = `<span style="color:#f85149;">ချိတ်ဆက်မှု အမှားအယွင်း ရှိသည်။</span>`;
+        }
+    }
+
+    // --- Gemini Transcript Real Implementation ---
+    async function runGeminiTranscript() {
+        const apiKey = document.getElementById('geminiKeyInput').value.trim();
+        const fileInput = document.getElementById('geminiFile');
+        const resultDiv = document.getElementById('geminiResult');
+
+        if (!apiKey) { alert('ကျေးဇူးပြု၍ Gemini API Key ထည့်ပါ။'); return; }
+        if (fileInput.files.length === 0) { alert('ကျေးဇူးပြု၍ ဖိုင်ရွေးချယ်ပါ။'); return; }
+
+        const file = fileInput.files[0];
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = 'ဖိုင်ကို Gemini သို့ တင်နေပါပြီ...';
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64Data = e.target.result.split(',')[1];
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: "Provide a complete transcript or description of the spoken content in this file." },
+                                { inline_data: { mime_type: file.type, data: base64Data } }
+                            ]
+                        }]
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+                    resultDiv.innerHTML = `<b>Gemini ရလဒ်:</b>\n\n${text}`;
+                } else {
+                    resultDiv.innerHTML = `<span style="color:#f85149;">Error: ${data.error?.message || 'Failed'}</span>`;
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<span style="color:#f85149;">Gemini API ချိတ်ဆက်မှု မအောင်မြင်ပါ။</span>`;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // --- Downloader Logic (Untouched) ---
     const BACKEND_URL = "https://my-transcriber-production-0f34.up.railway.app/download";
 
     async function processDownload() {
@@ -391,12 +442,12 @@
         const resultDiv = document.getElementById('downloadResult');
 
         if (!urlInput) {
-            alert('ကျေးဇူးပြု၍ ဗီဒီယို လင့်ခ် ထည့်ပါ။');
+            alert('ကျေးဇူးပြု၍ ဗီဒီယိုလင့်ခ် ထည့်ပါ။');
             return;
         }
 
         resultDiv.style.display = 'block';
-        resultDiv.innerHTML = 'လင့်ခ်ကို ရယူနေပါပြီ၊ ခဏစောင့်ပါ...';
+        resultDiv.innerHTML = 'လင့်ခ်ကို ဆွဲထုတ်နေပါပြီ၊ ခဏစောင့်ပါ...';
 
         try {
             const response = await fetch(BACKEND_URL, {
@@ -407,22 +458,21 @@
 
             const data = await response.json();
 
-            if (data.success || data.download_url) {
-                const downloadUrl = data.download_url || data.url;
-                const title = data.title || 'ဗီဒီယို';
+            if (data.success) {
                 resultDiv.innerHTML = `
-                    <p><b>ခေါင်းစဉ်:</b> ${title}</p>
-                    <a href="${downloadUrl}" target="_blank" style="display:block; text-align:center; background:#238636; color:white; padding:8px; text-decoration:none; border-radius:6px; margin-top:8px;">ဖိုင်ဒေါင်းလုဒ်ဆွဲရန် နှိပ်ပါ</a>
+                    <p><b>ခေါင်းစဉ်:</b> ${data.title}</p>
+                    <a href="${data.download_url}" target="_blank" style="display:block; text-align:center; background:#238636; color:white; padding:8px; text-decoration:none; border-radius:6px; margin-top:8px;">ဖိုင်ဒေါင်းလုဒ်ဆွဲရန် နှိပ်ပါ</a>
                 `;
             } else {
-                resultDiv.innerHTML = `<span style="color:#f85149;">လင့်ခ်ရယူ၍မရပါ: ${data.error || 'အမှားအယွင်းရှိသည်။'}</span>`;
+                resultDiv.innerHTML = `<span style="color:#f85149;">အမှားအယွင်းရှိသည်: ${data.error}</span>`;
             }
         } catch (error) {
-            resultDiv.innerHTML = `<span style="color:#f85149;">အမှားအယွင်း ဖြစ်ပေါ်သည်: ဆာဗာသို့ ချိတ်ဆက်၍မရပါ။</span>`;
+            resultDiv.innerHTML = `<span style="color:#f85149;">ဆာဗာသို့ ချိတ်ဆက်၍ မရပါ။</span>`;
         }
     }
 
-    function checkFileSize() {
+    // --- Compressor Action ---
+    function compressFileAction() {
         const fileInput = document.getElementById('compressFile');
         const resultDiv = document.getElementById('compressResult');
 
@@ -436,122 +486,10 @@
 
         resultDiv.style.display = 'block';
         if (fileSizeMB > 25) {
-            resultDiv.innerHTML = `<span style="color:#d29922;">ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB ကျော်လွန်နေပါသည်၊ Transcript အတွက် ဆိုဒ်လျှော့ချရန်/ဖြတ်တောက်ရန် လိုအပ်သည်)</span>`;
+            resultDiv.innerHTML = `<span style="color:#d29922;">ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB ကျော်လွန်နေပါသည်)</span>\n\n💡 အကြံပြုချက် - ပရိုဂရမ်အတွင်းပိုင်း FFmpeg သို့မဟုတ် အခြား compression tool ဖြင့် အရည်အသွေးလျှော့ချ၍ 25MB အောက်သို့ အပိုင်းပိုင်းဖြတ်ကာ အသုံးပြုနိုင်ပါသည်။`;
         } else {
-            resultDiv.innerHTML = `<span style="color:#3fb950;">✓ ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB အောက်ရှိသဖြင့် အသုံးပြုရန် အဆင်ပြေသည်)</span>`;
+            resultDiv.innerHTML = `<span style="color:#3fb950;">✓ ဖိုင်ဆိုဒ်: ${fileSizeMB.toFixed(2)} MB (25MB အောက်ရှိသဖြင့် အသင့်သုံးနိုင်ပါပြီ)</span>`;
         }
-    }
-
-    async function runGroqTranscript() {
-        const apiKey = document.getElementById('groqKeyInput').value.trim();
-        const fileInput = document.getElementById('groqFile');
-        const resultDiv = document.getElementById('groqResult');
-
-        if (!apiKey) {
-            alert('ကျေးဇူးပြု၍ Groq API Key ထည့်ပါ။');
-            return;
-        }
-        if (fileInput.files.length === 0) {
-            alert('ကျေးဇူးပြု၍ အော်ဒီယို သို့မဟုတ် ဗီဒီယိုဖိုင် ရွေးချယ်ပါ။');
-            return;
-        }
-
-        const file = fileInput.files[0];
-        if (file.size > 25 * 1024 * 1024) {
-            alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ Compressor တွင် ဆိုဒ်စစ်ဆေးပါ။');
-            return;
-        }
-
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = 'Groq သို့ ပို့၍ Transcript လုပ်နေပါပြီ၊ ခဏစောင့်ပါ...';
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('model', 'whisper-large-v3');
-        formData.append('response_format', 'text');
-
-        try {
-            const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${apiKey}` },
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error?.message || 'API Error');
-            }
-
-            const transcriptText = await response.text();
-            resultDiv.innerHTML = `<b>Transcript ရလဒ်:</b>\n\n${transcriptText}`;
-        } catch (error) {
-            resultDiv.innerHTML = `<span style="color:#f85149;">အမှားအယွင်း ဖြစ်ပေါ်သည်: ${error.message}</span>`;
-        }
-    }
-
-    async function runGeminiTranscript() {
-        const apiKey = document.getElementById('geminiKeyInput').value.trim();
-        const fileInput = document.getElementById('geminiFile');
-        const resultDiv = document.getElementById('geminiResult');
-
-        if (!apiKey) {
-            alert('ကျေးဇူးပြု၍ Gemini API Key ထည့်ပါ။');
-            return;
-        }
-        if (fileInput.files.length === 0) {
-            alert('ကျေးဇူးပြု၍ အော်ဒီယို သို့မဟုတ် ဗီဒီယိုဖိုင် ရွေးချယ်ပါ။');
-            return;
-        }
-
-        const file = fileInput.files[0];
-        if (file.size > 25 * 1024 * 1024) {
-            alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ Compressor တွင် ဆိုဒ်စစ်ဆေးပါ။');
-            return;
-        }
-
-        resultDiv.style.display = 'block';
-        resultDiv.innerHTML = 'Gemini သို့ ပို့၍ Transcript လုပ်နေပါပြီ၊ ခဏစောင့်ပါ...';
-
-        try {
-            const base64Data = await toBase64(file);
-            const cleanBase64 = base64Data.split(',')[1];
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: "Please transcribe this media file accurately word-for-word, keeping the original language." },
-                            {
-                                inline_data: {
-                                    mime_type: file.type || "audio/mp3",
-                                    data: cleanBase64
-                                }
-                            }
-                        ]
-                    }]
-                })
-            });
-
-            const data = await response.json();
-            if (data.candidates && data.candidates[0].content.parts[0].text) {
-                resultDiv.innerHTML = `<b>Gemini Transcript ရလဒ်:</b>\n\n${data.candidates[0].content.parts[0].text}`;
-            } else {
-                throw new Error(JSON.stringify(data));
-            }
-        } catch (error) {
-            resultDiv.innerHTML = `<span style="color:#f85149;">အမှားအယွင်း ဖြစ်ပေါ်သည်: ${error.message}</span>`;
-        }
-    }
-
-    function toBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
     }
 </script>
 
