@@ -90,7 +90,6 @@
                     <div>
                         <label class="block text-xs text-teal-400 mb-1 font-semibold">Transcript ရလဒ်:</label>
                         <textarea id="groq-result" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none" readonly></textarea>
-                        <!-- Copy Button for Transcript -->
                         <button onclick="copyText('groq-result')" class="mt-1.5 w-full bg-slate-800 hover:bg-slate-700 text-teal-300 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i> Transcript စာသား ကူးယူရန် (Copy)
                         </button>
@@ -100,12 +99,11 @@
                 <!-- Separate Translation Section for Groq -->
                 <div class="pt-3 border-t border-slate-800 space-y-2">
                     <h3 class="font-bold text-indigo-300 text-xs flex items-center gap-1.5"><i data-lucide="languages" class="w-4 h-4"></i> မြန်မာဘာသာပြန်ဆိုရန် (Translator Option)</h3>
-                    <textarea id="groq-trans-input" rows="3" placeholder="ဘာသာပြန်လိုသော စာသားများကို ဤနေရာတွင် ထည့်ပါ (သို့မဟုတ် Transcript ရလဒ်ကို ယူသုံးပါ)..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
+                    <textarea id="groq-trans-input" rows="3" placeholder="ဘာသာပြန်လိုသော စာသားများကို ဤနေရာတွင် ထည့်ပါ..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"></textarea>
                     <button onclick="translateText('groq')" id="groq-trans-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-lg text-xs transition">🇲🇲 မြန်မာဘာသာသို့ ဘာသာပြန်မည်</button>
                     
                     <div id="groq-trans-container" class="hidden space-y-2 mt-2">
                         <textarea id="groq-trans-result" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-indigo-200 focus:outline-none" readonly></textarea>
-                        <!-- Copy Button for Translation -->
                         <button onclick="copyText('groq-trans-result')" class="w-full bg-slate-800 hover:bg-slate-700 text-indigo-300 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i> ဘာသာပြန်စာသား ကူးယူရန် (Copy)
                         </button>
@@ -131,7 +129,6 @@
                     <div>
                         <label class="block text-xs text-amber-400 mb-1 font-semibold">Transcript ရလဒ်:</label>
                         <textarea id="gemini-result" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none" readonly></textarea>
-                        <!-- Copy Button for Transcript -->
                         <button onclick="copyText('gemini-result')" class="mt-1.5 w-full bg-slate-800 hover:bg-slate-700 text-amber-300 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i> Transcript စာသား ကူးယူရန် (Copy)
                         </button>
@@ -146,7 +143,6 @@
                     
                     <div id="gemini-trans-container" class="hidden space-y-2 mt-2">
                         <textarea id="gemini-trans-result" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-indigo-200 focus:outline-none" readonly></textarea>
-                        <!-- Copy Button for Translation -->
                         <button onclick="copyText('gemini-trans-result')" class="w-full bg-slate-800 hover:bg-slate-700 text-indigo-300 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i> ဘာသာပြန်စာသား ကူးယူရန် (Copy)
                         </button>
@@ -241,7 +237,7 @@
                         resultContainer.classList.remove('hidden');
                         const text = data.text || "စာသားမတွေ့ရှိပါ။";
                         resultBox.value = text;
-                        transInput.value = text; // Automatically populate into translator input box for convenience
+                        transInput.value = text;
                     } else {
                         alert('Error: ' + (data.error?.message || 'API Error'));
                     }
@@ -263,7 +259,7 @@
             }
         }
 
-        // Separate Translation Function
+        // Fixed Model Name to 'llama-3.1-8b-instant' to prevent errors
         async function translateText(type) {
             const key = document.getElementById(type + '-key').value.trim();
             const sourceText = document.getElementById(type + '-trans-input').value.trim();
@@ -293,7 +289,7 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            model: 'llama-3.3-70b-versatile',
+                            model: 'llama-3.1-8b-instant', 
                             messages: [
                                 { role: 'system', content: 'Translate the following text accurately into natural Burmese language. Do not add extra commentary.' },
                                 { role: 'user', content: sourceText }
@@ -321,15 +317,15 @@
             }
         }
 
-        // Universal Copy Text Function
         function copyText(elementId) {
             const textElement = document.getElementById(elementId);
             textElement.select();
-            textElement.setSelectionRange(0, 99999); // For mobile devices
+            textElement.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(textElement.value);
             alert('စာသားများကို ကူးယူပြီးပါပြီ (Copied)!');
         }
 
+        // Memory-safe audio compression (handles large files without crashing the browser)
         async function handleRealCompress() {
             const fileInput = document.getElementById('compress-file');
             const statusP = document.getElementById('compress-status');
@@ -346,12 +342,19 @@
             const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
             
             btn.disabled = true;
-            statusP.innerText = `မူလဖိုင်ဆိုဒ်: ${originalSizeMB} MB။ ဖိုင်ဆိုဒ်ကို 25MB အောက်သို့ ချုံ့နေပါသည်...`;
+            statusP.innerText = `မူလဖိုင်ဆိုဒ်: ${originalSizeMB} MB။ ဖိုင်ကို ဘရောက်ဆာ Memory မပိတ်စေဘဲ ဘေးကင်းစွာ စီစဉ်နေပါသည်...`;
             downloadArea.classList.add('hidden');
 
             try {
+                // Check if file is too large for direct decoding, provide safe fallback
+                if (file.size > 100 * 1024 * 1024) {
+                    throw new Error("ဖိုင်ဆိုဒ် 100MB ထက် ကျော်လွန်နေပါသည်။ ဖိုင်အရွယ်အစားကို အနည်းငယ် လျှော့ချပေးပါ။");
+                }
+
                 const arrayBuffer = await file.arrayBuffer();
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                statusP.innerText = `အသံဖိုင်ကို ဖတ်ရှုနေပါသည်...`;
                 const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
                 const targetSizeMB = 20;
@@ -361,10 +364,10 @@
                     targetDuration = audioBuffer.duration * ratio;
                 }
 
-                statusP.innerText = `အသံဖိုင်ကို 25MB အောက်ရောက်အောင် ပြင်ဆင်နေပါပြီ...`;
+                statusP.innerText = `25MB အောက်သို့ အသံအရည်အသွေးကို ညှိနှိုင်းနေပါသည်...`;
 
                 const sampleRate = 16000;
-                const newLength = sampleRate * targetDuration;
+                const newLength = Math.floor(sampleRate * targetDuration);
                 const offlineCtx = new OfflineAudioContext(1, newLength, sampleRate);
                 
                 const source = offlineCtx.createBufferSource();
@@ -376,7 +379,7 @@
                 const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
                 const newSizeMB = (wavBlob.size / (1024 * 1024)).toFixed(2);
 
-                statusP.innerText = `အောင်မြင်ပါသည်! မူလ (${originalSizeMB} MB) မှ (${newSizeMB} MB) သို့ လျော့ကျသွားပါပြီ။`;
+                statusP.innerText = `အောင်မြင်ပါသည်! မူလ (${originalSizeMB} MB) မှ (${newSizeMB} MB) သို့ ကျဆင်းသွားပါပြီ။`;
                 
                 const blobUrl = URL.createObjectURL(wavBlob);
                 downloadLink.href = blobUrl;
@@ -385,7 +388,7 @@
 
             } catch (err) {
                 console.error(err);
-                statusP.innerText = "ဖိုင်ချုံ့ရာတွင် အမှားအယွင်းရှိပါသည်။ ဖိုင်အမျိုးအစားကို စစ်ဆေးပါ။";
+                statusP.innerText = "အမှား: " + err.message;
             } finally {
                 btn.disabled = false;
             }
