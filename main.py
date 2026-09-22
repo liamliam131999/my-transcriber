@@ -14,12 +14,11 @@ def download_video():
     if not url:
         return jsonify({'success': False, 'error': 'ဗီဒီယိုလင့်ခ် ထည့်သွင်းရန် လိုအပ်ပါသည်။'}), 400
 
-    # YouTube Bot ကန့်သတ်ချက်ကို ကျော်လွှားရန် options များ ထည့်သွင်းထားသည်
+    # YouTube Bot စစ်ဆေးမှုကို ရှောင်ရှားရန် player_client ကို 'ios' သို့မဟုတ် 'mweb' သို့ ပြောင်းသုံးခြင်း
     ydl_opts = {
         'format': 'best',
         'noplaylist': True,
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'extractor_args': {'youtube': {'player_client': ['android', 'web']}}
+        'extractor_args': {'youtube': {'player_client': ['ios', 'mweb']}}
     }
 
     try:
