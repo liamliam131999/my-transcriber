@@ -1,1 +1,1 @@
-web: python api/download.py
+web: python main.py
