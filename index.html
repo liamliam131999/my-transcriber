@@ -80,7 +80,7 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="text"], select, input[type="file"] {
+        input[type="text"], input[type="file"] {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
@@ -155,21 +155,21 @@
     <div class="subtitle">Transcript • Downloader • Compressor</div>
 
     <div class="warning-box">
-        ⚠️ Groq / Gemini သို့ တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်။
+        ⚠️ Groq သို့မဟုတ် Gemini သို့ တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်။
     </div>
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <button class="nav-tab" onclick="switchTab('home')">🏠 Home</button>
+        <button class="nav-tab active" onclick="switchTab('home')">🏠 ပင်မစာမျက်နှာ</button>
         <button class="nav-tab" onclick="switchTab('groq')">🤖 Groq</button>
         <button class="nav-tab" onclick="switchTab('gemini')">✨ Gemini</button>
-        <button class="nav-tab active" onclick="switchTab('downloader')">📥 Downloader</button>
+        <button class="nav-tab" onclick="switchTab('downloader')">📥 Downloader</button>
         <button class="nav-tab" onclick="switchTab('compressor')">📁 Compressor</button>
     </div>
 
     <!-- 1. HOME TAB -->
-    <div id="home" class="tab-content card">
-        <h3>স্বီးကြိုပါတယ် (Welcome)</h3>
+    <div id="home" class="tab-content card active">
+        <h3>ကြိုဆိုပါတယ် (Welcome)</h3>
         <p style="font-size: 13px; color: #8b949e;">ဗီဒီယိုများ ဒေါင်းလုဒ်လုပ်ခြင်း၊ AI ဖြင့် Transcript လုပ်ခြင်းနှင့် ဖိုင်ဆိုဒ်လျှော့ချခြင်းများကို ဤနေရာတွင် လွယ်ကူစွာ လုပ်ဆောင်နိုင်ပါသည်။</p>
     </div>
 
@@ -178,14 +178,14 @@
         <h3>Groq Transcript</h3>
         <label>Groq API Key ထည့်ရန်</label>
         <input type="text" id="groqKeyInput" placeholder="gsk_...">
-        <button class="btn-success" onclick="saveKey('groq')">💾 Key ကို Save မည်</button>
+        <button class="btn-success" onclick="saveKey('groq')">💾 Key ကို သိမ်းဆည်းမည်</button>
         
         <div class="saved-keys-container">
-            <label style="margin-top:8px;">သိမ်းထားသော Groq Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
+            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Groq Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
             <div id="savedGroqKeys"></div>
         </div>
 
-        <label style="margin-top: 15px;">អော်ဒီယိုဖိုင် (Audio) ရွေးချယ်ရန်</label>
+        <label style="margin-top: 15px;">အော်ဒီယိုဖိုင် (Audio) ရွေးချယ်ရန်</label>
         <input type="file" id="groqFile" accept="audio/*">
         <button class="btn-primary" onclick="runGroqTranscript()">Groq ဖြင့် Transcript လုပ်မည်</button>
         <div id="groqResult" class="result-box" style="display:none;"></div>
@@ -196,10 +196,10 @@
         <h3>Gemini Transcript</h3>
         <label>Gemini API Key ထည့်ရန်</label>
         <input type="text" id="geminiKeyInput" placeholder="AIza...">
-        <button class="btn-success" onclick="saveKey('gemini')">💾 Key ကို Save မည်</button>
+        <button class="btn-success" onclick="saveKey('gemini')">💾 Key ကို သိမ်းဆည်းမည်</button>
 
         <div class="saved-keys-container">
-            <label style="margin-top:8px;">သိမ်းထားသော Gemini Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
+            <label style="margin-top:8px;">သိမ်းဆည်းထားသော Gemini Keys များ (နှိပ်၍ ပြန်သုံးပါ):</label>
             <div id="savedGeminiKeys"></div>
         </div>
 
@@ -210,17 +210,11 @@
     </div>
 
     <!-- 4. DOWNLOADER TAB -->
-    <div id="downloader" class="tab-content card active">
-        <h3>Video Downloader (YT, Douyin, Bilibili)</h3>
-        <label>ပလက်ဖောင်း ရွေးချယ်ပါ</label>
-        <select id="platformSelect">
-            <option value="youtube">YouTube Video / Audio</option>
-            <option value="douyin">Douyin / TikTok</option>
-            <option value="bilibili">Bilibili</option>
-        </select>
-
+    <div id="downloader" class="tab-content card">
+        <h3>YouTube Video Downloader</h3>
+        
         <label>ဗီဒီယို လင့်ခ် (URL) ထည့်ရန်</label>
-        <input type="text" id="videoUrl" placeholder="https://...">
+        <input type="text" id="videoUrl" placeholder="https://youtube.com/...">
 
         <button class="btn-primary" onclick="processDownload()">ဖိုင်ရယူရန် (Download Link ဖန်တီးမည်)</button>
         
@@ -272,7 +266,6 @@
     }
 
     function loadSavedKeys() {
-        // Groq Keys
         let groqKeys = JSON.parse(localStorage.getItem('groq_keys') || '[]');
         let groqContainer = document.getElementById('savedGroqKeys');
         groqContainer.innerHTML = groqKeys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
@@ -281,7 +274,6 @@
             groqContainer.innerHTML += `<span class="saved-key-chip" onclick="useKey('groq', '${k}')">${masked}</span>`;
         });
 
-        // Gemini Keys
         let geminiKeys = JSON.parse(localStorage.getItem('gemini_keys') || '[]');
         let geminiContainer = document.getElementById('savedGeminiKeys');
         geminiContainer.innerHTML = geminiKeys.length === 0 ? '<span style="font-size:11px; color:#8b949e;">မရှိသေးပါ။</span>' : '';
@@ -299,7 +291,6 @@
         }
     }
 
-    // Load saved keys on page load
     window.onload = loadSavedKeys;
 
     // Downloader Logic
@@ -310,7 +301,7 @@
         const resultDiv = document.getElementById('downloadResult');
 
         if (!urlInput) {
-            alert('ကျေးဇူးပြု၍ ဗီဒီယိုလင့်ခ် ထည့်ပါ။');
+            alert('ကျေးဇူးပြု၍ YouTube ဗီဒီယိုလင့်ခ် ထည့်ပါ။');
             return;
         }
 
@@ -360,7 +351,6 @@
         }
     }
 
-    // Placeholder functions for Transcript actions
     function runGroqTranscript() {
         alert('Groq Transcript လုပ်ဆောင်ချက်ကို ဤနေရာတွင် ချိတ်ဆက်နိုင်ပါသည်။');
     }
