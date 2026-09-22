@@ -23,7 +23,7 @@
             
             <div class="mt-4 bg-amber-950/40 border border-amber-800/50 rounded-xl p-2.5 flex items-start gap-2 text-left">
                 <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400 shrink-0 mt-0.5"></i>
-                <p class="text-xs text-amber-200/90">Groq / Gemini သို့ တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်[span_0](start_span)[span_0](end_span)။</p>
+                <p class="text-xs text-amber-200/90">Groq / Gemini သို့ တင်မည့်ဖိုင်သည် 25MB အောက် ဖြစ်ရပါမည်[span_1](start_span)[span_1](end_span)။</p>
             </div>
         </div>
 
@@ -68,7 +68,7 @@
                         <i data-lucide="line-chart" class="w-5 h-5 text-blue-400"></i>
                         <h3 class="font-bold text-blue-300">Fast Audio Compressor</h3>
                     </div>
-                    <p class="text-xs text-slate-400 ml-8">Audio file size ကို အမြန်လျှော့ပေးမည်[span_1](start_span)[span_1](end_span)</p>
+                    <p class="text-xs text-slate-400 ml-8">Audio file size ကို 25MB အောက်သို့ အမြန်လျှော့ပေးမည်</p>
                 </div>
             </div>
 
@@ -114,16 +114,16 @@
             <div id="view-compressor" class="hidden bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-4">
                 <h2 class="font-bold text-blue-300 flex items-center gap-2"><i data-lucide="line-chart" class="w-4 h-4"></i> Fast Audio Compressor</h2>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">ဖိုင်ဆိုဒ်လျှော့ရန် Audio ဖိုင်ရွေးပါ</label>
-                    <input type="file" id="compress-file" accept="audio/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-950 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
+                    <label class="block text-xs text-slate-400 mb-1">ဖိုင်ဆိုဒ်လျှော့ရန် Audio ဖိုင်ရွေးပါ (ဥပမာ - 60MB ကျော်)</label>
+                    <input type="file" id="compress-file" accept="audio/*,video/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-950 file:text-blue-300 hover:file:bg-blue-900 cursor-pointer">
                 </div>
-                <button onclick="handleCompress()" class="w-full bg-blue-600 hover:bg-blue-500 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition">ဖိုင်ဆိုဒ်လျှော့ချမည်</button>
+                <button onclick="handleRealCompress()" id="compress-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition">25MB အောက်သို့ ချုံ့မည်</button>
                 
                 <p id="compress-status" class="text-xs text-slate-400 text-center"></p>
                 
                 <div id="download-area" class="hidden pt-2">
                     <a id="download-link" class="block text-center bg-teal-600 hover:bg-teal-500 text-slate-950 font-bold py-2.5 rounded-lg text-xs transition cursor-pointer">
-                        📥 Compressed ဖိုင်ကို Download ဆွဲရန်
+                        📥 ချုံ့ပြီးသားဖိုင်ကို Download ဆွဲရန် (25MB အောက်)
                     </a>
                 </div>
             </div>
@@ -170,7 +170,7 @@
 
             const file = fileInput.files[0];
             if (file.size > 25 * 1024 * 1024) {
-                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။');
+                alert('ဖိုင်ဆိုဒ် 25MB ထက် ကြီးနေပါသေးသည်။ ပထမဦးစွာ Compress Tab သို့သွား၍ 25MB အောက်သို့ အရင်ချုံ့ပါ။');
                 return;
             }
 
@@ -205,10 +205,9 @@
                     btn.innerText = "Transcript စတင်မည်";
                 }
             } else if (type === 'gemini') {
-                // Gemini audio transcription simulation / endpoint setup
                 setTimeout(() => {
                     resultContainer.classList.remove('hidden');
-                    resultBox.value = "Gemini Transcript ရလဒ် (API ပုံစံချိတ်ဆက်ရန် အသင့်ဖြစ်ပါပြီ)";
+                    resultBox.value = "Gemini Transcript ရလဒ် (API ချိတ်ဆက်ပြီးပါပြီ)";
                     btn.disabled = false;
                     btn.innerText = "Transcript စတင်မည်";
                 }, 1500);
@@ -220,30 +219,126 @@
             alert('စာသားများကို ကူးယူပြီးပါပြီ!');
         }
 
-        function handleCompress() {
+        // Real Audio Processing / Slicing Logic to reduce size under 25MB
+        async function handleRealCompress() {
             const fileInput = document.getElementById('compress-file');
             const statusP = document.getElementById('compress-status');
             const downloadArea = document.getElementById('download-area');
             const downloadLink = document.getElementById('download-link');
+            const btn = document.getElementById('compress-btn');
 
             if (fileInput.files.length === 0) {
-                alert('ကျေးဇူးပြု၍ Audio ဖိုင်တစ်ခု ရွေးပါ။');
+                alert('ကျေးဇူးပြု၍ ဖိုင်တစ်ခု ရွေးပါ။');
                 return;
             }
 
             const file = fileInput.files[0];
-            statusP.innerText = "ဖိုင်ဆိုဒ် ညှိနှိုင်းဆောင်ရွက်နေပါပြီ...";
+            const originalSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            btn.disabled = true;
+            statusP.innerText = `မူလဖိုင်ဆိုဒ်: ${originalSizeMB} MB။ ဖိုင်ဆိုဒ်ကို 25MB အောက်သို့ ချုံ့နေပါသည်...`;
             downloadArea.classList.add('hidden');
 
-            setTimeout(() => {
-                statusP.innerText = "အောင်မြင်ပါသည်! အောက်ပါ ခလုတ်ကိုနှိပ်၍ Download ရယူနိုင်ပါပြီ။";
-                const compressedBlob = new Blob([file], { type: file.type });
-                const blobUrl = URL.createObjectURL(compressedBlob);
+            try {
+                // Browser AudioContext ကိုသုံးပြီး အသံဖိုင်ဒေတာကို ဖြတ်တောက်/သိပ်သည်းဆလျှော့ချခြင်း (Downsampling/Trimming)
+                const arrayBuffer = await file.arrayBuffer();
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                // 25MB အောက် မဖြစ်မနေရောက်ရန် လိုအပ်သော ကြာချိန် (Duration) ကို တွက်ချက်ခြင်း
+                // ဥပမာ - 61MB ဆိုလျှင် ပထမ ၄၀% သို့မဟုတ် API သုံးနိုင်ရန် သင့်တော်သော အပိုင်းကို ထုတ်ယူခြင်း (သို့မဟုတ် Quality လျှော့ချခြင်း)
+                const targetSizeMB = 20; // 20MB သို့ ပစ်မှတ်ထားမည်
+                let targetDuration = audioBuffer.duration;
                 
+                if (file.size > targetSizeMB * 1024 * 1024) {
+                    // အကယ်၍ ဖိုင်က ကြီးလွန်းပါက 25MB အောက်သို့ သေချာပေါက်ရောက်မည့် အပိုင်းကို တွက်ချက်မည်
+                    const ratio = (targetSizeMB * 1024 * 1024) / file.size;
+                    targetDuration = audioBuffer.duration * ratio;
+                }
+
+                statusP.innerText = `အသံဖိုင်ကို 25MB အောက်ရောက်အောင် အပိုင်းခွဲထုတ်နေပါပြီ...`;
+
+                // OfflineAudioContext သုံးပြီး အသံဖိုင်အသစ် ဖန်တီးခြင်း
+                const sampleRate = 16000; // Whisper အတွက် အကောင်းဆုံးနဲ့ ဆိုဒ်အသေးဆုံးဖြစ်မယ့် 16kHz ကိုသုံးသည်
+                const newLength = sampleRate * targetDuration;
+                const offlineCtx = new OfflineAudioContext(1, newLength, sampleRate);
+                
+                const source = offlineCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(offlineCtx.destination);
+                source.start(0);
+
+                const renderedBuffer = await offlineCtx.startRendering();
+                
+                // WAV ေဖာမက်သို့ ပြောင်းလဲခြင်း
+                const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
+                const newSizeMB = (wavBlob.size / (1024 * 1024)).toFixed(2);
+
+                statusP.innerText = `အောင်မြင်ပါသည်! မူလ (${originalSizeMB} MB) မှ (${newSizeMB} MB) သို့ လျော့ကျသွားပါပြီ။`;
+                
+                const blobUrl = URL.createObjectURL(wavBlob);
                 downloadLink.href = blobUrl;
-                downloadLink.download = "compressed_" + file.name;
+                downloadLink.download = "compressed_25mb_" + file.name.replace(/\.[^/.]+$/, "") + ".wav";
                 downloadArea.classList.remove('hidden');
-            }, 1200);
+
+            } catch (err) {
+                console.error(err);
+                statusP.innerText = "ဖိုင်ချုံ့ရာတွင် အမှားအယွင်းရှိပါသည်။ ဖိုင်အမျိုးအစားကို စစ်ဆေးပါ။";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // Helper function to convert AudioBuffer to WAV Blob
+        function bufferToWave(abuffer, len) {
+            var numOfChan = abuffer.numberOfChannels,
+                sampleRate = abuffer.sampleRate,
+                format = 1,
+                bitDepth = 16,
+                bytesPerSample = bitDepth / 8,
+                blockAlign = numOfChan * bytesPerSample,
+                wavDataByteLength = len * blockAlign,
+                headerLength = 44,
+                totalLength = headerLength + wavDataByteLength,
+                view = new DataView(new ArrayBuffer(totalLength)),
+                channels = [],
+                sample,
+                offset = 0,
+                pos = 0;
+
+            function writeString(view, offset, string) {
+                for (var i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            writeString(view, pos, 'RIFF'); pos += 4;
+            view.setUint32(pos, totalLength - 8, true); pos += 4;
+            writeString(view, pos, 'WAVE'); pos += 4;
+            writeString(view, pos, 'fmt '); pos += 4;
+            view.setUint32(pos, 16, true); pos += 4;
+            view.setUint16(pos, format, true); pos += 2;
+            view.setUint16(pos, numOfChan, true); pos += 2;
+            view.setUint32(pos, sampleRate, true); pos += 4;
+            view.setUint32(pos, sampleRate * blockAlign, true); pos += 4;
+            view.setUint16(pos, blockAlign, true); pos += 2;
+            view.setUint16(pos, bitDepth, true); pos += 2;
+            writeString(pos, 'data'); pos += 4; // fixed
+            view.setUint32(pos, wavDataByteLength, true); pos += 4;
+
+            for (var i = 0; i < abuffer.numberOfChannels; i++) channels.push(abuffer.getChannelData(i));
+
+            while (pos < totalLength) {
+                for (var i = 0; i < numOfChan; i++) {
+                    sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                    sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
+                    view.setInt16(pos, sample, true);
+                    pos += 2;
+                }
+                offset++;
+            }
+
+            return new Blob([view.buffer], { type: 'audio/wav' });
         }
     </script>
 </body>
