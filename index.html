@@ -349,7 +349,7 @@
         }
     }
 
-    // Telegram Feedback Integration Logic (Direct Bot Message)
+    // Telegram Feedback Integration Logic (Using Direct Chat ID via getUpdates auto-extraction)
     async function sendFeedbackToTelegram() {
         const name = document.getElementById('feedbackName').value.trim() || 'Anonymous';
         const text = document.getElementById('feedbackText').value.trim();
@@ -365,11 +365,8 @@
 
         const botToken = "8859398416:AAHgPSmwgHFHDed1f5MfrKj_vh-IGczVJVs";
         
-        // သင့် Telegram Chat ID ကို တိုက်ရိုက်ထည့်သွင်းပေးလိုက်ပါ (Bot သို့ ပထမဆုံး စာပို့ဖူးသူများ၏ ID များကို API ဖြင့် တိုက်ရိုက်ချိတ်ရန်)
-        // တကယ်လို့ Chat ID မသိသေးရင် Bot ကနေ အရင်ဆုံး /start နှိပ်ပြီး စာပို့ထားဖို့ လိုပါတယ်။
-        
         try {
-            // getUpdates ကနေတဆင့် chat id ကို အလိုအလျောက်ရှာမည့်အစား တိုက်ရိုက်ပို့မည့် ပုံစံသို့ ပြောင်းရန် updates ကို စစ်ပါမည်
+            // getUpdates မှတဆင့် Chat ID ကို ရယူမည် (သင် Bot ထံသို့ စာပို့ထားပြီးဖြစ်၍ ၎င်းမှ Chat ID ကို ယူပါမည်)
             const updatesRes = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates`);
             const updatesData = await updatesRes.json();
 
@@ -377,8 +374,18 @@
                 throw new Error("Bot ထံသို့ Telegram တွင် အနည်းဆုံး စာတစ်စောင်လောက် အရင်ပို့ထားပေးပါ။");
             }
 
-            // နောက်ဆုံးအသုံးပြုသူရဲ့ Chat ID ကို ယူမည်
-            const chatId = updatesData.result[updatesData.result.length - 1].message.chat.id;
+            // Chat ID အတိအကျကို ရယူရန် အားလုံးထဲမှ message ပါသော id ကို ရှာမည်
+            let chatId = null;
+            for (let i = updatesData.result.length - 1; i >= 0; i--) {
+                if (updatesData.result[i].message) {
+                    chatId = updatesData.result[i].message.chat.id;
+                    break;
+                }
+            }
+
+            if (!chatId) {
+                throw new Error("Chat ID ရှာမတွေ့ပါ။ Bot ထံသို့ စာတစ်စောင် ထပ်ပို့ပါ။");
+            }
 
             const message = `📩 New Feedback!\n\n👤 From: ${name}\n💬 Message: ${text}`;
 
