@@ -25,117 +25,1004 @@ textarea{resize:vertical;min-height:130px}.file-box{border:1px dashed rgba(100,1
 </style>
 </head>
 <body>
+
 <div class="max-w-5xl mx-auto px-3 py-4">
+
 <header class="glass glow rounded-3xl p-5 text-center mb-4">
-<div class="text-4xl mb-2">⚡</div><h1 class="text-2xl sm:text-3xl font-black bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent">My Transcriber</h1>
+<div class="text-4xl mb-2">⚡</div>
+<h1 class="text-2xl sm:text-3xl font-black bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent">My Transcriber</h1>
 <p class="text-xs text-slate-400 mt-2">Transcript • Audio Compressor</p>
-<div class="danger-box rounded-2xl px-3 py-2 mt-4"><p class="text-xs text-rose-300">⚠️ Groq / Gemini သို့ တင်မည့်ဖိုင်သည် <b>25MB အောက်</b> ဖြစ်ရပါမည်။</p></div>
+<div class="danger-box rounded-2xl px-3 py-2 mt-4">
+<p class="text-xs text-rose-300">⚠️ Groq / Gemini သို့ တင်မည့်ဖိုင်သည် <b>25MB အောက်</b> ဖြစ်ရပါမည်။</p>
+</div>
 </header>
 
-<nav class="glass rounded-2xl p-2 mb-5 overflow-x-auto"><div class="flex gap-2 min-w-max">
+<nav class="glass rounded-2xl p-2 mb-5 overflow-x-auto">
+<div class="flex gap-2 min-w-max">
 <button class="nav-btn active border border-transparent rounded-xl px-4 py-2 text-xs font-bold" onclick="showTool('home',this)">🏠 Home</button>
 <button class="nav-btn border border-transparent rounded-xl px-4 py-2 text-xs font-bold" onclick="showTool('groq',this)">🎙️ Groq</button>
 <button class="nav-btn border border-transparent rounded-xl px-4 py-2 text-xs font-bold" onclick="showTool('gemini',this)">✨ Gemini</button>
 <button class="nav-btn border border-transparent rounded-xl px-4 py-2 text-xs font-bold" onclick="showTool('compressor',this)">📉 Compressor</button>
-</div></nav>
+</div>
+</nav>
 
 <section id="tool-home" class="tool-section">
 <div class="grid grid-cols-2 gap-3">
-<button onclick="openTool('groq')" class="tool-card glass rounded-3xl p-5 text-left"><div class="text-3xl mb-3">🎙️</div><h2 class="font-black text-emerald-300">Groq Whisper</h2><p class="text-[11px] text-slate-400 mt-2">Fast multilingual transcription</p></button>
-<button onclick="openTool('gemini')" class="tool-card glass rounded-3xl p-5 text-left"><div class="text-3xl mb-3">✨</div><h2 class="font-black text-violet-300">Gemini</h2><p class="text-[11px] text-slate-400 mt-2">Audio / Video transcription</p></button>
-<button onclick="openTool('compressor')" class="tool-card glass rounded-3xl p-5 text-left col-span-2"><div class="text-3xl mb-3">📉</div><h2 class="font-black text-cyan-300">Fast Audio Compressor</h2><p class="text-[11px] text-slate-400 mt-2">Audio file size ကို အမြန်ဆုံးလျှော့ပေးမည်</p></button>
+
+<button onclick="openTool('groq')" class="tool-card glass rounded-3xl p-5 text-left">
+<div class="text-3xl mb-3">🎙️</div>
+<h2 class="font-black text-emerald-300">Groq Whisper</h2>
+<p class="text-[11px] text-slate-400 mt-2">Fast multilingual transcription</p>
+</button>
+
+<button onclick="openTool('gemini')" class="tool-card glass rounded-3xl p-5 text-left">
+<div class="text-3xl mb-3">✨</div>
+<h2 class="font-black text-violet-300">Gemini</h2>
+<p class="text-[11px] text-slate-400 mt-2">Audio / Video transcription</p>
+</button>
+
+<button onclick="openTool('compressor')" class="tool-card glass rounded-3xl p-5 text-left col-span-2">
+<div class="text-3xl mb-3">📉</div>
+<h2 class="font-black text-cyan-300">Fast Audio Compressor</h2>
+<p class="text-[11px] text-slate-400 mt-2">Audio file size ကို အမြန်ဆုံးလျှော့ပေးမည်</p>
+</button>
+
 </div>
 </section>
 
-<section id="tool-groq" class="tool-section hidden"><div class="glass rounded-3xl p-5">
-<div class="flex items-center gap-3 mb-5"><div class="text-3xl">🎙️</div><div><h2 class="text-xl font-black text-emerald-300">Groq Whisper</h2><p class="text-xs text-slate-400">Multi-language transcription</p></div></div>
-<label class="small-label block mb-2">🔑 Groq API Key</label><div class="flex gap-2 mb-2"><input id="groqApiKeyInput" type="password" placeholder="gsk_..." class="input"><select id="groqKeyHistory" class="bg-slate-950 border border-slate-700 rounded-xl px-2 text-xs text-emerald-300"><option value="">Saved</option></select></div>
-<div class="file-box mt-4"><label class="small-label block mb-2">📁 Audio / Video File</label><input id="groqAudioInput" type="file" accept="audio/*,video/*" class="w-full text-xs"></div>
-<button id="groqTranscribeBtn" class="action-btn green-btn mt-4">⚡ Groq ဖြင့် Transcript ထုတ်မည်</button><div id="groqStatus" class="text-center text-xs text-emerald-300 mt-3"></div>
-<div class="result-box mt-4"><label class="small-label block mb-2">📜 Groq Transcript</label><textarea id="groqOutput" class="input" placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်..."></textarea><button id="copyGroqBtn" class="action-btn mt-3 bg-slate-800 text-emerald-300 border border-emerald-500/20">📋 Copy</button></div>
-</div></section>
+<section id="tool-groq" class="tool-section hidden">
+<div class="glass rounded-3xl p-5">
 
-<section id="tool-gemini" class="tool-section hidden"><div class="glass rounded-3xl p-5">
-<div class="flex items-center gap-3 mb-5"><div class="text-3xl">✨</div><div><h2 class="text-xl font-black text-violet-300">Gemini Audio Transcript</h2><p class="text-xs text-slate-400">Multi-language transcription</p></div></div>
-<label class="small-label block mb-2">🔑 Gemini API Key</label><div class="flex gap-2 mb-2"><input id="geminiApiKeyInput" type="password" placeholder="AIzaSy..." class="input"><select id="geminiKeyHistory" class="bg-slate-950 border border-slate-700 rounded-xl px-2 text-xs text-violet-300"><option value="">Saved</option></select></div>
-<div class="file-box mt-4"><label class="small-label block mb-2">📁 Audio / Video File</label><input id="geminiAudioInput" type="file" accept="audio/*,video/*" class="w-full text-xs"></div>
-<button id="geminiTranscribeBtn" class="action-btn purple-btn mt-4">⚡ Gemini ဖြင့် Transcript ထုတ်မည်</button><div id="geminiStatus" class="text-center text-xs text-violet-300 mt-3"></div>
-<div class="result-box mt-4"><label class="small-label block mb-2">📜 Gemini Transcript</label><textarea id="geminiOutput" class="input" placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်..."></textarea><button id="copyGeminiBtn" class="action-btn mt-3 bg-slate-800 text-violet-300 border border-violet-500/20">📋 Copy</button></div>
-</div></section>
+<div class="flex items-center gap-3 mb-5">
+<div class="text-3xl">🎙️</div>
+<div>
+<h2 class="text-xl font-black text-emerald-300">Groq Whisper</h2>
+<p class="text-xs text-slate-400">Multi-language transcription</p>
+</div>
+</div>
 
-<section id="tool-compressor" class="tool-section hidden"><div class="glass rounded-3xl p-5">
-<div class="flex items-center gap-3 mb-3"><div class="text-3xl">📉</div><div><h2 class="text-xl font-black text-cyan-300">Smart Audio Compressor</h2><p class="text-xs text-slate-400">ဖုန်း/Browser ထဲမှာပဲ processing လုပ်မည်</p></div></div>
-<div class="bg-cyan-950/30 border border-cyan-500/20 rounded-2xl p-3 mb-4"><p class="text-xs text-cyan-200">💡 ဖိုင်ကို Server သို့ မပို့ပါ။ Audio ကို extract လုပ်ပြီး Opus/WebM ဖြင့် 24MB အောက်ရအောင် ချုံ့ပေးပါမည်။</p></div>
-<div class="file-box"><label class="small-label block mb-2">📁 Audio / Video ရွေးပါ</label><input id="compressAudioInput" type="file" accept="audio/*,video/*" class="w-full text-xs"></div>
-<button id="compressBtn" class="action-btn cyan-btn mt-4">⚡ Smart Compress</button><div id="compressStatus" class="text-center text-xs text-cyan-300 mt-3"></div>
-<div id="compressProgressArea" class="hidden mt-4"><div class="progress-track"><div id="compressProgress" class="progress-bar"></div></div><p id="compressProgressText" class="text-center text-[11px] text-slate-400 mt-2">0%</p></div>
-<div id="compressedResultArea" class="hidden result-box mt-5"><h3 class="font-bold text-cyan-300 mb-3">✨ Compression Result</h3><div id="compressInfo" class="text-[11px] text-slate-400 leading-6 mb-3"></div><audio id="compressedAudioPlayer" controls class="w-full"></audio><button id="downloadCompressedBtn" type="button" class="action-btn cyan-btn mt-4">📥 Download Audio</button></div>
-</div></section>
+<label class="small-label block mb-2">🔑 Groq API Key</label>
 
+<div class="flex gap-2 mb-2">
+<input id="groqApiKeyInput" type="password" placeholder="gsk_..." class="input">
+<select id="groqKeyHistory" class="bg-slate-950 border border-slate-700 rounded-xl px-2 text-xs text-emerald-300">
+<option value="">Saved</option>
+</select>
+</div>
 
+<div class="file-box mt-4">
+<label class="small-label block mb-2">📁 Audio / Video File</label>
+<input id="groqAudioInput" type="file" accept="audio/*,video/*" class="w-full text-xs">
+</div>
 
+<button id="groqTranscribeBtn" class="action-btn green-btn mt-4">
+⚡ Groq ဖြင့် Transcript ထုတ်မည်
+</button>
 
+<div id="groqStatus" class="text-center text-xs text-emerald-300 mt-3"></div>
 
-<footer class="text-center py-8"><p class="text-[10px] text-slate-600">My Transcriber</p></footer>
+<div class="result-box mt-4">
+<label class="small-label block mb-2">📜 Groq Transcript</label>
+<textarea id="groqOutput" class="input" placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်..."></textarea>
+<button id="copyGroqBtn" class="action-btn mt-3 bg-slate-800 text-emerald-300 border border-emerald-500/20">
+📋 Copy
+</button>
+</div>
+
+</div>
+</section>
+
+<section id="tool-gemini" class="tool-section hidden">
+<div class="glass rounded-3xl p-5">
+
+<div class="flex items-center gap-3 mb-5">
+<div class="text-3xl">✨</div>
+<div>
+<h2 class="text-xl font-black text-violet-300">Gemini Audio Transcript</h2>
+<p class="text-xs text-slate-400">Multi-language transcription</p>
+</div>
+</div>
+
+<label class="small-label block mb-2">🔑 Gemini API Key</label>
+
+<div class="flex gap-2 mb-2">
+<input id="geminiApiKeyInput" type="password" placeholder="AIzaSy..." class="input">
+<select id="geminiKeyHistory" class="bg-slate-950 border border-slate-700 rounded-xl px-2 text-xs text-violet-300">
+<option value="">Saved</option>
+</select>
+</div>
+
+<div class="file-box mt-4">
+<label class="small-label block mb-2">📁 Audio / Video File</label>
+<input id="geminiAudioInput" type="file" accept="audio/*,video/*" class="w-full text-xs">
+</div>
+
+<button id="geminiTranscribeBtn" class="action-btn purple-btn mt-4">
+⚡ Gemini ဖြင့် Transcript ထုတ်မည်
+</button>
+
+<div id="geminiStatus" class="text-center text-xs text-violet-300 mt-3"></div>
+
+<div class="result-box mt-4">
+<label class="small-label block mb-2">📜 Gemini Transcript</label>
+<textarea id="geminiOutput" class="input" placeholder="Transcript ဒီမှာ ပေါ်လာပါမည်..."></textarea>
+<button id="copyGeminiBtn" class="action-btn mt-3 bg-slate-800 text-violet-300 border border-violet-500/20">
+📋 Copy
+</button>
+</div>
+
+</div>
+</section>
+
+<section id="tool-compressor" class="tool-section hidden">
+<div class="glass rounded-3xl p-5">
+
+<div class="flex items-center gap-3 mb-3">
+<div class="text-3xl">📉</div>
+<div>
+<h2 class="text-xl font-black text-cyan-300">Smart Audio Compressor</h2>
+<p class="text-xs text-slate-400">ဖုန်း/Browser ထဲမှာပဲ processing လုပ်မည်</p>
+</div>
+</div>
+
+<div class="bg-cyan-950/30 border border-cyan-500/20 rounded-2xl p-3 mb-4">
+<p class="text-xs text-cyan-200">
+💡 ဖိုင်ကို Server သို့ မပို့ပါ။ Audio ကို extract လုပ်ပြီး Opus/WebM ဖြင့် 24MB အောက်ရအောင် ချုံ့ပေးပါမည်။
+</p>
+</div>
+
+<div class="file-box">
+<label class="small-label block mb-2">📁 Audio / Video ရွေးပါ</label>
+<input id="compressAudioInput" type="file" accept="audio/*,video/*" class="w-full text-xs">
+</div>
+
+<button id="compressBtn" class="action-btn cyan-btn mt-4">
+⚡ Smart Compress
+</button>
+
+<div id="compressStatus" class="text-center text-xs text-cyan-300 mt-3"></div>
+
+<div id="compressProgressArea" class="hidden mt-4">
+<div class="progress-track">
+<div id="compressProgress" class="progress-bar"></div>
+</div>
+<p id="compressProgressText" class="text-center text-[11px] text-slate-400 mt-2">0%</p>
+</div>
+
+<div id="compressedResultArea" class="hidden result-box mt-5">
+<h3 class="font-bold text-cyan-300 mb-3">✨ Compression Result</h3>
+
+<div id="compressInfo" class="text-[11px] text-slate-400 leading-6 mb-3"></div>
+
+<audio id="compressedAudioPlayer" controls class="w-full"></audio>
+
+<button id="downloadCompressedBtn" type="button" class="action-btn cyan-btn mt-4">
+📥 Download Audio
+</button>
+</div>
+
+</div>
+</section>
+
+<footer class="text-center py-8">
+<p class="text-[10px] text-slate-600">My Transcriber</p>
+</footer>
+
 </div>
 
 <script>
-function showTool(name,button){document.querySelectorAll('.tool-section').forEach(s=>s.classList.add('hidden'));const t=document.getElementById('tool-'+name);if(t)t.classList.remove('hidden');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));if(button)button.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
-function openTool(name){let b=null;document.querySelectorAll('.nav-btn').forEach(x=>{if(x.textContent.toLowerCase().includes(name))b=x});showTool(name,b);}
-function setupKeyManagement(inputId,selectId,key){
- const i=document.getElementById(inputId),s=document.getElementById(selectId);if(!i||!s)return;
- const load=()=>{let a=[];try{a=JSON.parse(localStorage.getItem(key)||'[]')}catch{}s.innerHTML='<option value="">Saved</option>';a.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k.substring(0,8)+'...'+k.slice(-4);s.appendChild(o)})};load();
- s.onchange=()=>{if(s.value)i.value=s.value};i.onblur=()=>{const v=i.value.trim();if(!v)return;let a=[];try{a=JSON.parse(localStorage.getItem(key)||'[]')}catch{}if(!a.includes(v)){a.unshift(v);if(a.length>5)a.pop();localStorage.setItem(key,JSON.stringify(a));load()}};
+
+function showTool(name,button){
+document.querySelectorAll('.tool-section').forEach(s=>s.classList.add('hidden'));
+const t=document.getElementById('tool-'+name);
+if(t)t.classList.remove('hidden');
+
+document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+if(button)button.classList.add('active');
+
+window.scrollTo({top:0,behavior:'smooth'});
 }
-setupKeyManagement('groqApiKeyInput','groqKeyHistory','groq_keys_list');setupKeyManagement('geminiApiKeyInput','geminiKeyHistory','gemini_keys_list');
+
+function openTool(name){
+let b=null;
+document.querySelectorAll('.nav-btn').forEach(x=>{
+if(x.textContent.toLowerCase().includes(name))b=x
+});
+showTool(name,b);
+}
+
+function setupKeyManagement(inputId,selectId,key){
+
+const i=document.getElementById(inputId);
+const s=document.getElementById(selectId);
+
+if(!i||!s)return;
+
+const load=()=>{
+let a=[];
+try{
+a=JSON.parse(localStorage.getItem(key)||'[]')
+}catch{}
+
+s.innerHTML='<option value="">Saved</option>';
+
+a.forEach(k=>{
+const o=document.createElement('option');
+o.value=k;
+o.textContent=k.substring(0,8)+'...'+k.slice(-4);
+s.appendChild(o)
+});
+};
+
+load();
+
+s.onchange=()=>{
+if(s.value)i.value=s.value
+};
+
+i.onblur=()=>{
+const v=i.value.trim();
+if(!v)return;
+
+let a=[];
+try{
+a=JSON.parse(localStorage.getItem(key)||'[]')
+}catch{}
+
+if(!a.includes(v)){
+a.unshift(v);
+if(a.length>5)a.pop();
+localStorage.setItem(key,JSON.stringify(a));
+load()
+}
+};
+
+}
+
+setupKeyManagement(
+'groqApiKeyInput',
+'groqKeyHistory',
+'groq_keys_list'
+);
+
+setupKeyManagement(
+'geminiApiKeyInput',
+'geminiKeyHistory',
+'gemini_keys_list'
+);
+
 
 document.getElementById('groqTranscribeBtn').onclick=async()=>{
- const key=document.getElementById('groqApiKeyInput').value.trim(),fi=document.getElementById('groqAudioInput'),st=document.getElementById('groqStatus'),out=document.getElementById('groqOutput');
- if(!key||!fi.files.length)return alert('Groq API Key နှင့် ဖိုင်ကို ထည့်ပေးပါ။');const f=fi.files[0];if(f.size>25*1024*1024)return alert('ဖိုင်သည် 25MB ကျော်နေပါသည်။ Compressor ကိုအသုံးပြုပါ။');st.textContent='⏳ Groq Transcript ထုတ်နေပါပြီ...';out.value='';
- try{const fd=new FormData();fd.append('file',f);fd.append('model','whisper-large-v3');const r=await fetch('https://api.groq.com/openai/v1/audio/transcriptions',{method:'POST',headers:{Authorization:`Bearer ${key}`},body:fd});if(!r.ok)throw new Error(await r.text());const d=await r.json();out.value=d.text||'';st.textContent='✅ Transcript အောင်မြင်ပါပြီ။'}catch(e){st.textContent='❌ '+e.message}
-};
-document.getElementById('copyGroqBtn').onclick=async()=>{const e=document.getElementById('groqOutput');try{await navigator.clipboard.writeText(e.value)}catch{e.select();document.execCommand('copy')}alert('📋 Copy လုပ်ပြီးပါပြီ။')};
 
-function toBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res((r.result||'').split(',')[1]);r.onerror=rej;r.readAsDataURL(file)})}
+const key=document.getElementById('groqApiKeyInput').value.trim();
+const fi=document.getElementById('groqAudioInput');
+const st=document.getElementById('groqStatus');
+const out=document.getElementById('groqOutput');
+
+if(!key||!fi.files.length)
+return alert('Groq API Key နှင့် ဖိုင်ကို ထည့်ပေးပါ။');
+
+const f=fi.files[0];
+
+if(f.size>25*1024*1024)
+return alert('ဖိုင်သည် 25MB ကျော်နေပါသည်။ Compressor ကိုအသုံးပြုပါ။');
+
+st.textContent='⏳ Groq Transcript ထုတ်နေပါပြီ...';
+out.value='';
+
+try{
+
+const fd=new FormData();
+
+fd.append('file',f);
+fd.append('model','whisper-large-v3');
+
+const r=await fetch(
+'https://api.groq.com/openai/v1/audio/transcriptions',
+{
+method:'POST',
+headers:{
+Authorization:`Bearer ${key}`
+},
+body:fd
+}
+);
+
+if(!r.ok)throw new Error(await r.text());
+
+const d=await r.json();
+
+out.value=d.text||'';
+
+st.textContent='✅ Transcript အောင်မြင်ပါပြီ။';
+
+}catch(e){
+
+st.textContent='❌ '+e.message;
+
+}
+
+};
+
+
+document.getElementById('copyGroqBtn').onclick=async()=>{
+
+const e=document.getElementById('groqOutput');
+
+try{
+await navigator.clipboard.writeText(e.value);
+}catch{
+e.select();
+document.execCommand('copy');
+}
+
+alert('📋 Copy လုပ်ပြီးပါပြီ။');
+
+};
+
+
+function toBase64(file){
+
+return new Promise((res,rej)=>{
+
+const r=new FileReader();
+
+r.onload=()=>{
+res((r.result||'').split(',')[1])
+};
+
+r.onerror=rej;
+
+r.readAsDataURL(file);
+
+});
+
+}
+
+
 document.getElementById('geminiTranscribeBtn').onclick=async()=>{
- const key=document.getElementById('geminiApiKeyInput').value.trim(),fi=document.getElementById('geminiAudioInput'),st=document.getElementById('geminiStatus'),out=document.getElementById('geminiOutput');
- if(!key||!fi.files.length)return alert('Gemini API Key နှင့် ဖိုင်ကို ထည့်ပေးပါ။');const f=fi.files[0];if(f.size>25*1024*1024)return alert('ဖိုင်သည် 25MB ကျော်နေပါသည်။ Compressor ကိုအသုံးပြုပါ။');st.textContent='⏳ Gemini Transcript ထုတ်နေပါပြီ...';out.value='';
- try{const b=await toBase64(f);const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'Listen to this audio/video carefully. Detect the spoken language automatically and provide an accurate verbatim transcript in the original language. Do not add explanations.'},{inline_data:{mime_type:f.type||'audio/mp3',data:b}}]}]})});if(!r.ok)throw new Error(await r.text());const d=await r.json();out.value=d?.candidates?.[0]?.content?.parts?.[0]?.text||'';st.textContent='✅ Transcript အောင်မြင်ပါပြီ။'}catch(e){st.textContent='❌ '+e.message}
-};
-document.getElementById('copyGeminiBtn').onclick=async()=>{const e=document.getElementById('geminiOutput');try{await navigator.clipboard.writeText(e.value)}catch{e.select();document.execCommand('copy')}alert('📋 Copy လုပ်ပြီးပါပြီ။')};
 
-/* Compressor: keep local browser processing */
-const MAX_SIZE=24*1024*1024,TARGET_SIZE=23.5*1024*1024;let compressedBlob=null,compressedFileName='compressed_audio.webm',compressedObjectURL=null,ffmpeg=null,ffmpegLoaded=false,ffmpegLoading=false;
-const fmt=b=>(b/1024/1024).toFixed(2)+' MB';
-function setProg(p,t){const x=document.getElementById('compressProgress');const y=document.getElementById('compressProgressText');if(x)x.style.width=Math.max(0,Math.min(100,p))+'%';if(y)y.textContent=t||Math.round(p)+'%'}
-function setStat(t){document.getElementById('compressStatus').textContent=t}
-function bitrateFor(d){return Math.max(24000,Math.min(64000,Math.floor(TARGET_SIZE*8/d)))}
-async function loadFFmpeg(){
- if(ffmpegLoaded)return ffmpeg;if(ffmpegLoading){while(ffmpegLoading)await new Promise(r=>setTimeout(r,100));return ffmpeg}
- ffmpegLoading=true;try{setStat('⬇️ Compressor engine ကို ပထမဆုံးအကြိမ် download လုပ်နေပါတယ်...');setProg(5,'FFmpeg engine loading...');
- if(!window.FFmpegWASM&&!window.FFmpeg){await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js';s.onload=res;s.onerror=()=>rej(new Error('FFmpeg library ကို download မလုပ်နိုင်ပါ။'));document.head.appendChild(s)})}
- const C=window.FFmpegWASM?.FFmpeg||window.FFmpeg?.FFmpeg||window.FFmpeg;if(typeof C!=='function')throw new Error('FFmpeg engine ကို initialize မလုပ်နိုင်ပါ။');ffmpeg=new C();
- if(typeof ffmpeg.on==='function')ffmpeg.on('progress',({progress})=>setProg(Math.max(5,Math.min(95,Math.round(progress*100))),'⚡ FFmpeg compress လုပ်နေပါတယ်...'));
- const {toBlobURL}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm'),base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
- await ffmpeg.load({coreURL:await toBlobURL(base+'/ffmpeg-core.js','text/javascript'),wasmURL:await toBlobURL(base+'/ffmpeg-core.wasm','application/wasm')});
- ffmpegLoaded=true;setProg(10,'✅ Compressor engine ready');return ffmpeg}catch(e){ffmpeg=null;ffmpegLoaded=false;throw e}finally{ffmpegLoading=false}
+const key=document.getElementById('geminiApiKeyInput').value.trim();
+const fi=document.getElementById('geminiAudioInput');
+const st=document.getElementById('geminiStatus');
+const out=document.getElementById('geminiOutput');
+
+if(!key||!fi.files.length)
+return alert('Gemini API Key နှင့် ဖိုင်ကို ထည့်ပေးပါ။');
+
+const f=fi.files[0];
+
+if(f.size>25*1024*1024)
+return alert('ဖိုင်သည် 25MB ကျော်နေပါသည်။ Compressor ကိုအသုံးပြုပါ။');
+
+st.textContent='⏳ Gemini Transcript ထုတ်နေပါပြီ...';
+out.value='';
+
+try{
+
+const b=await toBase64(f);
+
+const r=await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+contents:[
+{
+parts:[
+{
+text:'Listen to this audio/video carefully. Detect the spoken language automatically and provide an accurate verbatim transcript in the original language. Do not add explanations.'
+},
+{
+inline_data:{
+mime_type:f.type||'audio/mp3',
+data:b
 }
-async function compressFF(file,br){
- const f=await loadFFmpeg(),{fetchFile}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm'),inN='in_'+Date.now()+'.bin',outN='out_'+Date.now()+'.webm';
- try{setProg(18,'Audio processing စနေပါပြီ...');await f.writeFile(inN,await fetchFile(file));const code=await f.exec(['-i',inN,'-map','0:a:0?','-vn','-ac','1','-ar','32000','-c:a','libopus','-b:a',Math.round(br/1000)+'k','-vbr','on','-compression_level','2','-application','audio','-f','webm',outN]);if(code!==0)throw new Error('FFmpeg audio compression မအောင်မြင်ပါ။');const o=await f.readFile(outN);return new Blob([o.buffer],{type:'audio/webm;codecs=opus'})}finally{try{await f.deleteFile(inN)}catch{}try{await f.deleteFile(outN)}catch{}}
 }
-async function saveBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
-document.getElementById('compressBtn').onclick=async()=>{
- const fi=document.getElementById('compressAudioInput'),ra=document.getElementById('compressedResultArea'),pa=document.getElementById('compressProgressArea'),audio=document.getElementById('compressedAudioPlayer'),info=document.getElementById('compressInfo');if(!fi.files.length)return alert('Audio / Video ဖိုင်ကို ရွေးပါ။');const file=fi.files[0];ra.classList.add('hidden');pa.classList.remove('hidden');setProg(1,'စစ်ဆေးနေပါပြီ...');
- try{if(compressedObjectURL)URL.revokeObjectURL(compressedObjectURL);
- if(file.size<=MAX_SIZE){compressedBlob=file;compressedFileName=file.name;compressedObjectURL=URL.createObjectURL(file);audio.src=compressedObjectURL;setProg(100,'100%');info.innerHTML='📁 မူရင်း: '+fmt(file.size)+'<br>📦 ရလဒ်: '+fmt(file.size)+'<br>⚡ Compression မလိုပါ — မူရင်းဖိုင်ကို အသုံးပြုထားပါသည်။';setStat('✅ 24MB အောက်ဖြစ်သောကြောင့် ချက်ချင်းအသုံးပြုနိုင်ပါပြီ။');ra.classList.remove('hidden');return}
- const u=URL.createObjectURL(file),m=document.createElement('audio');m.preload='metadata';m.src=u;const d=await new Promise((res,rej)=>{const t=setTimeout(()=>rej(new Error('ဖိုင် duration ဖတ်ရန် အချိန်ကြာလွန်းနေပါသည်။')),30000);m.onloadedmetadata=()=>{clearTimeout(t);res(m.duration)};m.onerror=()=>{clearTimeout(t);rej(new Error('ဖိုင် duration မဖတ်နိုင်ပါ။'))}});URL.revokeObjectURL(u);let br=bitrateFor(d),blob=await compressFF(file,br),tries=1;
- while(blob.size>MAX_SIZE&&tries<2){tries++;br=Math.max(24000,Math.floor(br*(MAX_SIZE/blob.size)*.95));setStat('📉 '+fmt(blob.size)+' ရှိနေသေးပါသည်။ Bitrate ထပ်လျှော့နေပါပြီ...');blob=await compressFF(file,br)}
- compressedBlob=blob;compressedFileName='compressed_'+file.name.replace(/\.[^/.]+$/,'')+'.webm';compressedObjectURL=URL.createObjectURL(blob);audio.src=compressedObjectURL;setProg(100,'100%');info.innerHTML='📁 မူရင်း: '+fmt(file.size)+'<br>📦 ရလဒ်: '+fmt(blob.size)+'<br>🎚️ Bitrate: '+Math.round(br/1000)+' kbps<br>⏱️ Duration: '+Math.round(d)+' sec';setStat(blob.size<=MAX_SIZE?'✅ Fast Compression အောင်မြင်ပါပြီ။':'⚠️ 24MB အောက် မရသေးပါ။');ra.classList.remove('hidden')
- }catch(e){setStat('❌ Error: '+e.message);setProg(0,'Error')}
+]
+}
+]
+})
+}
+);
+
+if(!r.ok)throw new Error(await r.text());
+
+const d=await r.json();
+
+out.value=d?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+
+st.textContent='✅ Transcript အောင်မြင်ပါပြီ။';
+
+}catch(e){
+
+st.textContent='❌ '+e.message;
+
+}
+
 };
-document.getElementById('downloadCompressedBtn').onclick=async()=>{if(!compressedBlob)return alert('အရင်ဆုံး Compress လုပ်ပါ။');try{await saveBlob(compressedBlob,compressedFileName)}catch(e){alert('❌ Download Error: '+e.message)}};
+
+
+document.getElementById('copyGeminiBtn').onclick=async()=>{
+
+const e=document.getElementById('geminiOutput');
+
+try{
+await navigator.clipboard.writeText(e.value);
+}catch{
+e.select();
+document.execCommand('copy');
+}
+
+alert('📋 Copy လုပ်ပြီးပါပြီ။');
+
+};
+
+
+/* Compressor */
+
+const MAX_SIZE=24*1024*1024;
+const TARGET_SIZE=23.5*1024*1024;
+
+let compressedBlob=null;
+let compressedFileName='compressed_audio.webm';
+let compressedObjectURL=null;
+let ffmpeg=null;
+let ffmpegLoaded=false;
+let ffmpegLoading=false;
+
+const fmt=b=>
+(b/1024/1024).toFixed(2)+' MB';
+
+
+function setProg(p,t){
+
+const x=document.getElementById('compressProgress');
+const y=document.getElementById('compressProgressText');
+
+if(x)
+x.style.width=Math.max(0,Math.min(100,p))+'%';
+
+if(y)
+y.textContent=t||Math.round(p)+'%';
+
+}
+
+
+function setStat(t){
+
+document.getElementById('compressStatus').textContent=t;
+
+}
+
+
+function bitrateFor(d){
+
+return Math.max(
+24000,
+Math.min(
+64000,
+Math.floor(TARGET_SIZE*8/d)
+)
+);
+
+}
+
+
+async function loadFFmpeg(){
+
+if(ffmpegLoaded)return ffmpeg;
+
+if(ffmpegLoading){
+
+while(ffmpegLoading)
+await new Promise(r=>setTimeout(r,100));
+
+return ffmpeg;
+
+}
+
+ffmpegLoading=true;
+
+try{
+
+setStat('⬇️ Compressor engine ကို ပထမဆုံးအကြိမ် download လုပ်နေပါတယ်...');
+
+setProg(5,'FFmpeg engine loading...');
+
+
+if(!window.FFmpegWASM&&!window.FFmpeg){
+
+const src=await(
+await fetch(
+'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js'
+)
+).text();
+
+
+const patched=src.replace(
+/new URL\(e\.p\+e\.u\(814\),e\.b\)/,
+'r.workerLoadURL'
+);
+
+
+if(patched===src)
+throw new Error('FFmpeg worker patch မတွေ့ပါ။');
+
+
+const moduleURL=URL.createObjectURL(
+new Blob(
+[patched],
+{type:'text/javascript'}
+)
+);
+
+
+await new Promise((res,rej)=>{
+
+const s=document.createElement('script');
+
+s.src=moduleURL;
+
+s.onload=()=>{
+URL.revokeObjectURL(moduleURL);
+res()
+};
+
+s.onerror=()=>{
+URL.revokeObjectURL(moduleURL);
+rej(
+new Error('FFmpeg library ကို load မလုပ်နိုင်ပါ။')
+)
+};
+
+document.head.appendChild(s);
+
+});
+
+}
+
+
+const C=
+window.FFmpegWASM?.FFmpeg||
+window.FFmpeg?.FFmpeg||
+window.FFmpeg;
+
+
+if(typeof C!=='function')
+throw new Error('FFmpeg engine ကို initialize မလုပ်နိုင်ပါ။');
+
+
+ffmpeg=new C();
+
+
+if(typeof ffmpeg.on==='function')
+ffmpeg.on(
+'progress',
+({progress})=>{
+setProg(
+Math.max(
+5,
+Math.min(
+95,
+Math.round(progress*100)
+)
+),
+'⚡ FFmpeg compress လုပ်နေပါတယ်...'
+)
+}
+);
+
+
+const {toBlobURL}=await import(
+'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm'
+);
+
+const base=
+'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+
+
+const [
+coreURL,
+wasmURL,
+workerLoadURL
+]=await Promise.all([
+
+toBlobURL(
+base+'/ffmpeg-core.js',
+'text/javascript'
+),
+
+toBlobURL(
+base+'/ffmpeg-core.wasm',
+'application/wasm'
+),
+
+toBlobURL(
+'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/814.ffmpeg.js',
+'text/javascript'
+)
+
+]);
+
+
+await ffmpeg.load({
+coreURL,
+wasmURL,
+workerLoadURL
+});
+
+
+ffmpegLoaded=true;
+
+setProg(
+10,
+'✅ Compressor engine ready'
+);
+
+return ffmpeg;
+
+}catch(e){
+
+ffmpeg=null;
+ffmpegLoaded=false;
+
+throw e;
+
+}finally{
+
+ffmpegLoading=false;
+
+}
+
+}
+
+
+async function compressFF(file,br){
+
+const f=await loadFFmpeg();
+
+const {fetchFile}=await import(
+'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/+esm'
+);
+
+const inN='in_'+Date.now()+'.bin';
+const outN='out_'+Date.now()+'.webm';
+
+try{
+
+setProg(
+18,
+'Audio processing စနေပါပြီ...'
+);
+
+await f.writeFile(
+inN,
+await fetchFile(file)
+);
+
+
+const code=await f.exec([
+
+'-i',
+inN,
+
+'-map',
+'0:a:0?',
+
+'-vn',
+
+'-ac',
+'1',
+
+'-ar',
+'32000',
+
+'-c:a',
+'libopus',
+
+'-b:a',
+Math.round(br/1000)+'k',
+
+'-vbr',
+'on',
+
+'-compression_level',
+'2',
+
+'-application',
+'audio',
+
+'-f',
+'webm',
+
+outN
+
+]);
+
+
+if(code!==0)
+throw new Error(
+'FFmpeg audio compression မအောင်မြင်ပါ။'
+);
+
+
+const o=await f.readFile(outN);
+
+return new Blob(
+[o.buffer],
+{type:'audio/webm;codecs=opus'}
+);
+
+}finally{
+
+try{
+await f.deleteFile(inN)
+}catch{}
+
+try{
+await f.deleteFile(outN)
+}catch{}
+
+}
+
+}
+
+
+async function saveBlob(blob,name){
+
+const u=URL.createObjectURL(blob);
+
+const a=document.createElement('a');
+
+a.href=u;
+a.download=name;
+a.rel='noopener';
+
+document.body.appendChild(a);
+
+a.click();
+
+a.remove();
+
+setTimeout(
+()=>URL.revokeObjectURL(u),
+60000
+);
+
+}
+
+
+document.getElementById('compressBtn').onclick=async()=>{
+
+const fi=document.getElementById('compressAudioInput');
+const ra=document.getElementById('compressedResultArea');
+const pa=document.getElementById('compressProgressArea');
+const audio=document.getElementById('compressedAudioPlayer');
+const info=document.getElementById('compressInfo');
+
+
+if(!fi.files.length)
+return alert('Audio / Video ဖိုင်ကို ရွေးပါ။');
+
+
+const file=fi.files[0];
+
+ra.classList.add('hidden');
+pa.classList.remove('hidden');
+
+setProg(
+1,
+'စစ်ဆေးနေပါပြီ...'
+);
+
+
+try{
+
+if(compressedObjectURL)
+URL.revokeObjectURL(compressedObjectURL);
+
+
+if(file.size<=MAX_SIZE){
+
+compressedBlob=file;
+
+compressedFileName=file.name;
+
+compressedObjectURL=
+URL.createObjectURL(file);
+
+audio.src=compressedObjectURL;
+
+setProg(
+100,
+'100%'
+);
+
+
+info.innerHTML=
+'📁 မူရင်း: '+fmt(file.size)+
+'<br>📦 ရလဒ်: '+fmt(file.size)+
+'<br>⚡ Compression မလိုပါ — မူရင်းဖိုင်ကို အသုံးပြုထားပါသည်။';
+
+
+setStat(
+'✅ 24MB အောက်ဖြစ်သောကြောင့် ချက်ချင်းအသုံးပြုနိုင်ပါပြီ။'
+);
+
+ra.classList.remove('hidden');
+
+return;
+
+}
+
+
+const u=URL.createObjectURL(file);
+
+const m=document.createElement('audio');
+
+m.preload='metadata';
+m.src=u;
+
+
+const d=await new Promise((res,rej)=>{
+
+const t=setTimeout(
+()=>rej(
+new Error(
+'ဖိုင် duration ဖတ်ရန် အချိန်ကြာလွန်းနေပါသည်။'
+)
+),
+30000
+);
+
+
+m.onloadedmetadata=()=>{
+
+clearTimeout(t);
+
+res(m.duration);
+
+};
+
+
+m.onerror=()=>{
+
+clearTimeout(t);
+
+rej(
+new Error(
+'ဖိုင် duration မဖတ်နိုင်ပါ။'
+)
+);
+
+};
+
+});
+
+
+URL.revokeObjectURL(u);
+
+
+let br=bitrateFor(d);
+
+let blob=await compressFF(file,br);
+
+let tries=1;
+
+
+while(
+blob.size>MAX_SIZE&&
+tries<2
+){
+
+tries++;
+
+br=Math.max(
+24000,
+Math.floor(
+br*(MAX_SIZE/blob.size)*.95
+)
+);
+
+
+setStat(
+'📉 '+fmt(blob.size)+
+' ရှိနေသေးပါသည်။ Bitrate ထပ်လျှော့နေပါပြီ...'
+);
+
+
+blob=await compressFF(
+file,
+br
+);
+
+}
+
+
+compressedBlob=blob;
+
+compressedFileName=
+'compressed_'+
+file.name.replace(
+/\.[^/.]+$/,
+''
+)+
+'.webm';
+
+
+compressedObjectURL=
+URL.createObjectURL(blob);
+
+audio.src=compressedObjectURL;
+
+
+setProg(
+100,
+'100%'
+);
+
+
+info.innerHTML=
+'📁 မူရင်း: '+fmt(file.size)+
+'<br>📦 ရလဒ်: '+fmt(blob.size)+
+'<br>🎚️ Bitrate: '+Math.round(br/1000)+' kbps'+
+'<br>⏱️ Duration: '+Math.round(d)+' sec';
+
+
+setStat(
+blob.size<=MAX_SIZE
+?
+'✅ Fast Compression အောင်မြင်ပါပြီ။'
+:
+'⚠️ 24MB အောက် မရသေးပါ။'
+);
+
+
+ra.classList.remove('hidden');
+
+
+}catch(e){
+
+setStat(
+'❌ Error: '+e.message
+);
+
+setProg(
+0,
+'Error'
+);
+
+}
+
+};
+
+
+document.getElementById('downloadCompressedBtn').onclick=async()=>{
+
+if(!compressedBlob)
+return alert('အရင်ဆုံး Compress လုပ်ပါ။');
+
+try{
+
+await saveBlob(
+compressedBlob,
+compressedFileName
+);
+
+}catch(e){
+
+alert(
+'❌ Download Error: '+e.message
+);
+
+}
+
+};
 
 </script>
 </body>
-</html>
+ </html>
