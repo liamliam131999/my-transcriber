@@ -172,6 +172,12 @@ def extract_video(url):
 
         # Do not download playlists
         "extract_flat": False,
+                # Bilibili extractor options
+        "extractor_args": {
+            "bilibili": {
+                "prefer_multi": ["flv", "mp4"],
+            }
+        },
     }
 
     with yt_dlp.YoutubeDL(options) as ydl:
