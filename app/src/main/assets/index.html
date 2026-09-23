@@ -400,6 +400,49 @@
             margin-bottom: 3px;
         }
 
+        /* =========================
+           MAINTENANCE MODE
+        ========================= */
+
+        #maintenanceScreen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: #101114;
+            color: #ffffff;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .maintenance-box {
+            width: 100%;
+            max-width: 420px;
+            padding: 28px 20px;
+            background: #191a1f;
+            border: 1px solid #292b31;
+            border-radius: 18px;
+        }
+
+        .maintenance-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .maintenance-title {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .maintenance-message {
+            color: #a9adb7;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
         @media (max-width: 360px) {
 
             .tabs {
@@ -432,6 +475,36 @@
 
 
 <body>
+
+
+<!-- =========================================================
+     MAINTENANCE SCREEN
+========================================================= -->
+
+<div id="maintenanceScreen">
+
+    <div class="maintenance-box">
+
+        <div class="maintenance-icon">
+            🔧
+        </div>
+
+        <div class="maintenance-title">
+            App Maintenance
+        </div>
+
+        <div
+            id="maintenanceMessage"
+            class="maintenance-message"
+        >
+            We are currently performing maintenance.
+            Please try again later.
+        </div>
+
+    </div>
+
+</div>
+
 
 <div class="app">
 
@@ -1055,9 +1128,123 @@
 
 <script>
 
+
+/* =========================================================
+   REMOTE MAINTENANCE
+========================================================= */
+
+const MAINTENANCE_URL =
+    "https://liamliam131999.github.io/my-transcriber/maintenance.json";
+
+
+async function checkMaintenance() {
+
+    try {
+
+        const response =
+            await fetch(
+                MAINTENANCE_URL +
+                "?t=" +
+                Date.now(),
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            console.log(
+                "Maintenance check failed:",
+                response.status
+            );
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data &&
+            data.maintenance === true
+        ) {
+
+            showMaintenanceScreen(
+                data.message ||
+                "We are currently performing maintenance. Please try again later."
+            );
+
+        }
+
+    } catch (error) {
+
+        /*
+         * Internet မရလည်း App ပုံမှန်ဆက်သုံးနိုင်မယ်။
+         */
+
+        console.log(
+            "Maintenance check error:",
+            error
+        );
+
+    }
+
+}
+
+
+function showMaintenanceScreen(
+    message
+) {
+
+    const screen =
+        document.getElementById(
+            "maintenanceScreen"
+        );
+
+
+    const messageBox =
+        document.getElementById(
+            "maintenanceMessage"
+        );
+
+
+    if (messageBox) {
+
+        messageBox.textContent =
+            message;
+
+    }
+
+
+    if (screen) {
+
+        screen.style.display =
+            "flex";
+
+    }
+
+
+    document.body.style.overflow =
+        "hidden";
+
+}
+
+
+/*
+ * App ဖွင့်တာနဲ့ Maintenance စစ်မယ်။
+ */
+
+checkMaintenance();
+
+
 /* =========================================================
    KEY STORAGE
-   ========================================================= */
+========================================================= */
 
 const GROQ_KEYS_STORAGE =
     "myTranscriber_groq_keys_v1";
@@ -1112,10 +1299,12 @@ function getSavedKeys(type) {
 
         return keys.filter(
             function(key) {
+
                 return (
                     typeof key === "string" &&
                     key.trim() !== ""
                 );
+
             }
         );
 
@@ -1299,10 +1488,6 @@ function saveCurrentKey(
         getSavedKeys(type);
 
 
-    /*
-     * Key အဟောင်းရှိရင် ထပ်မသိမ်းပါ။
-     */
-
     keys =
         keys.filter(
             function(item) {
@@ -1311,17 +1496,8 @@ function saveCurrentKey(
         );
 
 
-    /*
-     * နောက်ဆုံးသုံးတဲ့ key ကို အပေါ်ဆုံးထားပါ။
-     */
-
     keys.unshift(key);
 
-
-    /*
-     * Key အများကြီးမစုအောင်
-     * နောက်ဆုံး 10 ခုသာ သိမ်းထားပါ။
-     */
 
     if (keys.length > 10) {
 
@@ -1556,14 +1732,11 @@ function loadLastApiKey(
             ) || "";
 
     } catch (error) {
+
         lastKey = "";
+
     }
 
-
-    /*
-     * Last key မရှိရင် saved list ထဲက
-     * ပထမ key ကို အသုံးပြုပါ။
-     */
 
     if (!lastKey) {
 
@@ -1607,11 +1780,6 @@ function setupKeyAutoSave(
         return;
     }
 
-
-    /*
-     * User က key ထည့်ပြီး field
-     * ကနေထွက်တဲ့အချိန် auto-save လုပ်မယ်။
-     */
 
     input.addEventListener(
         "blur",
@@ -2464,10 +2632,6 @@ async function groqTranscribe(
         );
 
 
-    /*
-     * Key ကို request မလုပ်ခင် save လုပ်ထားမယ်။
-     */
-
     if (apiKey) {
         saveCurrentKeySilently("groq");
     }
@@ -2720,10 +2884,6 @@ async function geminiTranscribe(
             "geminiResult"
         );
 
-
-    /*
-     * Key ကို request မလုပ်ခင် save လုပ်ထားမယ်။
-     */
 
     if (apiKey) {
         saveCurrentKeySilently("gemini");
@@ -3140,10 +3300,6 @@ document.addEventListener(
         );
 
 
-        /*
-         * Saved API Keys ပြန်ဖတ်မယ်။
-         */
-
         loadLastApiKey(
             "groq"
         );
@@ -3152,11 +3308,6 @@ document.addEventListener(
             "gemini"
         );
 
-
-        /*
-         * User က key အသစ်ထည့်ရင်
-         * field ကနေထွက်တဲ့အချိန် auto-save.
-         */
 
         setupKeyAutoSave(
             "groq"
@@ -3173,4 +3324,4 @@ document.addEventListener(
 
 </body>
 
-                    </html>
+    </html>
