@@ -17,6 +17,7 @@ import android.webkit.WebViewClient;
 
 import androidx.media3.common.MediaItem;
 import androidx.media3.transformer.AudioEncoderSettings;
+import androidx.media3.transformer.Composition;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.ExportException;
@@ -49,11 +50,13 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         webView = new WebView(this);
 
-        WebSettings settings = webView.getSettings();
+        WebSettings settings =
+                webView.getSettings();
 
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -74,6 +77,7 @@ public class MainActivity extends Activity {
                             FileChooserParams fileChooserParams) {
 
                         if (MainActivity.this.filePathCallback != null) {
+
                             MainActivity.this.filePathCallback
                                     .onReceiveValue(null);
                         }
@@ -576,6 +580,7 @@ public class MainActivity extends Activity {
 
                                         @Override
                                         public void onCompleted(
+                                                Composition composition,
                                                 ExportResult exportResult) {
 
                                             handleCompressionSuccess(
@@ -585,6 +590,7 @@ public class MainActivity extends Activity {
 
                                         @Override
                                         public void onError(
+                                                Composition composition,
                                                 ExportResult exportResult,
                                                 ExportException exportException) {
 
@@ -724,7 +730,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // SEND RESULT
+    // SEND RESULT TO JAVASCRIPT
     // =========================================================
 
     private void sendResult(
@@ -804,9 +810,11 @@ public class MainActivity extends Activity {
 
                         "');}";
 
-        webView.evaluateJavascript(
-                script,
-                null
+        runOnUiThread(() ->
+                webView.evaluateJavascript(
+                        script,
+                        null
+                )
         );
     }
 
@@ -927,7 +935,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // ESCAPE JAVASCRIPT
+    // ESCAPE JAVASCRIPT STRING
     // =========================================================
 
     private String escapeJsString(
@@ -1028,4 +1036,4 @@ public class MainActivity extends Activity {
             });
         }
     }
-                }
+}
