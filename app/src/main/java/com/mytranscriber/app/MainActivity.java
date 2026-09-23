@@ -22,6 +22,9 @@ import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.Transformer;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -30,124 +33,144 @@ public class MainActivity extends Activity {
 
     private WebView webView;
 
-    // HTML <input type="file"> အတွက်
     private ValueCallback<Uri[]> filePathCallback;
 
-    // Compressor အတွက်
     private Uri lastSelectedUri;
+
     private long originalFileSize = 0;
 
-    // Compressor picker
+    /*
+     * Compression ပြီးတဲ့ output file
+     */
+    private String pendingDownloadPath = "";
+
     private static final int FILE_PICKER_REQUEST = 1001;
 
-    // HTML file input picker
     private static final int WEB_FILE_PICKER_REQUEST = 2001;
+
+    private static final int SAVE_FILE_REQUEST = 3001;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         webView = new WebView(this);
 
-        WebSettings settings = webView.getSettings();
+
+        WebSettings settings =
+                webView.getSettings();
 
         settings.setJavaScriptEnabled(true);
+
         settings.setDomStorageEnabled(true);
+
         settings.setAllowFileAccess(true);
+
         settings.setAllowContentAccess(true);
 
-        webView.setWebViewClient(new WebViewClient());
+
+        webView.setWebViewClient(
+                new WebViewClient()
+        );
 
 
-        // =====================================================
-        // WEBVIEW FILE INPUT SUPPORT
-        // =====================================================
+        /*
+         * HTML <input type="file">
+         * အတွက် Android file picker
+         */
+        webView.setWebChromeClient(
+                new WebChromeClient() {
 
-        webView.setWebChromeClient(new WebChromeClient() {
+                    @Override
+                    public boolean onShowFileChooser(
+                            WebView webView,
+                            ValueCallback<Uri[]> filePathCallback,
+                            FileChooserParams fileChooserParams) {
 
-            @Override
-            public boolean onShowFileChooser(
-                    WebView webView,
-                    ValueCallback<Uri[]> filePathCallback,
-                    FileChooserParams fileChooserParams) {
+                        if (MainActivity.this.filePathCallback != null) {
 
-                // အရင် callback ရှိရင် ပိတ်
-                if (MainActivity.this.filePathCallback != null) {
-                    MainActivity.this.filePathCallback.onReceiveValue(null);
+                            MainActivity.this
+                                    .filePathCallback
+                                    .onReceiveValue(null);
+                        }
+
+
+                        MainActivity.this.filePathCallback =
+                                filePathCallback;
+
+
+                        try {
+
+                            Intent intent =
+                                    new Intent(
+                                            Intent.ACTION_OPEN_DOCUMENT
+                                    );
+
+                            intent.addCategory(
+                                    Intent.CATEGORY_OPENABLE
+                            );
+
+                            intent.setType("*/*");
+
+                            intent.putExtra(
+                                    Intent.EXTRA_MIME_TYPES,
+                                    new String[]{
+                                            "audio/*",
+                                            "video/*"
+                                    }
+                            );
+
+
+                            startActivityForResult(
+                                    intent,
+                                    WEB_FILE_PICKER_REQUEST
+                            );
+
+                            return true;
+
+                        } catch (Exception e) {
+
+                            MainActivity.this
+                                    .filePathCallback = null;
+
+                            return false;
+                        }
+                    }
                 }
-
-                MainActivity.this.filePathCallback =
-                        filePathCallback;
-
-                try {
-
-                    Intent intent =
-                            new Intent(Intent.ACTION_OPEN_DOCUMENT);
-
-                    intent.addCategory(
-                            Intent.CATEGORY_OPENABLE
-                    );
-
-                    intent.setType("*/*");
-
-                    intent.putExtra(
-                            Intent.EXTRA_MIME_TYPES,
-                            new String[]{
-                                    "audio/*",
-                                    "video/*"
-                            }
-                    );
-
-                    startActivityForResult(
-                            intent,
-                            WEB_FILE_PICKER_REQUEST
-                    );
-
-                    return true;
-
-                } catch (Exception e) {
-
-                    MainActivity.this.filePathCallback = null;
-
-                    return false;
-                }
-            }
-        });
+        );
 
 
-        // =====================================================
-        // JAVASCRIPT BRIDGE
-        // =====================================================
-
+        /*
+         * JavaScript ↔ Android
+         */
         webView.addJavascriptInterface(
                 new AndroidBridge(),
                 "AndroidBridge"
         );
 
 
-        // =====================================================
-        // LOAD HTML
-        // =====================================================
-
         webView.loadUrl(
                 "file:///android_asset/index.html"
         );
+
 
         setContentView(webView);
     }
 
 
-    // =========================================================
-    // COMPRESSOR FILE PICKER
-    // =========================================================
-
+    /*
+     * Compressor file picker
+     */
     public void openFilePicker() {
 
         try {
 
             Intent intent =
-                    new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    new Intent(
+                            Intent.ACTION_OPEN_DOCUMENT
+                    );
 
             intent.addCategory(
                     Intent.CATEGORY_OPENABLE
@@ -162,6 +185,7 @@ public class MainActivity extends Activity {
                             "video/*"
                     }
             );
+
 
             startActivityForResult(
                     intent,
@@ -182,10 +206,6 @@ public class MainActivity extends Activity {
     }
 
 
-    // =========================================================
-    // ACTIVITY RESULT
-    // =========================================================
-
     @Override
     protected void onActivityResult(
             int requestCode,
@@ -199,20 +219,27 @@ public class MainActivity extends Activity {
         );
 
 
-        // =====================================================
-        // HTML FILE INPUT
-        // Groq / Gemini
-        // =====================================================
-
-        if (requestCode == WEB_FILE_PICKER_REQUEST) {
+        /*
+         * WebView HTML file input
+         *
+         * Groq / Gemini file picker
+         */
+        if (
+                requestCode ==
+                        WEB_FILE_PICKER_REQUEST
+        ) {
 
             if (filePathCallback != null) {
 
                 Uri[] results = null;
 
-                if (resultCode == RESULT_OK
+
+                if (
+                        resultCode ==
+                                RESULT_OK
                         && data != null
-                        && data.getData() != null) {
+                        && data.getData() != null
+                ) {
 
                     Uri selectedUri =
                             data.getData();
@@ -223,40 +250,159 @@ public class MainActivity extends Activity {
                             };
                 }
 
-                filePathCallback.onReceiveValue(
-                        results
-                );
+
+                filePathCallback
+                        .onReceiveValue(
+                                results
+                        );
 
                 filePathCallback = null;
             }
+
 
             return;
         }
 
 
-        // =====================================================
-        // COMPRESSOR
-        // =====================================================
+        /*
+         * Save / Download
+         */
+        if (
+                requestCode ==
+                        SAVE_FILE_REQUEST
+        ) {
 
-        if (requestCode == FILE_PICKER_REQUEST
-                && resultCode == RESULT_OK
+            if (
+                    resultCode ==
+                            RESULT_OK
+                    && data != null
+                    && data.getData() != null
+                    && pendingDownloadPath != null
+                    && !pendingDownloadPath.isEmpty()
+            ) {
+
+                Uri destinationUri =
+                        data.getData();
+
+
+                try {
+
+                    File sourceFile =
+                            new File(
+                                    pendingDownloadPath
+                            );
+
+
+                    if (!sourceFile.exists()) {
+
+                        throw new Exception(
+                                "Output file မတွေ့ပါ။"
+                        );
+                    }
+
+
+                    InputStream input =
+                            new FileInputStream(
+                                    sourceFile
+                            );
+
+
+                    OutputStream output =
+                            getContentResolver()
+                                    .openOutputStream(
+                                            destinationUri
+                                    );
+
+
+                    if (output == null) {
+
+                        input.close();
+
+                        throw new Exception(
+                                "Save location ကို ဖွင့်မရပါ။"
+                        );
+                    }
+
+
+                    byte[] buffer =
+                            new byte[8192];
+
+
+                    int length;
+
+
+                    while (
+                            (
+                                    length =
+                                            input.read(
+                                                    buffer
+                                            )
+                            ) != -1
+                    ) {
+
+                        output.write(
+                                buffer,
+                                0,
+                                length
+                        );
+                    }
+
+
+                    output.flush();
+
+                    input.close();
+
+                    output.close();
+
+
+                    showDownloadSuccess();
+
+
+                } catch (Exception e) {
+
+                    showDownloadError(
+                            e.getMessage()
+                    );
+                }
+            }
+
+
+            pendingDownloadPath = "";
+
+            return;
+        }
+
+
+        /*
+         * Compressor file picker
+         */
+        if (
+                requestCode ==
+                        FILE_PICKER_REQUEST
+                && resultCode ==
+                        RESULT_OK
                 && data != null
-                && data.getData() != null) {
+                && data.getData() != null
+        ) {
 
             lastSelectedUri =
                     data.getData();
 
 
-            // Persist permission
+            /*
+             * Permission
+             */
             try {
 
                 final int takeFlags =
                         data.getFlags()
-                                & (
+                                &
+                        (
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                        |
+                                |
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                         );
+
 
                 getContentResolver()
                         .takePersistableUriPermission(
@@ -268,11 +414,11 @@ public class MainActivity extends Activity {
             }
 
 
-            // =================================================
-            // GET FILE SIZE
-            // =================================================
-
+            /*
+             * File size
+             */
             originalFileSize = 0;
+
 
             try {
 
@@ -285,19 +431,28 @@ public class MainActivity extends Activity {
                                 null
                         );
 
+
                 if (cursor != null) {
 
                     int sizeIndex =
                             cursor.getColumnIndex(
-                                    android.provider.OpenableColumns.SIZE
+                                    android.provider
+                                            .OpenableColumns
+                                            .SIZE
                             );
 
-                    if (cursor.moveToFirst()
-                            && sizeIndex >= 0) {
+
+                    if (
+                            cursor.moveToFirst()
+                            && sizeIndex >= 0
+                    ) {
 
                         originalFileSize =
-                                cursor.getLong(sizeIndex);
+                                cursor.getLong(
+                                        sizeIndex
+                                );
                     }
+
 
                     cursor.close();
                 }
@@ -308,10 +463,9 @@ public class MainActivity extends Activity {
             }
 
 
-            // =================================================
-            // GET FILE NAME
-            // =================================================
-
+            /*
+             * File name
+             */
             String name =
                     getFileName(
                             lastSelectedUri
@@ -322,22 +476,21 @@ public class MainActivity extends Activity {
                     escapeJsString(name);
 
 
-            // =================================================
-            // SEND TO HTML
-            // =================================================
-
             final long selectedSize =
                     originalFileSize;
+
 
             runOnUiThread(() -> {
 
                 webView.evaluateJavascript(
+
                         "if(window.onNativeFileSelected){" +
                                 "window.onNativeFileSelected('" +
                                 jsName +
                                 "'," +
                                 selectedSize +
                                 ");}",
+
                         null
                 );
             });
@@ -345,14 +498,15 @@ public class MainActivity extends Activity {
     }
 
 
-    // =========================================================
-    // GET FILE NAME
-    // =========================================================
-
-    private String getFileName(Uri uri) {
+    /*
+     * Get selected file name
+     */
+    private String getFileName(
+            Uri uri) {
 
         String result =
                 "selected_file";
+
 
         try {
 
@@ -365,15 +519,21 @@ public class MainActivity extends Activity {
                             null
                     );
 
+
             if (cursor != null) {
 
                 int nameIndex =
                         cursor.getColumnIndex(
-                                android.provider.OpenableColumns.DISPLAY_NAME
+                                android.provider
+                                        .OpenableColumns
+                                        .DISPLAY_NAME
                         );
 
-                if (cursor.moveToFirst()
-                        && nameIndex >= 0) {
+
+                if (
+                        cursor.moveToFirst()
+                        && nameIndex >= 0
+                ) {
 
                     result =
                             cursor.getString(
@@ -381,20 +541,23 @@ public class MainActivity extends Activity {
                             );
                 }
 
+
                 cursor.close();
             }
 
         } catch (Exception ignored) {
         }
 
+
         return result;
     }
 
 
-    // =========================================================
-    // COMPRESS AUDIO
-    // =========================================================
-
+    /*
+     * =========================
+     * COMPRESSOR
+     * =========================
+     */
     private void compressAudio(
             final int bitrateKbps) {
 
@@ -426,20 +589,18 @@ public class MainActivity extends Activity {
         }
 
 
-        // =====================================================
-        // OUTPUT DIRECTORY
-        // =====================================================
-
         File outputDir =
                 new File(
                         getExternalFilesDir(
-                                Environment.DIRECTORY_MUSIC
+                                Environment
+                                        .DIRECTORY_MUSIC
                         ),
                         "MyTranscriber"
                 );
 
 
         if (!outputDir.exists()) {
+
             outputDir.mkdirs();
         }
 
@@ -463,13 +624,10 @@ public class MainActivity extends Activity {
 
 
         if (outputFile.exists()) {
+
             outputFile.delete();
         }
 
-
-        // =====================================================
-        // BITRATE
-        // =====================================================
 
         int bitrate =
                 bitrateKbps * 1000;
@@ -482,25 +640,26 @@ public class MainActivity extends Activity {
 
 
         DefaultEncoderFactory encoderFactory =
-                new DefaultEncoderFactory.Builder(this)
+                new DefaultEncoderFactory.Builder(
+                        this
+                )
                         .setRequestedAudioEncoderSettings(
                                 audioSettings
                         )
                         .build();
 
 
-        // =====================================================
-        // TRANSFORMER
-        // =====================================================
-
         Transformer transformer =
                 new Transformer.Builder(this)
+
                         .setAudioMimeType(
                                 MimeTypes.AUDIO_AAC
                         )
+
                         .setEncoderFactory(
                                 encoderFactory
                         )
+
                         .addListener(
                                 new Transformer.Listener() {
 
@@ -513,14 +672,17 @@ public class MainActivity extends Activity {
                                                 outputFile.length();
 
 
-                                        // =====================================
-                                        // OUTPUT MUST BE SMALLER
-                                        // =====================================
-
-                                        if (compressedSize
-                                                >= originalFileSize) {
+                                        /*
+                                         * Output size မလျော့ရင်
+                                         * file ကို ဖျက်မယ်
+                                         */
+                                        if (
+                                                compressedSize >=
+                                                        originalFileSize
+                                        ) {
 
                                             outputFile.delete();
+
 
                                             sendResult(
                                                     false,
@@ -533,22 +695,23 @@ public class MainActivity extends Activity {
                                                     ""
                                             );
 
+
                                             return;
                                         }
 
 
                                         long saved =
-                                                originalFileSize
-                                                        -
-                                                compressedSize;
+                                                originalFileSize -
+                                                        compressedSize;
 
 
                                         double percent =
                                                 (
-                                                        saved * 100.0
+                                                        saved *
+                                                                100.0
                                                 )
                                                         /
-                                                originalFileSize;
+                                                        originalFileSize;
 
 
                                         String message =
@@ -576,7 +739,8 @@ public class MainActivity extends Activity {
                                                 message,
                                                 originalFileSize,
                                                 compressedSize,
-                                                outputFile.getAbsolutePath()
+                                                outputFile
+                                                        .getAbsolutePath()
                                         );
                                     }
 
@@ -587,7 +751,10 @@ public class MainActivity extends Activity {
                                             ExportResult result,
                                             ExportException exception) {
 
-                                        if (outputFile.exists()) {
+                                        if (
+                                                outputFile.exists()
+                                        ) {
+
                                             outputFile.delete();
                                         }
 
@@ -597,6 +764,7 @@ public class MainActivity extends Activity {
 
 
                                         if (error == null) {
+
                                             error =
                                                     "Unknown error";
                                         }
@@ -616,16 +784,16 @@ public class MainActivity extends Activity {
                         .build();
 
 
-        // =====================================================
-        // REMOVE VIDEO
-        // =====================================================
-
         MediaItem mediaItem =
                 MediaItem.fromUri(
                         lastSelectedUri
                 );
 
 
+        /*
+         * Video ဖြစ်ရင် video track ဖယ်မယ်
+         * Audio ဖြစ်ရင် audio ကို encode မယ်
+         */
         EditedMediaItem editedMediaItem =
                 new EditedMediaItem.Builder(
                         mediaItem
@@ -633,10 +801,6 @@ public class MainActivity extends Activity {
                         .setRemoveVideo(true)
                         .build();
 
-
-        // =====================================================
-        // START
-        // =====================================================
 
         try {
 
@@ -652,7 +816,10 @@ public class MainActivity extends Activity {
 
         } catch (Exception e) {
 
-            if (outputFile.exists()) {
+            if (
+                    outputFile.exists()
+            ) {
+
                 outputFile.delete();
             }
 
@@ -669,12 +836,12 @@ public class MainActivity extends Activity {
     }
 
 
-    // =========================================================
-    // JAVASCRIPT BRIDGE
-    // =========================================================
-
+    /*
+     * =========================
+     * ANDROID BRIDGE
+     * =========================
+     */
     public class AndroidBridge {
-
 
         @JavascriptInterface
         public void selectCompressorFile() {
@@ -695,42 +862,121 @@ public class MainActivity extends Activity {
                         "Audio ကို ချုံ့နေပါတယ်..."
                 );
 
-                MainActivity.this.compressAudio(
-                        bitrateKbps
-                );
+
+                MainActivity.this
+                        .compressAudio(
+                                bitrateKbps
+                        );
+            });
+        }
+
+
+        /*
+         * =========================
+         * DOWNLOAD / SAVE
+         * =========================
+         */
+        @JavascriptInterface
+        public void downloadCompressedFile(
+                String outputPath) {
+
+            runOnUiThread(() -> {
+
+                try {
+
+                    File sourceFile =
+                            new File(
+                                    outputPath
+                            );
+
+
+                    if (!sourceFile.exists()) {
+
+                        showDownloadError(
+                                "Output file မတွေ့ပါ။"
+                        );
+
+                        return;
+                    }
+
+
+                    pendingDownloadPath =
+                            outputPath;
+
+
+                    Intent intent =
+                            new Intent(
+                                    Intent.ACTION_CREATE_DOCUMENT
+                            );
+
+
+                    intent.addCategory(
+                            Intent.CATEGORY_OPENABLE
+                    );
+
+
+                    intent.setType(
+                            "audio/mp4"
+                    );
+
+
+                    intent.putExtra(
+                            Intent.EXTRA_TITLE,
+                            sourceFile.getName()
+                    );
+
+
+                    startActivityForResult(
+                            intent,
+                            SAVE_FILE_REQUEST
+                    );
+
+
+                } catch (Exception e) {
+
+                    showDownloadError(
+                            e.getMessage()
+                    );
+                }
             });
         }
     }
 
 
-    // =========================================================
-    // PROGRESS CALLBACK
-    // =========================================================
-
+    /*
+     * =========================
+     * PROGRESS
+     * =========================
+     */
     private void sendProgress(
             String message) {
 
         String safe =
-                escapeJsString(message);
+                escapeJsString(
+                        message
+                );
 
 
         runOnUiThread(() -> {
 
             webView.evaluateJavascript(
+
                     "if(window.onCompressionProgress){" +
                             "window.onCompressionProgress('" +
                             safe +
                             "');}",
+
                     null
             );
         });
     }
 
 
-    // =========================================================
-    // RESULT CALLBACK
-    // =========================================================
-
+    /*
+     * =========================
+     * COMPRESSION RESULT
+     * =========================
+     */
     private void sendResult(
             boolean success,
             String message,
@@ -739,11 +985,15 @@ public class MainActivity extends Activity {
             String outputPath) {
 
         String safeMessage =
-                escapeJsString(message);
+                escapeJsString(
+                        message
+                );
 
 
         String safePath =
-                escapeJsString(outputPath);
+                escapeJsString(
+                        outputPath
+                );
 
 
         String js =
@@ -761,44 +1011,119 @@ public class MainActivity extends Activity {
                         "');}";
 
 
-        runOnUiThread(() ->
-                webView.evaluateJavascript(
-                        js,
-                        null
-                )
-        );
+        runOnUiThread(() -> {
+
+            webView.evaluateJavascript(
+                    js,
+                    null
+            );
+        });
     }
 
 
-    // =========================================================
-    // ESCAPE JAVASCRIPT STRING
-    // =========================================================
+    /*
+     * =========================
+     * DOWNLOAD RESULT
+     * =========================
+     */
+    private void showDownloadSuccess() {
 
+        runOnUiThread(() -> {
+
+            webView.evaluateJavascript(
+
+                    "if(window.onDownloadFinished){" +
+                            "window.onDownloadFinished(" +
+                            "true," +
+                            "'Audio ကို သိမ်းပြီးပါပြီ။'" +
+                            ");}",
+
+                    null
+            );
+        });
+    }
+
+
+    private void showDownloadError(
+            String error) {
+
+        if (error == null) {
+
+            error =
+                    "Unknown error";
+        }
+
+
+        String safe =
+                escapeJsString(
+                        error
+                );
+
+
+        runOnUiThread(() -> {
+
+            webView.evaluateJavascript(
+
+                    "if(window.onDownloadFinished){" +
+                            "window.onDownloadFinished(" +
+                            "false,'" +
+                            safe +
+                            "');}",
+
+                    null
+            );
+        });
+    }
+
+
+    /*
+     * =========================
+     * JAVASCRIPT ESCAPE
+     * =========================
+     */
     private String escapeJsString(
             String text) {
 
         if (text == null) {
+
             return "";
         }
 
 
         return text
-                .replace("\\", "\\\\")
-                .replace("'", "\\'")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
+                .replace(
+                        "\\",
+                        "\\\\"
+                )
+                .replace(
+                        "'",
+                        "\\'"
+                )
+                .replace(
+                        "\"",
+                        "\\\""
+                )
+                .replace(
+                        "\n",
+                        "\\n"
+                )
+                .replace(
+                        "\r",
+                        "\\r"
+                );
     }
 
 
-    // =========================================================
-    // FORMAT FILE SIZE
-    // =========================================================
-
+    /*
+     * =========================
+     * FORMAT SIZE
+     * =========================
+     */
     private String formatSize(
             long bytes) {
 
         if (bytes <= 0) {
+
             return "0 MB";
         }
 
@@ -827,4 +1152,4 @@ public class MainActivity extends Activity {
                 mb
         );
     }
-}
+                }
