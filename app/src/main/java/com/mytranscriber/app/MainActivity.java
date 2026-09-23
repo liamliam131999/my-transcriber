@@ -4,10 +4,16 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.OpenableColumns;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -24,10 +30,16 @@ import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.Transformer;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -48,24 +60,461 @@ public class MainActivity extends Activity {
     private static final int WEB_FILE_PICKER_REQUEST = 2001;
     private static final int SAVE_FILE_REQUEST = 3001;
 
+    /*
+     * =========================================================
+     * REMOTE MAINTENANCE
+     * =========================================================
+     */
+
+    private static final String MAINTENANCE_URL =
+            "https://liamliam131999.github.io/my-transcriber/maintenance.json";
+
+    private View maintenanceView;
+
+    private boolean maintenanceMode = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        webView = new WebView(this);
+        /*
+         * App စဖွင့်တဲ့အချိန် Maintenance ကို
+         * အရင်ဆုံးစစ်မယ်။
+         */
+        checkMaintenance();
+
+    }
+
+
+    // =========================================================
+    // MAINTENANCE CHECK
+    // =========================================================
+
+    private void checkMaintenance() {
+
+        Thread thread =
+                new Thread(
+                        () -> {
+
+                            HttpURLConnection connection =
+                                    null;
+
+                            try {
+
+                                URL url =
+                                        new URL(
+                                                MAINTENANCE_URL +
+                                                        "?t=" +
+                                                        System.currentTimeMillis()
+                                        );
+
+                                connection =
+                                        (HttpURLConnection)
+                                                url.openConnection();
+
+                                connection.setRequestMethod(
+                                        "GET"
+                                );
+
+                                connection.setConnectTimeout(
+                                        8000
+                                );
+
+                                connection.setReadTimeout(
+                                        8000
+                                );
+
+                                connection.setUseCaches(
+                                        false
+                                );
+
+                                connection.setRequestProperty(
+                                        "Cache-Control",
+                                        "no-cache"
+                                );
+
+                                connection.connect();
+
+
+                                int responseCode =
+                                        connection.getResponseCode();
+
+
+                                if (
+                                        responseCode >= 200 &&
+                                        responseCode < 300
+                                ) {
+
+                                    InputStream input =
+                                            connection.getInputStream();
+
+                                    BufferedReader reader =
+                                            new BufferedReader(
+                                                    new InputStreamReader(
+                                                            input,
+                                                            "UTF-8"
+                                                    )
+                                            );
+
+
+                                    StringBuilder result =
+                                            new StringBuilder();
+
+
+                                    String line;
+
+
+                                    while (
+                                            (line =
+                                                    reader.readLine())
+                                                    != null
+                                    ) {
+
+                                        result.append(
+                                                line
+                                        );
+
+                                    }
+
+
+                                    reader.close();
+                                    input.close();
+
+
+                                    JSONObject json =
+                                            new JSONObject(
+                                                    result.toString()
+                                            );
+
+
+                                    boolean maintenance =
+                                            json.optBoolean(
+                                                    "maintenance",
+                                                    false
+                                            );
+
+
+                                    String message =
+                                            json.optString(
+                                                    "message",
+                                                    "We are currently performing maintenance. Please try again later."
+                                            );
+
+
+                                    if (maintenance) {
+
+                                        runOnUiThread(
+                                                () ->
+                                                        showMaintenanceScreen(
+                                                                message
+                                                        )
+                                        );
+
+                                    } else {
+
+                                        runOnUiThread(
+                                                () ->
+                                                        startNormalApp()
+                                        );
+
+                                    }
+
+
+                                } else {
+
+                                    /*
+                                     * Server response မမှန်ရင်
+                                     * App ကို ပုံမှန်ဖွင့်မယ်။
+                                     */
+                                    runOnUiThread(
+                                            () ->
+                                                    startNormalApp()
+                                    );
+
+                                }
+
+
+                            } catch (Exception e) {
+
+                                /*
+                                 * Internet မရတဲ့အချိန်
+                                 * App ကို ပုံမှန်ဆက်သုံးခွင့်ပေးမယ်။
+                                 *
+                                 * ဒါကြောင့် Internet error ကြောင့်
+                                 * User တွေ App သုံးမရတာ မဖြစ်စေဘူး။
+                                 */
+
+                                runOnUiThread(
+                                        () ->
+                                                startNormalApp()
+                                );
+
+
+                            } finally {
+
+                                if (connection != null) {
+
+                                    connection.disconnect();
+
+                                }
+
+                            }
+
+                        }
+                );
+
+
+        thread.start();
+
+    }
+
+
+    // =========================================================
+    // NORMAL APP
+    // =========================================================
+
+    private void startNormalApp() {
+
+        if (maintenanceMode) {
+            return;
+        }
+
+        setupWebView();
+
+    }
+
+
+    // =========================================================
+    // MAINTENANCE SCREEN
+    // =========================================================
+
+    private void showMaintenanceScreen(
+            String message) {
+
+        maintenanceMode = true;
+
+        /*
+         * WebView မဖွင့်ဘဲ Native Maintenance Screen
+         * တိုက်ရိုက်ပြမယ်။
+         */
+
+        LinearLayout root =
+                new LinearLayout(this);
+
+        root.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        root.setGravity(
+                Gravity.CENTER
+        );
+
+        root.setPadding(
+                30,
+                30,
+                30,
+                30
+        );
+
+        root.setBackgroundColor(
+                Color.rgb(
+                        16,
+                        17,
+                        20
+                )
+        );
+
+
+        LinearLayout box =
+                new LinearLayout(this);
+
+        box.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        box.setGravity(
+                Gravity.CENTER
+        );
+
+        box.setPadding(
+                30,
+                30,
+                30,
+                30
+        );
+
+        box.setBackgroundColor(
+                Color.rgb(
+                        25,
+                        26,
+                        31
+                )
+        );
+
+
+        TextView icon =
+                new TextView(this);
+
+        icon.setText(
+                "🔧"
+        );
+
+        icon.setTextSize(
+                50
+        );
+
+        icon.setGravity(
+                Gravity.CENTER
+        );
+
+
+        TextView title =
+                new TextView(this);
+
+        title.setText(
+                "App Maintenance"
+        );
+
+        title.setTextColor(
+                Color.WHITE
+        );
+
+        title.setTextSize(
+                23
+        );
+
+        title.setGravity(
+                Gravity.CENTER
+        );
+
+        title.setPadding(
+                0,
+                15,
+                0,
+                10
+        );
+
+
+        TextView messageView =
+                new TextView(this);
+
+        messageView.setText(
+                message
+        );
+
+        messageView.setTextColor(
+                Color.rgb(
+                        169,
+                        173,
+                        183
+                )
+        );
+
+        messageView.setTextSize(
+                15
+        );
+
+        messageView.setGravity(
+                Gravity.CENTER
+        );
+
+        messageView.setLineSpacing(
+                0,
+                1.4f
+        );
+
+
+        ProgressBar progressBar =
+                new ProgressBar(this);
+
+        progressBar.setVisibility(
+                View.GONE
+        );
+
+
+        box.addView(
+                icon,
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
+
+
+        box.addView(
+                title,
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
+
+
+        box.addView(
+                messageView,
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
+
+
+        root.addView(
+                box,
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
+
+
+        setContentView(root);
+
+        maintenanceView = root;
+
+    }
+
+
+    // =========================================================
+    // WEBVIEW SETUP
+    // =========================================================
+
+    private void setupWebView() {
+
+        webView =
+                new WebView(this);
+
 
         WebSettings settings =
                 webView.getSettings();
 
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
+
+        settings.setJavaScriptEnabled(
+                true
+        );
+
+
+        settings.setDomStorageEnabled(
+                true
+        );
+
+
+        settings.setAllowFileAccess(
+                true
+        );
+
+
+        settings.setAllowContentAccess(
+                true
+        );
+
 
         webView.setWebViewClient(
                 new WebViewClient()
         );
+
 
         webView.setWebChromeClient(
                 new WebChromeClient() {
@@ -76,14 +525,25 @@ public class MainActivity extends Activity {
                             ValueCallback<Uri[]> callback,
                             FileChooserParams fileChooserParams) {
 
-                        if (MainActivity.this.filePathCallback != null) {
+                        if (
+                                MainActivity.this
+                                        .filePathCallback
+                                        != null
+                        ) {
 
-                            MainActivity.this.filePathCallback
-                                    .onReceiveValue(null);
+                            MainActivity.this
+                                    .filePathCallback
+                                    .onReceiveValue(
+                                            null
+                                    );
+
                         }
 
-                        MainActivity.this.filePathCallback =
+
+                        MainActivity.this
+                                .filePathCallback =
                                 callback;
+
 
                         try {
 
@@ -92,11 +552,16 @@ public class MainActivity extends Activity {
                                             Intent.ACTION_OPEN_DOCUMENT
                                     );
 
+
                             intent.addCategory(
                                     Intent.CATEGORY_OPENABLE
                             );
 
-                            intent.setType("*/*");
+
+                            intent.setType(
+                                    "*/*"
+                            );
+
 
                             intent.putExtra(
                                     Intent.EXTRA_MIME_TYPES,
@@ -106,35 +571,50 @@ public class MainActivity extends Activity {
                                     }
                             );
 
+
                             startActivityForResult(
                                     intent,
                                     WEB_FILE_PICKER_REQUEST
                             );
 
+
                             return true;
+
 
                         } catch (Exception e) {
 
-                            MainActivity.this.filePathCallback =
+                            MainActivity.this
+                                    .filePathCallback =
                                     null;
 
+
                             return false;
+
                         }
+
                     }
+
                 }
         );
+
 
         webView.addJavascriptInterface(
                 new AndroidBridge(),
                 "AndroidBridge"
         );
 
+
         webView.loadUrl(
                 "file:///android_asset/index.html"
         );
 
-        setContentView(webView);
+
+        setContentView(
+                webView
+        );
+
     }
+
 
     // =========================================================
     // FILE PICKER
@@ -149,11 +629,16 @@ public class MainActivity extends Activity {
                             Intent.ACTION_OPEN_DOCUMENT
                     );
 
+
             intent.addCategory(
                     Intent.CATEGORY_OPENABLE
             );
 
-            intent.setType("*/*");
+
+            intent.setType(
+                    "*/*"
+            );
+
 
             intent.putExtra(
                     Intent.EXTRA_MIME_TYPES,
@@ -163,10 +648,12 @@ public class MainActivity extends Activity {
                     }
             );
 
+
             startActivityForResult(
                     intent,
                     FILE_PICKER_REQUEST
             );
+
 
         } catch (Exception e) {
 
@@ -178,8 +665,11 @@ public class MainActivity extends Activity {
                     0,
                     ""
             );
+
         }
+
     }
+
 
     // =========================================================
     // ACTIVITY RESULT
@@ -197,51 +687,77 @@ public class MainActivity extends Activity {
                 data
         );
 
+
         // -----------------------------------------------------
         // WEBVIEW FILE PICKER
         // -----------------------------------------------------
 
-        if (requestCode ==
-                WEB_FILE_PICKER_REQUEST) {
+        if (
+                requestCode ==
+                        WEB_FILE_PICKER_REQUEST
+        ) {
 
-            if (filePathCallback != null) {
+            if (
+                    filePathCallback != null
+            ) {
 
-                Uri[] results = null;
+                Uri[] results =
+                        null;
 
-                if (resultCode == RESULT_OK
-                        && data != null
-                        && data.getData() != null) {
+
+                if (
+                        resultCode ==
+                                RESULT_OK
+                                && data != null
+                                && data.getData() != null
+                ) {
 
                     results =
                             new Uri[]{
                                     data.getData()
                             };
+
                 }
 
-                filePathCallback
-                        .onReceiveValue(results);
 
-                filePathCallback = null;
+                filePathCallback
+                        .onReceiveValue(
+                                results
+                        );
+
+
+                filePathCallback =
+                        null;
+
             }
 
+
             return;
+
         }
+
 
         // -----------------------------------------------------
         // SAVE COMPRESSED FILE
         // -----------------------------------------------------
 
-        if (requestCode ==
-                SAVE_FILE_REQUEST) {
+        if (
+                requestCode ==
+                        SAVE_FILE_REQUEST
+        ) {
 
-            if (resultCode == RESULT_OK
-                    && data != null
-                    && data.getData() != null
-                    && pendingDownloadPath != null
-                    && !pendingDownloadPath.isEmpty()) {
+            if (
+                    resultCode ==
+                            RESULT_OK
+                            && data != null
+                            && data.getData() != null
+                            && pendingDownloadPath != null
+                            && !pendingDownloadPath.isEmpty()
+            ) {
 
                 Uri destinationUri =
                         data.getData();
+
 
                 try {
 
@@ -250,17 +766,23 @@ public class MainActivity extends Activity {
                                     pendingDownloadPath
                             );
 
-                    if (!sourceFile.exists()) {
+
+                    if (
+                            !sourceFile.exists()
+                    ) {
 
                         throw new Exception(
                                 "Output file မတွေ့ပါ။"
                         );
+
                     }
+
 
                     InputStream input =
                             new FileInputStream(
                                     sourceFile
                             );
+
 
                     OutputStream output =
                             getContentResolver()
@@ -268,24 +790,33 @@ public class MainActivity extends Activity {
                                             destinationUri
                                     );
 
+
                     if (output == null) {
 
                         input.close();
 
+
                         throw new Exception(
                                 "Save location ကို ဖွင့်မရပါ။"
                         );
+
                     }
+
 
                     byte[] buffer =
                             new byte[8192];
 
+
                     int length;
 
+
                     while (
-                            (length =
-                                    input.read(buffer))
-                                    != -1
+                            (
+                                    length =
+                                            input.read(
+                                                    buffer
+                                            )
+                            ) != -1
                     ) {
 
                         output.write(
@@ -293,40 +824,57 @@ public class MainActivity extends Activity {
                                 0,
                                 length
                         );
+
                     }
+
 
                     output.flush();
 
+
                     input.close();
+
                     output.close();
 
+
                     showDownloadSuccess();
+
 
                 } catch (Exception e) {
 
                     showDownloadError(
                             e.getMessage()
                     );
+
                 }
+
             }
 
-            pendingDownloadPath = "";
+
+            pendingDownloadPath =
+                    "";
+
 
             return;
+
         }
+
 
         // -----------------------------------------------------
         // COMPRESSOR FILE PICKER
         // -----------------------------------------------------
 
-        if (requestCode ==
-                FILE_PICKER_REQUEST
-                && resultCode == RESULT_OK
-                && data != null
-                && data.getData() != null) {
+        if (
+                requestCode ==
+                        FILE_PICKER_REQUEST
+                        && resultCode ==
+                        RESULT_OK
+                        && data != null
+                        && data.getData() != null
+        ) {
 
             lastSelectedUri =
                     data.getData();
+
 
             try {
 
@@ -338,16 +886,21 @@ public class MainActivity extends Activity {
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                         );
 
+
                 getContentResolver()
                         .takePersistableUriPermission(
                                 lastSelectedUri,
                                 takeFlags
                         );
 
+
             } catch (Exception ignored) {
             }
 
-            originalFileSize = 0;
+
+            originalFileSize =
+                    0;
+
 
             try {
 
@@ -360,6 +913,7 @@ public class MainActivity extends Activity {
                                 null
                         );
 
+
                 if (cursor != null) {
 
                     int sizeIndex =
@@ -367,64 +921,84 @@ public class MainActivity extends Activity {
                                     OpenableColumns.SIZE
                             );
 
-                    if (cursor.moveToFirst()
-                            && sizeIndex >= 0) {
+
+                    if (
+                            cursor.moveToFirst()
+                                    && sizeIndex >= 0
+                    ) {
 
                         originalFileSize =
                                 cursor.getLong(
                                         sizeIndex
                                 );
+
                     }
 
+
                     cursor.close();
+
                 }
+
 
             } catch (Exception e) {
 
-                originalFileSize = 0;
+                originalFileSize =
+                        0;
+
             }
+
 
             String name =
                     getFileName(
                             lastSelectedUri
                     );
 
+
             String jsName =
-                    escapeJsString(name);
+                    escapeJsString(
+                            name
+                    );
+
 
             final long selectedSize =
                     originalFileSize;
 
-            runOnUiThread(() -> {
 
-                webView.evaluateJavascript(
+            runOnUiThread(
+                    () ->
+                            webView.evaluateJavascript(
 
-                        "if(window.onNativeFileSelected){" +
+                                    "if(window.onNativeFileSelected){" +
 
-                                "window.onNativeFileSelected('" +
+                                            "window.onNativeFileSelected('" +
 
-                                jsName +
+                                            jsName +
 
-                                "'," +
+                                            "'," +
 
-                                selectedSize +
+                                            selectedSize +
 
-                                ");}",
+                                            ");}",
 
-                        null
-                );
-            });
+                                    null
+                            )
+            );
+
         }
+
     }
+
 
     // =========================================================
     // GET FILE NAME
     // =========================================================
 
-    private String getFileName(Uri uri) {
+    private String getFileName(
+            Uri uri) {
 
         String result =
                 "selected_file";
+
 
         try {
 
@@ -437,6 +1011,7 @@ public class MainActivity extends Activity {
                             null
                     );
 
+
             if (cursor != null) {
 
                 int nameIndex =
@@ -444,23 +1019,33 @@ public class MainActivity extends Activity {
                                 OpenableColumns.DISPLAY_NAME
                         );
 
-                if (cursor.moveToFirst()
-                        && nameIndex >= 0) {
+
+                if (
+                        cursor.moveToFirst()
+                                && nameIndex >= 0
+                ) {
 
                     result =
                             cursor.getString(
                                     nameIndex
                             );
+
                 }
 
+
                 cursor.close();
+
             }
+
 
         } catch (Exception ignored) {
         }
 
+
         return result;
+
     }
+
 
     // =========================================================
     // COMPRESS AUDIO
@@ -469,7 +1054,9 @@ public class MainActivity extends Activity {
     private void compressAudio(
             final int bitrateKbps) {
 
-        if (lastSelectedUri == null) {
+        if (
+                lastSelectedUri == null
+        ) {
 
             sendResult(
                     false,
@@ -479,10 +1066,15 @@ public class MainActivity extends Activity {
                     ""
             );
 
+
             return;
+
         }
 
-        if (originalFileSize <= 0) {
+
+        if (
+                originalFileSize <= 0
+        ) {
 
             sendResult(
                     false,
@@ -492,14 +1084,19 @@ public class MainActivity extends Activity {
                     ""
             );
 
+
             return;
+
         }
 
-        runOnUiThread(() ->
-                sendProgress(
-                        "Audio ကို စတင်ချုံ့နေပါတယ်..."
-                )
+
+        runOnUiThread(
+                () ->
+                        sendProgress(
+                                "Audio ကို စတင်ချုံ့နေပါတယ်..."
+                        )
         );
+
 
         try {
 
@@ -508,12 +1105,17 @@ public class MainActivity extends Activity {
                             Environment.DIRECTORY_MUSIC
                     );
 
-            if (musicDir == null) {
+
+            if (
+                    musicDir == null
+            ) {
 
                 throw new Exception(
                         "Music folder မရပါ။"
                 );
+
             }
+
 
             File outputDir =
                     new File(
@@ -521,13 +1123,18 @@ public class MainActivity extends Activity {
                             "MyTranscriber"
                     );
 
-            if (!outputDir.exists()
-                    && !outputDir.mkdirs()) {
+
+            if (
+                    !outputDir.exists()
+                            && !outputDir.mkdirs()
+            ) {
 
                 throw new Exception(
                         "Output folder ဖန်တီးမရပါ။"
                 );
+
             }
+
 
             String timestamp =
                     new SimpleDateFormat(
@@ -537,6 +1144,7 @@ public class MainActivity extends Activity {
                             new Date()
                     );
 
+
             File outputFile =
                     new File(
                             outputDir,
@@ -545,14 +1153,21 @@ public class MainActivity extends Activity {
                                     ".mp4"
                     );
 
-            if (outputFile.exists()) {
+
+            if (
+                    outputFile.exists()
+            ) {
+
                 outputFile.delete();
+
             }
+
 
             MediaItem mediaItem =
                     MediaItem.fromUri(
                             lastSelectedUri
                     );
+
 
             AudioEncoderSettings audioSettings =
                     new AudioEncoderSettings.Builder()
@@ -560,6 +1175,7 @@ public class MainActivity extends Activity {
                                     bitrateKbps * 1000
                             )
                             .build();
+
 
             DefaultEncoderFactory encoderFactory =
                     new DefaultEncoderFactory.Builder(
@@ -570,8 +1186,11 @@ public class MainActivity extends Activity {
                             )
                             .build();
 
+
             Transformer transformer =
-                    new Transformer.Builder(this)
+                    new Transformer.Builder(
+                            this
+                    )
                             .setEncoderFactory(
                                     encoderFactory
                             )
@@ -586,7 +1205,9 @@ public class MainActivity extends Activity {
                                             handleCompressionSuccess(
                                                     outputFile
                                             );
+
                                         }
+
 
                                         @Override
                                         public void onError(
@@ -597,28 +1218,37 @@ public class MainActivity extends Activity {
                                             handleCompressionError(
                                                     exportException
                                             );
+
                                         }
+
                                     }
                             )
                             .build();
+
 
             EditedMediaItem editedMediaItem =
                     new EditedMediaItem.Builder(
                             mediaItem
                     )
-                            .setRemoveVideo(true)
+                            .setRemoveVideo(
+                                    true
+                            )
                             .build();
 
-            runOnUiThread(() ->
-                    sendProgress(
-                            "Video track ကို ဖယ်ပြီး Audio encode လုပ်နေပါတယ်..."
-                    )
+
+            runOnUiThread(
+                    () ->
+                            sendProgress(
+                                    "Video track ကို ဖယ်ပြီး Audio encode လုပ်နေပါတယ်..."
+                            )
             );
+
 
             transformer.start(
                     editedMediaItem,
                     outputFile.getAbsolutePath()
             );
+
 
         } catch (Exception e) {
 
@@ -631,8 +1261,11 @@ public class MainActivity extends Activity {
                     0,
                     ""
             );
+
         }
+
     }
+
 
     // =========================================================
     // COMPRESSION SUCCESS
@@ -641,64 +1274,88 @@ public class MainActivity extends Activity {
     private void handleCompressionSuccess(
             File outputFile) {
 
-        runOnUiThread(() -> {
+        runOnUiThread(
+                () -> {
 
-            if (!outputFile.exists()) {
+                    if (
+                            !outputFile.exists()
+                    ) {
 
-                sendResult(
-                        false,
-                        "Output file မတွေ့ပါ။",
-                        originalFileSize,
-                        0,
-                        ""
-                );
+                        sendResult(
+                                false,
+                                "Output file မတွေ့ပါ။",
+                                originalFileSize,
+                                0,
+                                ""
+                        );
 
-                return;
-            }
 
-            long compressedSize =
-                    outputFile.length();
+                        return;
 
-            if (compressedSize <= 0) {
+                    }
 
-                outputFile.delete();
 
-                sendResult(
-                        false,
-                        "Output file အရွယ်အစား မမှန်ပါ။",
-                        originalFileSize,
-                        0,
-                        ""
-                );
+                    long compressedSize =
+                            outputFile.length();
 
-                return;
-            }
 
-            // Output must be smaller than original
-            if (compressedSize >= originalFileSize) {
+                    if (
+                            compressedSize <= 0
+                    ) {
 
-                outputFile.delete();
+                        outputFile.delete();
 
-                sendResult(
-                        false,
-                        "Compression ပြီးသော်လည်း Output size က မူရင်းထက် မသေးပါ။",
-                        originalFileSize,
-                        compressedSize,
-                        ""
-                );
 
-                return;
-            }
+                        sendResult(
+                                false,
+                                "Output file အရွယ်အစား မမှန်ပါ။",
+                                originalFileSize,
+                                0,
+                                ""
+                        );
 
-            sendResult(
-                    true,
-                    "Compression အောင်မြင်ပါပြီ။",
-                    originalFileSize,
-                    compressedSize,
-                    outputFile.getAbsolutePath()
-            );
-        });
+
+                        return;
+
+                    }
+
+
+                    // Output must be smaller than original
+                    if (
+                            compressedSize >=
+                                    originalFileSize
+                    ) {
+
+                        outputFile.delete();
+
+
+                        sendResult(
+                                false,
+                                "Compression ပြီးသော်လည်း Output size က မူရင်းထက် မသေးပါ။",
+                                originalFileSize,
+                                compressedSize,
+                                ""
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    sendResult(
+                            true,
+                            "Compression အောင်မြင်ပါပြီ။",
+                            originalFileSize,
+                            compressedSize,
+                            outputFile.getAbsolutePath()
+                    );
+
+                }
+        );
+
     }
+
 
     // =========================================================
     // COMPRESSION ERROR
@@ -707,27 +1364,37 @@ public class MainActivity extends Activity {
     private void handleCompressionError(
             ExportException exception) {
 
-        runOnUiThread(() -> {
+        runOnUiThread(
+                () -> {
 
-            String message =
-                    exception.getMessage();
+                    String message =
+                            exception.getMessage();
 
-            if (message == null
-                    || message.isEmpty()) {
 
-                message =
-                        "Compression မအောင်မြင်ပါ။";
-            }
+                    if (
+                            message == null
+                                    || message.isEmpty()
+                    ) {
 
-            sendResult(
-                    false,
-                    message,
-                    originalFileSize,
-                    0,
-                    ""
-            );
-        });
+                        message =
+                                "Compression မအောင်မြင်ပါ။";
+
+                    }
+
+
+                    sendResult(
+                            false,
+                            message,
+                            originalFileSize,
+                            0,
+                            ""
+                    );
+
+                }
+        );
+
     }
+
 
     // =========================================================
     // SEND RESULT TO JAVASCRIPT
@@ -747,12 +1414,14 @@ public class MainActivity extends Activity {
                                 : message
                 );
 
+
         String jsPath =
                 escapeJsString(
                         outputPath == null
                                 ? ""
                                 : outputPath
                 );
+
 
         String script =
                 "if(window.onCompressionFinished){" +
@@ -779,13 +1448,17 @@ public class MainActivity extends Activity {
 
                         "');}";
 
-        runOnUiThread(() ->
-                webView.evaluateJavascript(
-                        script,
-                        null
-                )
+
+        runOnUiThread(
+                () ->
+                        webView.evaluateJavascript(
+                                script,
+                                null
+                        )
         );
+
     }
+
 
     // =========================================================
     // PROGRESS
@@ -801,6 +1474,7 @@ public class MainActivity extends Activity {
                                 : message
                 );
 
+
         String script =
                 "if(window.onCompressionProgress){" +
 
@@ -810,13 +1484,17 @@ public class MainActivity extends Activity {
 
                         "');}";
 
-        runOnUiThread(() ->
-                webView.evaluateJavascript(
-                        script,
-                        null
-                )
+
+        runOnUiThread(
+                () ->
+                        webView.evaluateJavascript(
+                                script,
+                                null
+                        )
         );
+
     }
+
 
     // =========================================================
     // DOWNLOAD COMPRESSED FILE
@@ -825,48 +1503,66 @@ public class MainActivity extends Activity {
     private void downloadCompressedFile(
             String outputPath) {
 
-        if (outputPath == null
-                || outputPath.isEmpty()) {
+        if (
+                outputPath == null
+                        || outputPath.isEmpty()
+        ) {
 
             showDownloadError(
                     "Output file မတွေ့ပါ။"
             );
 
+
             return;
+
         }
+
 
         File file =
-                new File(outputPath);
+                new File(
+                        outputPath
+                );
 
-        if (!file.exists()) {
+
+        if (
+                !file.exists()
+        ) {
 
             showDownloadError(
                     "Output file မတွေ့ပါ။"
             );
 
+
             return;
+
         }
+
 
         pendingDownloadPath =
                 outputPath;
+
 
         Intent intent =
                 new Intent(
                         Intent.ACTION_CREATE_DOCUMENT
                 );
 
+
         intent.addCategory(
                 Intent.CATEGORY_OPENABLE
         );
+
 
         intent.setType(
                 "audio/mp4"
         );
 
+
         intent.putExtra(
                 Intent.EXTRA_TITLE,
                 file.getName()
         );
+
 
         try {
 
@@ -875,15 +1571,21 @@ public class MainActivity extends Activity {
                     SAVE_FILE_REQUEST
             );
 
+
         } catch (Exception e) {
 
-            pendingDownloadPath = "";
+            pendingDownloadPath =
+                    "";
+
 
             showDownloadError(
                     e.getMessage()
             );
+
         }
+
     }
+
 
     // =========================================================
     // DOWNLOAD SUCCESS
@@ -891,19 +1593,25 @@ public class MainActivity extends Activity {
 
     private void showDownloadSuccess() {
 
-        runOnUiThread(() -> {
+        runOnUiThread(
+                () -> {
 
-            String script =
-                    "if(window.onDownloadFinished){" +
-                            "window.onDownloadFinished(true," +
-                            "'File ကို သိမ်းပြီးပါပြီ။');}";
+                    String script =
+                            "if(window.onDownloadFinished){" +
+                                    "window.onDownloadFinished(true," +
+                                    "'File ကို သိမ်းပြီးပါပြီ။');}";
 
-            webView.evaluateJavascript(
-                    script,
-                    null
-            );
-        });
+
+                    webView.evaluateJavascript(
+                            script,
+                            null
+                    );
+
+                }
+        );
+
     }
+
 
     // =========================================================
     // DOWNLOAD ERROR
@@ -919,20 +1627,27 @@ public class MainActivity extends Activity {
                                 : message
                 );
 
-        runOnUiThread(() -> {
 
-            String script =
-                    "if(window.onDownloadFinished){" +
-                            "window.onDownloadFinished(false,'" +
-                            safeMessage +
-                            "');}";
+        runOnUiThread(
+                () -> {
 
-            webView.evaluateJavascript(
-                    script,
-                    null
-            );
-        });
+                    String script =
+                            "if(window.onDownloadFinished){" +
+                                    "window.onDownloadFinished(false,'" +
+                                    safeMessage +
+                                    "');}";
+
+
+                    webView.evaluateJavascript(
+                            script,
+                            null
+                    );
+
+                }
+        );
+
     }
+
 
     // =========================================================
     // ESCAPE JAVASCRIPT STRING
@@ -941,18 +1656,43 @@ public class MainActivity extends Activity {
     private String escapeJsString(
             String value) {
 
-        if (value == null) {
+        if (
+                value == null
+        ) {
+
             return "";
+
         }
 
+
         return value
-                .replace("\\", "\\\\")
-                .replace("'", "\\'")
-                .replace("\"", "\\\"")
-                .replace("\r", "\\r")
-                .replace("\n", "\\n")
-                .replace("</", "<\\/");
+                .replace(
+                        "\\",
+                        "\\\\"
+                )
+                .replace(
+                        "'",
+                        "\\'"
+                )
+                .replace(
+                        "\"",
+                        "\\\""
+                )
+                .replace(
+                        "\r",
+                        "\\r"
+                )
+                .replace(
+                        "\n",
+                        "\\n"
+                )
+                .replace(
+                        "</",
+                        "<\\/"
+                );
+
     }
+
 
     // =========================================================
     // ANDROID BRIDGE
@@ -963,77 +1703,103 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void selectCompressorFile() {
 
-            runOnUiThread(() ->
-                    openFilePicker()
+            runOnUiThread(
+                    () ->
+                            openFilePicker()
             );
+
         }
+
 
         @JavascriptInterface
         public void compressAudio(
                 int bitrateKbps) {
 
-            runOnUiThread(() ->
-                    MainActivity.this.compressAudio(
-                            bitrateKbps
-                    )
+            runOnUiThread(
+                    () ->
+                            MainActivity.this
+                                    .compressAudio(
+                                            bitrateKbps
+                                    )
             );
+
         }
+
 
         @JavascriptInterface
         public void downloadCompressedFile(
                 String outputPath) {
 
-            runOnUiThread(() ->
-                    MainActivity.this
-                            .downloadCompressedFile(
-                                    outputPath
-                            )
+            runOnUiThread(
+                    () ->
+                            MainActivity.this
+                                    .downloadCompressedFile(
+                                            outputPath
+                                    )
             );
+
         }
+
 
         @JavascriptInterface
         public void openTelegram() {
 
-            runOnUiThread(() -> {
+            runOnUiThread(
+                    () -> {
 
-                try {
+                        try {
 
-                    Intent telegramIntent =
-                            new Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse(
-                                            "tg://resolve?domain=liamliam131999"
-                                    )
+                            Intent telegramIntent =
+                                    new Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse(
+                                                    "tg://resolve?domain=liamliam131999"
+                                            )
+                                    );
+
+
+                            startActivity(
+                                    telegramIntent
                             );
 
-                    startActivity(
-                            telegramIntent
-                    );
 
-                } catch (ActivityNotFoundException e) {
+                        } catch (
+                                ActivityNotFoundException e
+                        ) {
 
-                    try {
+                            try {
 
-                        Intent browserIntent =
-                                new Intent(
-                                        Intent.ACTION_VIEW,
-                                        Uri.parse(
-                                                "https://t.me/liamliam131999"
-                                        )
+                                Intent browserIntent =
+                                        new Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(
+                                                        "https://t.me/liamliam131999"
+                                                )
+                                        );
+
+
+                                startActivity(
+                                        browserIntent
                                 );
 
-                        startActivity(
-                                browserIntent
-                        );
 
-                    } catch (Exception browserError) {
+                            } catch (
+                                    Exception browserError
+                            ) {
 
-                        showDownloadError(
-                                "Telegram / Browser ဖွင့်မရပါ။"
-                        );
+                                showDownloadError(
+                                        "Telegram / Browser ဖွင့်မရပါ။"
+                                );
+
+                            }
+
+                        }
+
                     }
-                }
-            });
+            );
+
         }
+
     }
-}
+
+                    }
