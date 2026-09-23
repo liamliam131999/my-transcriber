@@ -111,20 +111,14 @@ jobs:
         }
         EOF
 
-        # Create build.gradle (project level with modern AGP)
+        # Create build.gradle (project level)
         cat << 'EOF' > android-app/build.gradle
         plugins {
             id 'com.android.application' version '8.2.0' apply false
         }
-        allprojects {
-            repositories {
-                google()
-                mavenCentral()
-            }
-        }
         EOF
 
-        # Create settings.gradle
+        # Create settings.gradle (without FAIL_ON_PROJECT_REPOS to prevent conflicts)
         cat << 'EOF' > android-app/settings.gradle
         pluginManagement {
             repositories {
@@ -134,7 +128,6 @@ jobs:
             }
         }
         dependencyResolutionManagement {
-            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
             repositories {
                 google()
                 mavenCentral()
@@ -150,8 +143,7 @@ jobs:
     - name: Build APK with Gradle
       working-directory: ./android-app
       run: |
-        gradle wrapper --gradle-version 8.5
-        chmod +x gradlew
+        chmod +x gradlew || gradle wrapper
         ./gradlew assembleDebug
 
     - name: Upload APK Artifact
