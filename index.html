@@ -76,8 +76,20 @@
             cursor: pointer;
             width: 100%;
             font-weight: bold;
+            margin-top: 5px;
         }
-        .btn-primary:hover {
+        .btn-secondary {
+            background-color: #1f6feb;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
             opacity: 0.9;
         }
         .btn-copy {
@@ -185,7 +197,7 @@
             </div>
             <div class="home-card" onclick="switchTab('compressor')">
                 <h4>📉 Smart Compressor</h4>
-                <p style="font-size: 12px; color: #8b949e;">အမြန်ဆုံး အသံဖိုင်ပြောင်းရန်</p>
+                <p style="font-size: 12px; color: #8b949e;">ဖိုင်ဆိုဒ်ချုံ့ရန်နှင့် အသံဖိုင်ပြောင်းရန်</p>
             </div>
             <div class="home-card" onclick="switchTab('contact')">
                 <h4>💬 ဆက်သွယ်ရန်</h4>
@@ -203,7 +215,8 @@
         <label>ဖိုင်ရွေးချယ်ပါ (Video သို့မဟုတ် Audio - 25MB အောက်)</label>
         <input type="file" id="groqFile" accept="audio/*,video/*">
         
-        <button class="btn-primary" onclick="runGroqTranscription()">Groq ဖြင့် Timestamp ဖြင့် စာသားထုတ်မည်</button>
+        <button class="btn-primary" onclick="runGroqTranscription('timestamp')">⏱ Timestamp ဖြင့် စာသားထုတ်မည်</button>
+        <button class="btn-secondary" onclick="runGroqTranscription('dialogue')">💬 Dialogue သီးသန့် ထုတ်မည်</button>
         
         <div id="groqResultContainer" style="display:none;">
             <div id="groqResult" class="result-box"></div>
@@ -221,7 +234,8 @@
         <label>ဖိုင်ရွေးချယ်ပါ (Video သို့မဟုတ် Audio - 25MB အောက်)</label>
         <input type="file" id="geminiFile" accept="audio/*,video/*">
         
-        <button class="btn-primary" onclick="runGeminiTranscription()">Gemini ဖြင့် စာသားထုတ်မည်</button>
+        <button class="btn-primary" onclick="runGeminiTranscription('timestamp')">⏱ Timestamp ဖြင့် စာသားထုတ်မည်</button>
+        <button class="btn-secondary" onclick="runGeminiTranscription('dialogue')">💬 Dialogue သီးသန့် ထုတ်မည်</button>
         
         <div id="geminiResultContainer" style="display:none;">
             <div id="geminiResult" class="result-box"></div>
@@ -273,7 +287,7 @@
     }
 
     // --- 1. Groq Transcription ---
-    async function runGroqTranscription() {
+    async function runGroqTranscription(mode) {
         const apiKey = document.getElementById('groqApiKey').value.trim();
         const fileInput = document.getElementById('groqFile');
         const resultContainer = document.getElementById('groqResultContainer');
@@ -295,7 +309,7 @@
         }
 
         resultContainer.style.display = 'block';
-        resultDiv.innerHTML = 'Groq Whisper ဖြင့် စာသားထုတ်နေပါပြီ (Timestamp အတိအကျနှင့်)... ခဏစောင့်ပါ...';
+        resultDiv.innerHTML = 'Groq Whisper ဖြင့် စာသားထုတ်နေပါပြီ... ခဏစောင့်ပါ...';
 
         const formData = new FormData();
         formData.append('file', file);
@@ -314,11 +328,15 @@
             if (response.ok && data.segments) {
                 let output = "";
                 data.segments.forEach(seg => {
-                    const startMin = Math.floor(seg.start / 60).toString().padStart(2, '0');
-                    const startSec = Math.floor(seg.start % 60).toString().padStart(2, '0');
-                    output += `[${startMin}:${startSec}] ${seg.text}\n`;
+                    if (mode === 'timestamp') {
+                        const startMin = Math.floor(seg.start / 60).toString().padStart(2, '0');
+                        const startSec = Math.floor(seg.start % 60).toString().padStart(2, '0');
+                        output += `[${startMin}:${startSec}] ${seg.text.trim()}\n`;
+                    } else {
+                        output += `${seg.text.trim()} `;
+                    }
                 });
-                resultDiv.innerHTML = output;
+                resultDiv.innerHTML = output.trim();
             } else if (response.ok && data.text) {
                 resultDiv.innerHTML = data.text;
             } else {
@@ -330,7 +348,7 @@
     }
 
     // --- 2. Gemini Transcription ---
-    async function runGeminiTranscription() {
+    async function runGeminiTranscription(mode) {
         const apiKey = document.getElementById('geminiApiKey').value.trim();
         const fileInput = document.getElementById('geminiFile');
         const resultContainer = document.getElementById('geminiResultContainer');
@@ -349,6 +367,11 @@
         resultContainer.style.display = 'block';
         resultDiv.innerHTML = 'Gemini ဖြင့် ဖိုင်ကို စစ်ဆေးပြီး စာသားထုတ်နေပါပြီ...';
 
+        let promptText = "ဒီ အသံဖိုင် သို့မဟုတ် ဗီဒီယိုဖိုင်ပါ အကြောင်းအရာများကို မြန်မာဘာသာဖြင့် Dialogue (စာသားသီးသန့်) အနေဖြင့် တိကျစွာ ရေးသားပေးပါ။";
+        if (mode === 'timestamp') {
+            promptText = "ဒီ အသံဖိုင် သို့မဟုတ် ဗီဒီယိုဖိုင်ပါ အကြောင်းအရာများကို မြန်မာဘာသာဖြင့် မိနစ်အလိုက် Timestamp ([00:00]) များထည့်သွင်း၍ အသေးစိတ် စာသားပြန်ဆိုပေးပါ။";
+        }
+
         try {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -358,7 +381,7 @@
                 const payload = {
                     contents: [{
                         parts: [
-                            { text: "ဒီ အသံဖိုင် သို့မဟုတ် ဗီဒီယိုဖိုင်ပါ အကြောင်းအရာများကို မြန်မာဘာသာဖြင့် အသေးစိတ် စာသားပြန်ဆိုပေးပါ။" },
+                            { text: promptText },
                             {
                                 inline_data: {
                                     mime_type: file.type,
@@ -388,7 +411,7 @@
         }
     }
 
-    // --- 3. Smart Compressor & Audio Converter (Fast & with Download Button) ---
+    // --- 3. Smart Compressor & Audio Converter ---
     async function runCompressor() {
         const fileInput = document.getElementById('compressFile');
         const resultDiv = document.getElementById('compressResult');
@@ -405,7 +428,6 @@
         resultDiv.innerHTML = `ဖိုင်ကို အမြန်ပြောင်းလဲနေပါပြီ၊ ခဏစောင့်ပါ... (မူလဆိုဒ်: ${fileSizeMB.toFixed(2)} MB)`;
 
         try {
-            const blobUrl = URL.createObjectURL(file);
             const arrayBuffer = await file.arrayBuffer();
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
