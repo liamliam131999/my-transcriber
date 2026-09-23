@@ -92,11 +92,11 @@ jobs:
         }
         android {
             namespace 'com.my.transcriber'
-            compileSdk 33
+            compileSdk 34
             defaultConfig {
                 applicationId "com.my.transcriber"
                 minSdk 21
-                targetSdk 33
+                targetSdk 34
                 versionCode 1
                 versionName "1.0"
             }
@@ -111,16 +111,10 @@ jobs:
         }
         EOF
 
-        # Create build.gradle (project level)
+        # Create build.gradle (project level with modern AGP)
         cat << 'EOF' > android-app/build.gradle
-        buildscript {
-            repositories {
-                google()
-                mavenCentral()
-            }
-            dependencies {
-                classpath 'com.android.tools.build:gradle:8.1.0'
-            }
+        plugins {
+            id 'com.android.application' version '8.2.0' apply false
         }
         allprojects {
             repositories {
@@ -131,7 +125,24 @@ jobs:
         EOF
 
         # Create settings.gradle
-        echo "include ':app'" > android-app/settings.gradle
+        cat << 'EOF' > android-app/settings.gradle
+        pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        rootProject.name = "My Transcriber"
+        include ':app'
+        EOF
 
         # Create gradle.properties
         echo "android.useAndroidX=true" > android-app/gradle.properties
@@ -139,7 +150,8 @@ jobs:
     - name: Build APK with Gradle
       working-directory: ./android-app
       run: |
-        chmod +x gradlew || gradle wrapper
+        gradle wrapper --gradle-version 8.5
+        chmod +x gradlew
         ./gradlew assembleDebug
 
     - name: Upload APK Artifact
