@@ -34,10 +34,6 @@
             padding-bottom: 30px;
         }
 
-        /* =========================
-           HEADER
-        ========================= */
-
         .header {
             padding: 22px 18px 18px;
             text-align: center;
@@ -56,11 +52,6 @@
             font-size: 13px;
         }
 
-
-        /* =========================
-           TABS - SQUARE CARD UI
-        ========================= */
-
         .tabs {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -68,10 +59,6 @@
             padding: 15px;
             background: #101114;
             border-bottom: none;
-        }
-
-        .tabs::-webkit-scrollbar {
-            display: none;
         }
 
         .tab-button {
@@ -113,11 +100,6 @@
             font-size: 14px;
         }
 
-
-        /* =========================
-           CONTENT
-        ========================= */
-
         .container {
             padding: 15px;
         }
@@ -148,11 +130,6 @@
             line-height: 1.7;
             font-size: 14px;
         }
-
-
-        /* =========================
-           INPUTS
-        ========================= */
 
         input[type="password"],
         input[type="text"],
@@ -190,11 +167,6 @@
             color: #d7d8dd;
             font-size: 14px;
         }
-
-
-        /* =========================
-           BUTTONS
-        ========================= */
 
         button {
             font-family: inherit;
@@ -239,11 +211,6 @@
             flex: 1;
         }
 
-
-        /* =========================
-           RESULT
-        ========================= */
-
         .result-box {
             margin-top: 15px;
             padding: 14px;
@@ -267,11 +234,6 @@
         .info {
             border-color: #777 !important;
         }
-
-
-        /* =========================
-           HOME FEATURES
-        ========================= */
 
         .home-grid {
             display: grid;
@@ -301,16 +263,12 @@
 
         .home-feature {
             min-height: 135px;
-
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-
             text-align: center;
-
             cursor: pointer;
-
             transition: 0.15s;
         }
 
@@ -323,11 +281,6 @@
             font-size: 36px;
             margin-bottom: 10px;
         }
-
-
-        /* =========================
-           FILE SELECTED BOX
-        ========================= */
 
         .selected-file {
             display: none;
@@ -350,11 +303,6 @@
             font-size: 12px;
         }
 
-
-        /* =========================
-           COMPRESSOR INFO
-        ========================= */
-
         .compress-info {
             padding: 13px;
             margin-top: 12px;
@@ -370,18 +318,12 @@
             color: #ffffff;
         }
 
-
-        /* =========================
-           LOADING
-        ========================= */
-
         .loading {
             display: inline-block;
             animation: blink 1.2s infinite;
         }
 
         @keyframes blink {
-
             0% {
                 opacity: 1;
             }
@@ -393,13 +335,7 @@
             100% {
                 opacity: 1;
             }
-
         }
-
-
-        /* =========================
-           CONTACT
-        ========================= */
 
         .telegram-button {
             display: block;
@@ -416,11 +352,6 @@
             cursor: pointer;
         }
 
-
-        /* =========================
-           FOOTER
-        ========================= */
-
         .footer {
             text-align: center;
             color: #686c76;
@@ -428,10 +359,46 @@
             padding: 20px;
         }
 
-
         /* =========================
-           SMALL SCREEN
+           API KEY MANAGER
         ========================= */
+
+        .key-manager {
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .key-manager-title {
+            color: #999da8;
+            font-size: 12px;
+            margin-top: -3px;
+            margin-bottom: 5px;
+        }
+
+        .key-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: -5px;
+            margin-bottom: 8px;
+        }
+
+        .key-actions button {
+            flex: 1;
+            padding: 9px 8px;
+            border: 1px solid #3b3e47;
+            border-radius: 8px;
+            background: #24262c;
+            color: #ffffff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .key-saved-message {
+            min-height: 18px;
+            color: #7fd69b;
+            font-size: 11px;
+            margin-bottom: 3px;
+        }
 
         @media (max-width: 360px) {
 
@@ -468,11 +435,6 @@
 
 <div class="app">
 
-
-    <!-- =========================
-         HEADER
-    ========================= -->
-
     <div class="header">
 
         <h1>
@@ -486,10 +448,6 @@
     </div>
 
 
-    <!-- =========================
-         TABS
-    ========================= -->
-
     <div class="tabs">
 
         <button
@@ -497,9 +455,7 @@
             onclick="openTab('home', this)"
         >
 
-            <span class="tab-icon">
-                🏠
-            </span>
+            <span class="tab-icon">🏠</span>
 
             <span class="tab-title">
                 Home
@@ -513,9 +469,7 @@
             onclick="openTab('groq', this)"
         >
 
-            <span class="tab-icon">
-                🎤
-            </span>
+            <span class="tab-icon">🎤</span>
 
             <span class="tab-title">
                 Groq Whisper
@@ -529,9 +483,7 @@
             onclick="openTab('gemini', this)"
         >
 
-            <span class="tab-icon">
-                ✨
-            </span>
+            <span class="tab-icon">✨</span>
 
             <span class="tab-title">
                 Gemini
@@ -545,9 +497,7 @@
             onclick="openTab('compressor', this)"
         >
 
-            <span class="tab-icon">
-                🗜️
-            </span>
+            <span class="tab-icon">🗜️</span>
 
             <span class="tab-title">
                 Compressor
@@ -561,9 +511,7 @@
             onclick="openTab('contact', this)"
         >
 
-            <span class="tab-icon">
-                ✈️
-            </span>
+            <span class="tab-icon">✈️</span>
 
             <span class="tab-title">
                 ဆက်သွယ်ရန်
@@ -577,9 +525,7 @@
     <div class="container">
 
 
-        <!-- =====================================================
-             HOME
-        ====================================================== -->
+        <!-- HOME -->
 
         <div
             id="home"
@@ -596,19 +542,14 @@
                     class="description"
                     style="text-align:center;"
                 >
-
                     Audio / Video ဖိုင်တွေကို
                     Text အဖြစ် ပြောင်းနိုင်ပါတယ်။
-
                 </p>
 
             </div>
 
 
             <div class="home-grid">
-
-
-                <!-- GROQ CARD -->
 
                 <div
                     class="feature home-feature"
@@ -633,8 +574,6 @@
                 </div>
 
 
-                <!-- GEMINI CARD -->
-
                 <div
                     class="feature home-feature"
                     onclick="openTab(
@@ -657,8 +596,6 @@
 
                 </div>
 
-
-                <!-- COMPRESSOR CARD -->
 
                 <div
                     class="feature home-feature"
@@ -683,8 +620,6 @@
                 </div>
 
 
-                <!-- CONTACT CARD -->
-
                 <div
                     class="feature home-feature"
                     onclick="openTelegram()"
@@ -704,7 +639,6 @@
 
                 </div>
 
-
             </div>
 
 
@@ -715,17 +649,13 @@
                     margin-top:20px;
                 "
             >
-
                 My Transcriber
-
             </div>
 
         </div>
 
 
-        <!-- =====================================================
-             GROQ WHISPER
-        ====================================================== -->
+        <!-- GROQ -->
 
         <div
             id="groq"
@@ -739,10 +669,8 @@
                 </h3>
 
                 <p class="description">
-
                     Groq Whisper API ဖြင့် Audio / Video
                     transcription ပြုလုပ်ပါ။
-
                 </p>
 
 
@@ -750,11 +678,56 @@
                     Groq API Key
                 </label>
 
+
                 <input
                     type="password"
                     id="groqApiKey"
                     placeholder="gsk_..."
+                    autocomplete="off"
                 >
+
+
+                <div class="key-manager">
+
+                    <div class="key-manager-title">
+                        💾 သိမ်းထားသော Groq Keys
+                    </div>
+
+                    <select
+                        id="groqSavedKeys"
+                        onchange="selectSavedKey('groq')"
+                    >
+
+                        <option value="">
+                            — Saved Key ရွေးပါ —
+                        </option>
+
+                    </select>
+
+                    <div class="key-actions">
+
+                        <button
+                            type="button"
+                            onclick="saveCurrentKey('groq')"
+                        >
+                            💾 Save Key
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteSelectedKey('groq')"
+                        >
+                            🗑️ Delete
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="groqKeyMessage"
+                        class="key-saved-message"
+                    ></div>
+
+                </div>
 
 
                 <label>
@@ -774,9 +747,7 @@
                         class="btn-secondary"
                         onclick="groqTranscribe('timestamp')"
                     >
-
                         🕒 Timestamp
-
                     </button>
 
 
@@ -784,9 +755,7 @@
                         class="btn-secondary"
                         onclick="groqTranscribe('dialogue')"
                     >
-
                         💬 Dialogue
-
                     </button>
 
                 </div>
@@ -796,17 +765,14 @@
                     id="groqResult"
                     class="result-box"
                     style="display:none;"
-                >
-                </div>
+                ></div>
 
             </div>
 
         </div>
 
 
-        <!-- =====================================================
-             GEMINI
-        ====================================================== -->
+        <!-- GEMINI -->
 
         <div
             id="gemini"
@@ -820,11 +786,9 @@
                 </h3>
 
                 <p class="description">
-
                     Gemini API အသုံးပြုပြီး
                     Audio / Video transcription
                     ပြုလုပ်ပါ။
-
                 </p>
 
 
@@ -832,11 +796,56 @@
                     Gemini API Key
                 </label>
 
+
                 <input
                     type="password"
                     id="geminiApiKey"
                     placeholder="AIza..."
+                    autocomplete="off"
                 >
+
+
+                <div class="key-manager">
+
+                    <div class="key-manager-title">
+                        💾 သိမ်းထားသော Gemini Keys
+                    </div>
+
+                    <select
+                        id="geminiSavedKeys"
+                        onchange="selectSavedKey('gemini')"
+                    >
+
+                        <option value="">
+                            — Saved Key ရွေးပါ —
+                        </option>
+
+                    </select>
+
+                    <div class="key-actions">
+
+                        <button
+                            type="button"
+                            onclick="saveCurrentKey('gemini')"
+                        >
+                            💾 Save Key
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="deleteSelectedKey('gemini')"
+                        >
+                            🗑️ Delete
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="geminiKeyMessage"
+                        class="key-saved-message"
+                    ></div>
+
+                </div>
 
 
                 <label>
@@ -856,9 +865,7 @@
                         class="btn-secondary"
                         onclick="geminiTranscribe('timestamp')"
                     >
-
                         🕒 Timestamp
-
                     </button>
 
 
@@ -866,9 +873,7 @@
                         class="btn-secondary"
                         onclick="geminiTranscribe('dialogue')"
                     >
-
                         💬 Dialogue
-
                     </button>
 
                 </div>
@@ -878,17 +883,14 @@
                     id="geminiResult"
                     class="result-box"
                     style="display:none;"
-                >
-                </div>
+                ></div>
 
             </div>
 
         </div>
 
 
-        <!-- =====================================================
-             COMPRESSOR
-        ====================================================== -->
+        <!-- COMPRESSOR -->
 
         <div
             id="compressor"
@@ -903,26 +905,18 @@
 
 
                 <p class="description">
-
                     Video သို့မဟုတ် Audio ဖိုင်ထည့်ပါ။
                     Output က <strong>Audio သာ</strong> ထွက်ပါမယ်။
-
                 </p>
 
-
-                <!-- FILE SELECT -->
 
                 <button
                     class="btn-primary"
                     onclick="selectCompressorFile()"
                 >
-
                     📁 Video / Audio ရွေးမည်
-
                 </button>
 
-
-                <!-- SELECTED FILE -->
 
                 <div
                     id="selectedCompressFile"
@@ -932,20 +926,16 @@
                     <div
                         id="selectedCompressFileName"
                         class="selected-file-name"
-                    >
-                    </div>
+                    ></div>
 
 
                     <div
                         id="selectedCompressFileSize"
                         class="selected-file-size"
-                    >
-                    </div>
+                    ></div>
 
                 </div>
 
-
-                <!-- BITRATE -->
 
                 <label>
                     Audio Quality
@@ -978,46 +968,29 @@
                 </select>
 
 
-                <!-- INFO -->
-
                 <div class="compress-info">
 
-                    <strong>
-                        Output:
-                    </strong>
-
+                    <strong>Output:</strong>
                     Audio only (.mp4)
 
                     <br>
 
-                    <strong>
-                        Video input:
-                    </strong>
-
-                    Video track ဖယ်ပြီး
-                    Audio သာထုတ်မယ်
+                    <strong>Video input:</strong>
+                    Video track ဖယ်ပြီး Audio သာထုတ်မယ်
 
                     <br>
 
-                    <strong>
-                        Audio input:
-                    </strong>
-
+                    <strong>Audio input:</strong>
                     AAC နဲ့ ပြန် encode လုပ်မယ်
 
                     <br>
 
-                    <strong>
-                        Safety:
-                    </strong>
-
+                    <strong>Safety:</strong>
                     Output size က input ထက် မလျော့ရင်
                     successful compression အဖြစ် မသတ်မှတ်ပါ။
 
                 </div>
 
-
-                <!-- COMPRESS BUTTON -->
 
                 <button
                     id="compressButton"
@@ -1025,29 +998,22 @@
                     onclick="runCompressor()"
                     disabled
                 >
-
                     🗜️ Audio ကို ချုံ့မည်
-
                 </button>
 
-
-                <!-- RESULT -->
 
                 <div
                     id="compressResult"
                     class="result-box"
                     style="display:none;"
-                >
-                </div>
+                ></div>
 
             </div>
 
         </div>
 
 
-        <!-- =====================================================
-             CONTACT
-        ====================================================== -->
+        <!-- CONTACT -->
 
         <div
             id="contact"
@@ -1060,12 +1026,9 @@
                     📱 Contact
                 </h3>
 
-
                 <p class="description">
-
                     App အကြောင်းအရာ၊ Error သို့မဟုတ်
                     Feature request များအတွက် ဆက်သွယ်နိုင်ပါတယ်။
-
                 </p>
 
 
@@ -1073,9 +1036,7 @@
                     class="telegram-button"
                     onclick="openTelegram()"
                 >
-
                     ✈️ Telegram မှ ဆက်သွယ်ရန်
-
                 </button>
 
             </div>
@@ -1086,16 +1047,641 @@
 
 
     <div class="footer">
-
         My Transcriber
-
     </div>
 
 </div>
 
 
-
 <script>
+
+/* =========================================================
+   KEY STORAGE
+   ========================================================= */
+
+const GROQ_KEYS_STORAGE =
+    "myTranscriber_groq_keys_v1";
+
+const GEMINI_KEYS_STORAGE =
+    "myTranscriber_gemini_keys_v1";
+
+const GROQ_LAST_KEY_STORAGE =
+    "myTranscriber_groq_last_key_v1";
+
+const GEMINI_LAST_KEY_STORAGE =
+    "myTranscriber_gemini_last_key_v1";
+
+
+function getStorageKey(type) {
+
+    return type === "groq"
+        ? GROQ_KEYS_STORAGE
+        : GEMINI_KEYS_STORAGE;
+
+}
+
+
+function getLastStorageKey(type) {
+
+    return type === "groq"
+        ? GROQ_LAST_KEY_STORAGE
+        : GEMINI_LAST_KEY_STORAGE;
+
+}
+
+
+function getSavedKeys(type) {
+
+    try {
+
+        const raw =
+            localStorage.getItem(
+                getStorageKey(type)
+            );
+
+        if (!raw) {
+            return [];
+        }
+
+        const keys =
+            JSON.parse(raw);
+
+        if (!Array.isArray(keys)) {
+            return [];
+        }
+
+        return keys.filter(
+            function(key) {
+                return (
+                    typeof key === "string" &&
+                    key.trim() !== ""
+                );
+            }
+        );
+
+    } catch (error) {
+
+        return [];
+
+    }
+
+}
+
+
+function setSavedKeys(
+    type,
+    keys
+) {
+
+    try {
+
+        localStorage.setItem(
+            getStorageKey(type),
+            JSON.stringify(keys)
+        );
+
+    } catch (error) {
+
+        console.log(
+            "Key save error:",
+            error
+        );
+
+    }
+
+}
+
+
+function maskApiKey(key) {
+
+    if (!key) {
+        return "";
+    }
+
+    if (key.length <= 10) {
+
+        return (
+            key.substring(
+                0,
+                3
+            ) +
+            "****"
+        );
+
+    }
+
+    return (
+        key.substring(
+            0,
+            5
+        ) +
+        "****" +
+        key.substring(
+            key.length - 4
+        )
+    );
+
+}
+
+
+function refreshSavedKeyList(
+    type
+) {
+
+    const select =
+        document.getElementById(
+            type === "groq"
+                ? "groqSavedKeys"
+                : "geminiSavedKeys"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    const keys =
+        getSavedKeys(type);
+
+    const currentInput =
+        document.getElementById(
+            type === "groq"
+                ? "groqApiKey"
+                : "geminiApiKey"
+        );
+
+    const currentKey =
+        currentInput
+            ? currentInput.value.trim()
+            : "";
+
+    select.innerHTML = "";
+
+    const firstOption =
+        document.createElement(
+            "option"
+        );
+
+    firstOption.value = "";
+
+    firstOption.textContent =
+        "— Saved Key ရွေးပါ —";
+
+    select.appendChild(
+        firstOption
+    );
+
+
+    keys.forEach(
+        function(key) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                key;
+
+            option.textContent =
+                maskApiKey(key);
+
+            if (
+                currentKey &&
+                key === currentKey
+            ) {
+
+                option.selected =
+                    true;
+
+            }
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+function saveCurrentKey(
+    type
+) {
+
+    const input =
+        document.getElementById(
+            type === "groq"
+                ? "groqApiKey"
+                : "geminiApiKey"
+        );
+
+    if (!input) {
+        return;
+    }
+
+    const key =
+        input.value.trim();
+
+    if (!key) {
+
+        showKeyMessage(
+            type,
+            "⚠️ အရင်ဆုံး API Key ထည့်ပါ။"
+        );
+
+        return;
+
+    }
+
+
+    let keys =
+        getSavedKeys(type);
+
+
+    /*
+     * Key အဟောင်းရှိရင် ထပ်မသိမ်းပါ။
+     */
+
+    keys =
+        keys.filter(
+            function(item) {
+                return item !== key;
+            }
+        );
+
+
+    /*
+     * နောက်ဆုံးသုံးတဲ့ key ကို အပေါ်ဆုံးထားပါ။
+     */
+
+    keys.unshift(key);
+
+
+    /*
+     * Key အများကြီးမစုအောင်
+     * နောက်ဆုံး 10 ခုသာ သိမ်းထားပါ။
+     */
+
+    if (keys.length > 10) {
+
+        keys =
+            keys.slice(
+                0,
+                10
+            );
+
+    }
+
+
+    setSavedKeys(
+        type,
+        keys
+    );
+
+
+    try {
+
+        localStorage.setItem(
+            getLastStorageKey(type),
+            key
+        );
+
+    } catch (error) {
+    }
+
+
+    refreshSavedKeyList(
+        type
+    );
+
+
+    showKeyMessage(
+        type,
+        "✅ API Key ကို သိမ်းပြီးပါပြီ။"
+    );
+
+}
+
+
+function selectSavedKey(
+    type
+) {
+
+    const select =
+        document.getElementById(
+            type === "groq"
+                ? "groqSavedKeys"
+                : "geminiSavedKeys"
+        );
+
+    const input =
+        document.getElementById(
+            type === "groq"
+                ? "groqApiKey"
+                : "geminiApiKey"
+        );
+
+    if (!select || !input) {
+        return;
+    }
+
+    const key =
+        select.value;
+
+    if (!key) {
+        return;
+    }
+
+    input.value =
+        key;
+
+
+    try {
+
+        localStorage.setItem(
+            getLastStorageKey(type),
+            key
+        );
+
+    } catch (error) {
+    }
+
+
+    showKeyMessage(
+        type,
+        "✅ Saved Key ကို ရွေးပြီးပါပြီ။"
+    );
+
+}
+
+
+function deleteSelectedKey(
+    type
+) {
+
+    const select =
+        document.getElementById(
+            type === "groq"
+                ? "groqSavedKeys"
+                : "geminiSavedKeys"
+        );
+
+    if (!select) {
+        return;
+    }
+
+    const key =
+        select.value;
+
+    if (!key) {
+
+        showKeyMessage(
+            type,
+            "⚠️ ဖျက်မယ့် Saved Key ကို အရင်ရွေးပါ။"
+        );
+
+        return;
+
+    }
+
+
+    let keys =
+        getSavedKeys(type);
+
+
+    keys =
+        keys.filter(
+            function(item) {
+                return item !== key;
+            }
+        );
+
+
+    setSavedKeys(
+        type,
+        keys
+    );
+
+
+    try {
+
+        const lastKey =
+            localStorage.getItem(
+                getLastStorageKey(type)
+            );
+
+        if (lastKey === key) {
+
+            localStorage.removeItem(
+                getLastStorageKey(type)
+            );
+
+        }
+
+    } catch (error) {
+    }
+
+
+    refreshSavedKeyList(
+        type
+    );
+
+
+    showKeyMessage(
+        type,
+        "🗑️ Saved Key ကို ဖျက်ပြီးပါပြီ။"
+    );
+
+}
+
+
+function showKeyMessage(
+    type,
+    message
+) {
+
+    const element =
+        document.getElementById(
+            type === "groq"
+                ? "groqKeyMessage"
+                : "geminiKeyMessage"
+        );
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        message;
+
+
+    setTimeout(
+        function() {
+
+            if (element) {
+                element.textContent = "";
+            }
+
+        },
+        3000
+    );
+
+}
+
+
+function loadLastApiKey(
+    type
+) {
+
+    const input =
+        document.getElementById(
+            type === "groq"
+                ? "groqApiKey"
+                : "geminiApiKey"
+        );
+
+    if (!input) {
+        return;
+    }
+
+
+    let lastKey = "";
+
+    try {
+
+        lastKey =
+            localStorage.getItem(
+                getLastStorageKey(type)
+            ) || "";
+
+    } catch (error) {
+        lastKey = "";
+    }
+
+
+    /*
+     * Last key မရှိရင် saved list ထဲက
+     * ပထမ key ကို အသုံးပြုပါ။
+     */
+
+    if (!lastKey) {
+
+        const keys =
+            getSavedKeys(type);
+
+        if (keys.length > 0) {
+            lastKey = keys[0];
+        }
+
+    }
+
+
+    if (lastKey) {
+
+        input.value =
+            lastKey;
+
+    }
+
+
+    refreshSavedKeyList(
+        type
+    );
+
+}
+
+
+function setupKeyAutoSave(
+    type
+) {
+
+    const input =
+        document.getElementById(
+            type === "groq"
+                ? "groqApiKey"
+                : "geminiApiKey"
+        );
+
+    if (!input) {
+        return;
+    }
+
+
+    /*
+     * User က key ထည့်ပြီး field
+     * ကနေထွက်တဲ့အချိန် auto-save လုပ်မယ်။
+     */
+
+    input.addEventListener(
+        "blur",
+        function() {
+
+            const key =
+                input.value.trim();
+
+            if (!key) {
+                return;
+            }
+
+            let keys =
+                getSavedKeys(type);
+
+
+            keys =
+                keys.filter(
+                    function(item) {
+                        return item !== key;
+                    }
+                );
+
+
+            keys.unshift(key);
+
+
+            if (keys.length > 10) {
+
+                keys =
+                    keys.slice(
+                        0,
+                        10
+                    );
+
+            }
+
+
+            setSavedKeys(
+                type,
+                keys
+            );
+
+
+            try {
+
+                localStorage.setItem(
+                    getLastStorageKey(type),
+                    key
+                );
+
+            } catch (error) {
+            }
+
+
+            refreshSavedKeyList(
+                type
+            );
+
+
+            showKeyMessage(
+                type,
+                "✅ API Key Auto Saved"
+            );
+
+        }
+    );
+
+}
+
 
 /* =========================================================
    TAB SYSTEM
@@ -1285,10 +1871,6 @@ let compressorOriginalSize =
     0;
 
 
-/*
- * Android native file picker
- */
-
 function selectCompressorFile() {
 
     if (
@@ -1311,10 +1893,6 @@ function selectCompressorFile() {
 
 }
 
-
-/*
- * Android က file ရွေးပြီးတဲ့အခါ
- */
 
 window.onNativeFileSelected =
     function(
@@ -1438,10 +2016,6 @@ function showSelectedCompressorFile(
 
 }
 
-
-/*
- * Start compression
- */
 
 function runCompressor() {
 
@@ -1597,10 +2171,6 @@ function downloadCompressedFile(
 
 }
 
-
-/* =========================================================
-   DOWNLOAD FINISHED
-========================================================= */
 
 window.onDownloadFinished =
     function(
@@ -1815,12 +2385,8 @@ window.onCompressionFinished =
             false
         );
 
-    };
+};
 
-
-/* =========================================================
-   SHOW COMPRESS RESULT
-========================================================= */
 
 function showCompressResult(
     message,
@@ -1898,6 +2464,15 @@ async function groqTranscribe(
         );
 
 
+    /*
+     * Key ကို request မလုပ်ခင် save လုပ်ထားမယ်။
+     */
+
+    if (apiKey) {
+        saveCurrentKeySilently("groq");
+    }
+
+
     if (!apiKey) {
 
         showResult(
@@ -1933,7 +2508,7 @@ async function groqTranscribe(
 
         showResult(
             result,
-            "❌ File size က 25 MB ကျော်နေပါတယ်။\n" +
+            "❌ File size က 25 MB ကျော်နေပါတယ်.\n" +
             "Compressor ထဲမှာ အရင်ချုံ့ပါ။",
             false
         );
@@ -2144,6 +2719,15 @@ async function geminiTranscribe(
         document.getElementById(
             "geminiResult"
         );
+
+
+    /*
+     * Key ကို request မလုပ်ခင် save လုပ်ထားမယ်။
+     */
+
+    if (apiKey) {
+        saveCurrentKeySilently("gemini");
+    }
 
 
     if (!apiKey) {
@@ -2359,6 +2943,83 @@ async function geminiTranscribe(
 
 
 /* =========================================================
+   SILENT KEY SAVE
+========================================================= */
+
+function saveCurrentKeySilently(
+    type
+) {
+
+    const input =
+        document.getElementById(
+            type === "groq"
+                ? "groqApiKey"
+                : "geminiApiKey"
+        );
+
+    if (!input) {
+        return;
+    }
+
+    const key =
+        input.value.trim();
+
+    if (!key) {
+        return;
+    }
+
+
+    let keys =
+        getSavedKeys(type);
+
+
+    keys =
+        keys.filter(
+            function(item) {
+                return item !== key;
+            }
+        );
+
+
+    keys.unshift(key);
+
+
+    if (keys.length > 10) {
+
+        keys =
+            keys.slice(
+                0,
+                10
+            );
+
+    }
+
+
+    setSavedKeys(
+        type,
+        keys
+    );
+
+
+    try {
+
+        localStorage.setItem(
+            getLastStorageKey(type),
+            key
+        );
+
+    } catch (error) {
+    }
+
+
+    refreshSavedKeyList(
+        type
+    );
+
+}
+
+
+/* =========================================================
    FILE TO BASE64
 ========================================================= */
 
@@ -2478,6 +3139,33 @@ document.addEventListener(
             )
         );
 
+
+        /*
+         * Saved API Keys ပြန်ဖတ်မယ်။
+         */
+
+        loadLastApiKey(
+            "groq"
+        );
+
+        loadLastApiKey(
+            "gemini"
+        );
+
+
+        /*
+         * User က key အသစ်ထည့်ရင်
+         * field ကနေထွက်တဲ့အချိန် auto-save.
+         */
+
+        setupKeyAutoSave(
+            "groq"
+        );
+
+        setupKeyAutoSave(
+            "gemini"
+        );
+
     }
 );
 
@@ -2485,4 +3173,4 @@ document.addEventListener(
 
 </body>
 
-      </html>
+                    </html>
