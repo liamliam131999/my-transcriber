@@ -10,16 +10,16 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
 
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+      uses: android-actions/setup-android@v3
 
     - name: Create Simple WebView Android Project
       run: |
