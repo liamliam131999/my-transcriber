@@ -2,18 +2,26 @@ package com.mytranscriber.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 public class MainActivity extends Activity {
+
+    private WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView text = new TextView(this);
-        text.setText("My Transcriber");
-        text.setTextSize(24);
+        webView = new WebView(this);
 
-        setContentView(text);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setAllowFileAccess(true);
+
+        webView.loadUrl("file:///android_asset/index.html");
+
+        setContentView(webView);
     }
 }
