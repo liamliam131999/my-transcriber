@@ -2,11 +2,15 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Internet -->
+    <!-- Internet for Groq / Gemini -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Microphone / Speech-to-Text -->
+    <!-- Microphone -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Notifications / Downloads on older Android versions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <application
         android:allowBackup="true"
