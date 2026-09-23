@@ -31,10 +31,9 @@ jobs:
         # Copy index.html to Android assets
         cp index.html android-app/app/src/main/assets/index.html
 
-        # Create AndroidManifest.xml
+        # Create AndroidManifest.xml (without package attribute to prevent warning)
         cat << 'EOF' > android-app/app/src/main/AndroidManifest.xml
-        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-            package="com.my.transcriber">
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
             <uses-permission android:name="android.permission.INTERNET" />
             <application
                 android:allowBackup="true"
@@ -111,14 +110,14 @@ jobs:
         }
         EOF
 
-        # Create build.gradle (project level)
+        # Create build.gradle (project level with compatible AGP)
         cat << 'EOF' > android-app/build.gradle
         plugins {
-            id 'com.android.application' version '8.2.0' apply false
+            id 'com.android.application' version '8.1.4' apply false
         }
         EOF
 
-        # Create settings.gradle (without FAIL_ON_PROJECT_REPOS to prevent conflicts)
+        # Create settings.gradle
         cat << 'EOF' > android-app/settings.gradle
         pluginManagement {
             repositories {
@@ -128,6 +127,7 @@ jobs:
             }
         }
         dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
             repositories {
                 google()
                 mavenCentral()
@@ -143,7 +143,8 @@ jobs:
     - name: Build APK with Gradle
       working-directory: ./android-app
       run: |
-        chmod +x gradlew || gradle wrapper
+        gradle wrapper --gradle-version 8.0
+        chmod +x gradlew
         ./gradlew assembleDebug
 
     - name: Upload APK Artifact
