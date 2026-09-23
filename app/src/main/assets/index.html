@@ -1,431 +1,1182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
 
-<title>My Transcriber</title>
+    <meta charset="UTF-8">
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: #101114;
-    color: #ffffff;
-}
+    <title>My Transcriber</title>
 
-.container {
-    width: 100%;
-    max-width: 600px;
-    margin: auto;
-    padding: 18px;
-}
+    <style>
 
-/* Header */
-.header {
-    text-align: center;
-    padding: 15px 10px 25px;
-}
+        * {
+            box-sizing: border-box;
+        }
 
-.header h1 {
-    margin: 0;
-    font-size: 28px;
-}
+        body {
+            margin: 0;
+            padding: 0;
+            background: #101114;
+            color: #ffffff;
+            font-family:
+                Arial,
+                "Noto Sans Myanmar",
+                sans-serif;
+        }
 
-.header p {
-    margin-top: 8px;
-    color: #a9abb3;
-    font-size: 14px;
-}
+        .app {
+            min-height: 100vh;
+            padding-bottom: 30px;
+        }
 
-/* GRID UI */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-}
+        /* =========================
+           HEADER
+        ========================= */
 
-.card {
-    min-height: 145px;
-    background: #191b20;
-    border: 1px solid #2c2f36;
-    border-radius: 18px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.15s;
-}
+        .header {
+            padding: 22px 18px 18px;
+            text-align: center;
+            background: #17181c;
+            border-bottom: 1px solid #292b31;
+        }
 
-.card:active {
-    transform: scale(0.96);
-    background: #22252b;
-}
+        .header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
 
-.card-icon {
-    font-size: 38px;
-    margin-bottom: 12px;
-}
+        .header p {
+            margin: 7px 0 0;
+            color: #999da8;
+            font-size: 13px;
+        }
 
-.card-title {
-    font-size: 17px;
-    font-weight: bold;
-}
 
-.card-description {
-    font-size: 12px;
-    color: #999da7;
-    margin-top: 6px;
-}
+        /* =========================
+           TABS - SQUARE CARD UI
+        ========================= */
 
-/* Sections */
-.section {
-    display: none;
-}
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 15px;
+            background: #101114;
+            border-bottom: none;
+        }
 
-.section.active {
-    display: block;
-}
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
 
-.back-button {
-    width: 100%;
-    padding: 13px;
-    margin-bottom: 18px;
-    border: none;
-    border-radius: 12px;
-    background: #25282f;
-    color: white;
-    font-size: 15px;
-}
+        .tab-button {
+            min-height: 112px;
+            border: 1px solid #292b31;
+            border-radius: 16px;
+            padding: 12px;
+            background: #191a1f;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.15s;
 
-/* Inputs */
-label {
-    display: block;
-    margin-top: 14px;
-    margin-bottom: 7px;
-    color: #c9cbd1;
-    font-size: 14px;
-}
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
 
-input[type="text"],
-input[type="password"],
-input[type="file"],
-select {
-    width: 100%;
-    padding: 13px;
-    border-radius: 10px;
-    border: 1px solid #353841;
-    background: #181a1f;
-    color: white;
-}
+        .tab-button:active {
+            transform: scale(0.96);
+            background: #24262c;
+        }
 
-/* Buttons */
-button.action {
-    width: 100%;
-    padding: 14px;
-    margin-top: 14px;
-    border: none;
-    border-radius: 12px;
-    background: #30343c;
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
-}
+        .tab-button.active {
+            background: #24262c;
+            color: #ffffff;
+            border-color: #555963;
+        }
 
-button.action:active {
-    transform: scale(0.98);
-}
+        .tab-icon {
+            font-size: 34px;
+            line-height: 1;
+        }
 
-/* Result */
-.result {
-    margin-top: 15px;
-    padding: 15px;
-    background: #181a1f;
-    border: 1px solid #30333a;
-    border-radius: 12px;
-    white-space: pre-wrap;
-    word-break: break-word;
-    line-height: 1.6;
-}
+        .tab-title {
+            font-size: 14px;
+        }
 
-/* Progress */
-.progress {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 10px;
-    background: #202329;
-    color: #c9cbd1;
-    display: none;
-}
 
-/* Download */
-.download-button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 12px;
-    border: none;
-    border-radius: 12px;
-    background: #30343c;
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
-}
+        /* =========================
+           CONTENT
+        ========================= */
 
-/* Mobile */
-@media (max-width: 380px) {
+        .container {
+            padding: 15px;
+        }
 
-    .grid {
-        gap: 10px;
-    }
+        .tab-content {
+            display: none;
+        }
 
-    .card {
-        min-height: 130px;
-        padding: 15px;
-    }
+        .tab-content.active {
+            display: block;
+        }
 
-    .card-icon {
-        font-size: 32px;
-    }
+        .card {
+            background: #191a1f;
+            border: 1px solid #292b31;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
 
-    .card-title {
-        font-size: 15px;
-    }
-}
-</style>
+        .card h2,
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .description {
+            color: #a9adb7;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           INPUTS
+        ========================= */
+
+        input[type="password"],
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 13px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #363941;
+            border-radius: 9px;
+            background: #111216;
+            color: #ffffff;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #777b86;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 12px;
+            color: #bbbbc3;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #d7d8dd;
+            font-size: 14px;
+        }
+
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        button {
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 13px 15px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #111111;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 8px;
+            border: 1px solid #3b3e47;
+            border-radius: 10px;
+            background: #24262c;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .button-row button {
+            flex: 1;
+        }
+
+
+        /* =========================
+           RESULT
+        ========================= */
+
+        .result-box {
+            margin-top: 15px;
+            padding: 14px;
+            background: #111216;
+            border: 1px solid #33363f;
+            border-radius: 10px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 13px;
+        }
+
+        .success {
+            border-color: #2ecc71 !important;
+        }
+
+        .error {
+            border-color: #e74c3c !important;
+        }
+
+        .info {
+            border-color: #777 !important;
+        }
+
+
+        /* =========================
+           HOME FEATURES
+        ========================= */
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .feature {
+            padding: 15px;
+            margin-top: 0;
+            background: #111216;
+            border-radius: 15px;
+            border: 1px solid #292b31;
+        }
+
+        .feature-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .feature-text {
+            color: #a8abb4;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .home-feature {
+            min-height: 135px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            text-align: center;
+
+            cursor: pointer;
+
+            transition: 0.15s;
+        }
+
+        .home-feature:active {
+            transform: scale(0.96);
+            background: #202228;
+        }
+
+        .home-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+
+        /* =========================
+           FILE SELECTED BOX
+        ========================= */
+
+        .selected-file {
+            display: none;
+            margin-top: 12px;
+            padding: 13px;
+            background: #111216;
+            border: 1px solid #30323a;
+            border-radius: 10px;
+            word-break: break-word;
+        }
+
+        .selected-file-name {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .selected-file-size {
+            margin-top: 5px;
+            color: #9da1ab;
+            font-size: 12px;
+        }
+
+
+        /* =========================
+           COMPRESSOR INFO
+        ========================= */
+
+        .compress-info {
+            padding: 13px;
+            margin-top: 12px;
+            background: #111216;
+            border-radius: 10px;
+            border: 1px solid #292b31;
+            color: #aeb1ba;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .compress-info strong {
+            color: #ffffff;
+        }
+
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        .loading {
+            display: inline-block;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.45;
+            }
+
+            100% {
+                opacity: 1;
+            }
+
+        }
+
+
+        /* =========================
+           CONTACT
+        ========================= */
+
+        .telegram-button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #229ed9;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            text-align: center;
+            color: #686c76;
+            font-size: 11px;
+            padding: 20px;
+        }
+
+
+        /* =========================
+           SMALL SCREEN
+        ========================= */
+
+        @media (max-width: 360px) {
+
+            .tabs {
+                gap: 9px;
+                padding: 12px;
+            }
+
+            .tab-button {
+                min-height: 100px;
+                font-size: 13px;
+            }
+
+            .tab-icon {
+                font-size: 30px;
+            }
+
+            .home-grid {
+                gap: 9px;
+            }
+
+            .home-feature {
+                min-height: 125px;
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-<div class="container">
-
-    <!-- HOME -->
-    <div id="homeSection" class="section active">
-
-        <div class="header">
-            <h1>My Transcriber</h1>
-            <p>Audio & Video Transcription Tools</p>
-        </div>
-
-        <div class="grid">
-
-            <div class="card" onclick="showSection('groqSection')">
-                <div class="card-icon">🎙️</div>
-                <div class="card-title">Groq Whisper</div>
-                <div class="card-description">
-                    Fast transcription
-                </div>
-            </div>
-
-            <div class="card" onclick="showSection('geminiSection')">
-                <div class="card-icon">✨</div>
-                <div class="card-title">Gemini</div>
-                <div class="card-description">
-                    AI transcription
-                </div>
-            </div>
-
-            <div class="card" onclick="showSection('compressorSection')">
-                <div class="card-icon">🗜️</div>
-                <div class="card-title">Compressor</div>
-                <div class="card-description">
-                    Compress audio
-                </div>
-            </div>
-
-            <div class="card" onclick="openTelegram()">
-                <div class="card-icon">✈️</div>
-                <div class="card-title">ဆက်သွယ်ရန်</div>
-                <div class="card-description">
-                    Telegram
-                </div>
-            </div>
-
-        </div>
-
-    </div>
+<div class="app">
 
 
-    <!-- GROQ -->
-    <div id="groqSection" class="section">
+    <!-- =========================
+         HEADER
+    ========================= -->
 
-        <button class="back-button"
-                onclick="showSection('homeSection')">
-            ← Back
-        </button>
+    <div class="header">
 
-        <h2>🎙️ Groq Whisper</h2>
+        <h1>
+            My Transcriber
+        </h1>
 
-        <label>Groq API Key</label>
-
-        <input
-            type="password"
-            id="groqApiKey"
-            placeholder="Enter Groq API Key">
-
-        <label>Audio / Video File</label>
-
-        <input
-            type="file"
-            id="groqFile"
-            accept="audio/*,video/*">
-
-        <button
-            class="action"
-            onclick="transcribeGroq(true)">
-            🕒 Timestamp
-        </button>
-
-        <button
-            class="action"
-            onclick="transcribeGroq(false)">
-            💬 Dialogue
-        </button>
-
-        <div id="groqResult"
-             class="result"
-             style="display:none;"></div>
-
-    </div>
-
-
-    <!-- GEMINI -->
-    <div id="geminiSection" class="section">
-
-        <button class="back-button"
-                onclick="showSection('homeSection')">
-            ← Back
-        </button>
-
-        <h2>✨ Gemini</h2>
-
-        <label>Gemini API Key</label>
-
-        <input
-            type="password"
-            id="geminiApiKey"
-            placeholder="Enter Gemini API Key">
-
-        <label>Audio / Video File</label>
-
-        <input
-            type="file"
-            id="geminiFile"
-            accept="audio/*,video/*">
-
-        <button
-            class="action"
-            onclick="transcribeGemini(true)">
-            🕒 Timestamp
-        </button>
-
-        <button
-            class="action"
-            onclick="transcribeGemini(false)">
-            💬 Dialogue
-        </button>
-
-        <div id="geminiResult"
-             class="result"
-             style="display:none;"></div>
-
-    </div>
-
-
-    <!-- COMPRESSOR -->
-    <div id="compressorSection" class="section">
-
-        <button class="back-button"
-                onclick="showSection('homeSection')">
-            ← Back
-        </button>
-
-        <h2>🗜️ Audio Compressor</h2>
-
-        <p style="color:#999da7;font-size:14px;">
-            Video input will be converted to audio only.
+        <p>
+            Audio & Video Transcription Tool
         </p>
 
-        <button
-            class="action"
-            onclick="selectCompressorFile()">
-            📁 Select Audio / Video
-        </button>
+    </div>
 
-        <div id="compressFileName"
-             class="result"
-             style="display:none;">
-        </div>
 
-        <label>Bitrate</label>
+    <!-- =========================
+         TABS
+    ========================= -->
 
-        <select id="compressBitrate">
-            <option value="48">48 kbps</option>
-            <option value="64">64 kbps</option>
-            <option value="96">96 kbps</option>
-            <option value="128">128 kbps</option>
-        </select>
+    <div class="tabs">
 
         <button
-            class="action"
-            onclick="compressAudio()">
-            🗜️ Compress Audio
+            class="tab-button active"
+            onclick="openTab('home', this)"
+        >
+
+            <span class="tab-icon">
+                🏠
+            </span>
+
+            <span class="tab-title">
+                Home
+            </span>
+
         </button>
 
-        <div id="compressProgress"
-             class="progress">
+
+        <button
+            class="tab-button"
+            onclick="openTab('groq', this)"
+        >
+
+            <span class="tab-icon">
+                🎤
+            </span>
+
+            <span class="tab-title">
+                Groq Whisper
+            </span>
+
+        </button>
+
+
+        <button
+            class="tab-button"
+            onclick="openTab('gemini', this)"
+        >
+
+            <span class="tab-icon">
+                ✨
+            </span>
+
+            <span class="tab-title">
+                Gemini
+            </span>
+
+        </button>
+
+
+        <button
+            class="tab-button"
+            onclick="openTab('compressor', this)"
+        >
+
+            <span class="tab-icon">
+                🗜️
+            </span>
+
+            <span class="tab-title">
+                Compressor
+            </span>
+
+        </button>
+
+
+        <button
+            class="tab-button"
+            onclick="openTab('contact', this)"
+        >
+
+            <span class="tab-icon">
+                ✈️
+            </span>
+
+            <span class="tab-title">
+                ဆက်သွယ်ရန်
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <div class="container">
+
+
+        <!-- =====================================================
+             HOME
+        ====================================================== -->
+
+        <div
+            id="home"
+            class="tab-content active"
+        >
+
+            <div class="card">
+
+                <h2 style="text-align:center;">
+                    🎙️ My Transcriber
+                </h2>
+
+                <p
+                    class="description"
+                    style="text-align:center;"
+                >
+
+                    Audio / Video ဖိုင်တွေကို
+                    Text အဖြစ် ပြောင်းနိုင်ပါတယ်။
+
+                </p>
+
+            </div>
+
+
+            <div class="home-grid">
+
+
+                <!-- GROQ CARD -->
+
+                <div
+                    class="feature home-feature"
+                    onclick="openTab(
+                        'groq',
+                        document.querySelectorAll('.tab-button')[1]
+                    )"
+                >
+
+                    <div class="home-icon">
+                        🎤
+                    </div>
+
+                    <div class="feature-title">
+                        Groq Whisper
+                    </div>
+
+                    <div class="feature-text">
+                        Fast transcription
+                    </div>
+
+                </div>
+
+
+                <!-- GEMINI CARD -->
+
+                <div
+                    class="feature home-feature"
+                    onclick="openTab(
+                        'gemini',
+                        document.querySelectorAll('.tab-button')[2]
+                    )"
+                >
+
+                    <div class="home-icon">
+                        ✨
+                    </div>
+
+                    <div class="feature-title">
+                        Gemini
+                    </div>
+
+                    <div class="feature-text">
+                        AI transcription
+                    </div>
+
+                </div>
+
+
+                <!-- COMPRESSOR CARD -->
+
+                <div
+                    class="feature home-feature"
+                    onclick="openTab(
+                        'compressor',
+                        document.querySelectorAll('.tab-button')[3]
+                    )"
+                >
+
+                    <div class="home-icon">
+                        🗜️
+                    </div>
+
+                    <div class="feature-title">
+                        Compressor
+                    </div>
+
+                    <div class="feature-text">
+                        Compress Audio
+                    </div>
+
+                </div>
+
+
+                <!-- CONTACT CARD -->
+
+                <div
+                    class="feature home-feature"
+                    onclick="openTelegram()"
+                >
+
+                    <div class="home-icon">
+                        ✈️
+                    </div>
+
+                    <div class="feature-title">
+                        ဆက်သွယ်ရန်
+                    </div>
+
+                    <div class="feature-text">
+                        Telegram
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div
+                class="description"
+                style="
+                    text-align:center;
+                    margin-top:20px;
+                "
+            >
+
+                My Transcriber
+
+            </div>
+
         </div>
 
-        <div id="compressResult"
-             class="result"
-             style="display:none;">
+
+        <!-- =====================================================
+             GROQ WHISPER
+        ====================================================== -->
+
+        <div
+            id="groq"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+                <h3>
+                    🎤 Groq Whisper
+                </h3>
+
+                <p class="description">
+
+                    Groq Whisper API ဖြင့် Audio / Video
+                    transcription ပြုလုပ်ပါ။
+
+                </p>
+
+
+                <label>
+                    Groq API Key
+                </label>
+
+                <input
+                    type="password"
+                    id="groqApiKey"
+                    placeholder="gsk_..."
+                >
+
+
+                <label>
+                    Audio / Video File
+                </label>
+
+                <input
+                    type="file"
+                    id="groqFile"
+                    accept="audio/*,video/*"
+                >
+
+
+                <div class="button-row">
+
+                    <button
+                        class="btn-secondary"
+                        onclick="groqTranscribe('timestamp')"
+                    >
+
+                        🕒 Timestamp
+
+                    </button>
+
+
+                    <button
+                        class="btn-secondary"
+                        onclick="groqTranscribe('dialogue')"
+                    >
+
+                        💬 Dialogue
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="groqResult"
+                    class="result-box"
+                    style="display:none;"
+                >
+                </div>
+
+            </div>
+
         </div>
 
-        <div id="downloadArea"></div>
+
+        <!-- =====================================================
+             GEMINI
+        ====================================================== -->
+
+        <div
+            id="gemini"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+                <h3>
+                    ✨ Gemini
+                </h3>
+
+                <p class="description">
+
+                    Gemini API အသုံးပြုပြီး
+                    Audio / Video transcription
+                    ပြုလုပ်ပါ။
+
+                </p>
+
+
+                <label>
+                    Gemini API Key
+                </label>
+
+                <input
+                    type="password"
+                    id="geminiApiKey"
+                    placeholder="AIza..."
+                >
+
+
+                <label>
+                    Audio / Video File
+                </label>
+
+                <input
+                    type="file"
+                    id="geminiFile"
+                    accept="audio/*,video/*"
+                >
+
+
+                <div class="button-row">
+
+                    <button
+                        class="btn-secondary"
+                        onclick="geminiTranscribe('timestamp')"
+                    >
+
+                        🕒 Timestamp
+
+                    </button>
+
+
+                    <button
+                        class="btn-secondary"
+                        onclick="geminiTranscribe('dialogue')"
+                    >
+
+                        💬 Dialogue
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="geminiResult"
+                    class="result-box"
+                    style="display:none;"
+                >
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             COMPRESSOR
+        ====================================================== -->
+
+        <div
+            id="compressor"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+                <h3>
+                    🗜️ Audio Compressor
+                </h3>
+
+
+                <p class="description">
+
+                    Video သို့မဟုတ် Audio ဖိုင်ထည့်ပါ။
+                    Output က <strong>Audio သာ</strong> ထွက်ပါမယ်။
+
+                </p>
+
+
+                <!-- FILE SELECT -->
+
+                <button
+                    class="btn-primary"
+                    onclick="selectCompressorFile()"
+                >
+
+                    📁 Video / Audio ရွေးမည်
+
+                </button>
+
+
+                <!-- SELECTED FILE -->
+
+                <div
+                    id="selectedCompressFile"
+                    class="selected-file"
+                >
+
+                    <div
+                        id="selectedCompressFileName"
+                        class="selected-file-name"
+                    >
+                    </div>
+
+
+                    <div
+                        id="selectedCompressFileSize"
+                        class="selected-file-size"
+                    >
+                    </div>
+
+                </div>
+
+
+                <!-- BITRATE -->
+
+                <label>
+                    Audio Quality
+                </label>
+
+
+                <select
+                    id="compressBitrate"
+                >
+
+                    <option value="48">
+                        48 kbps — Size အနည်းဆုံး
+                    </option>
+
+                    <option
+                        value="64"
+                        selected
+                    >
+                        64 kbps — Recommended
+                    </option>
+
+                    <option value="96">
+                        96 kbps — Quality ပိုကောင်း
+                    </option>
+
+                    <option value="128">
+                        128 kbps — Quality မြင့်
+                    </option>
+
+                </select>
+
+
+                <!-- INFO -->
+
+                <div class="compress-info">
+
+                    <strong>
+                        Output:
+                    </strong>
+
+                    Audio only (.mp4)
+
+                    <br>
+
+                    <strong>
+                        Video input:
+                    </strong>
+
+                    Video track ဖယ်ပြီး
+                    Audio သာထုတ်မယ်
+
+                    <br>
+
+                    <strong>
+                        Audio input:
+                    </strong>
+
+                    AAC နဲ့ ပြန် encode လုပ်မယ်
+
+                    <br>
+
+                    <strong>
+                        Safety:
+                    </strong>
+
+                    Output size က input ထက် မလျော့ရင်
+                    successful compression အဖြစ် မသတ်မှတ်ပါ။
+
+                </div>
+
+
+                <!-- COMPRESS BUTTON -->
+
+                <button
+                    id="compressButton"
+                    class="btn-primary"
+                    onclick="runCompressor()"
+                    disabled
+                >
+
+                    🗜️ Audio ကို ချုံ့မည်
+
+                </button>
+
+
+                <!-- RESULT -->
+
+                <div
+                    id="compressResult"
+                    class="result-box"
+                    style="display:none;"
+                >
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             CONTACT
+        ====================================================== -->
+
+        <div
+            id="contact"
+            class="tab-content"
+        >
+
+            <div class="card">
+
+                <h3>
+                    📱 Contact
+                </h3>
+
+
+                <p class="description">
+
+                    App အကြောင်းအရာ၊ Error သို့မဟုတ်
+                    Feature request များအတွက် ဆက်သွယ်နိုင်ပါတယ်။
+
+                </p>
+
+
+                <button
+                    class="telegram-button"
+                    onclick="openTelegram()"
+                >
+
+                    ✈️ Telegram မှ ဆက်သွယ်ရန်
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        My Transcriber
 
     </div>
 
 </div>
 
 
+
 <script>
 
-/* =========================
-   NAVIGATION
-========================= */
+/* =========================================================
+   TAB SYSTEM
+========================================================= */
 
-function showSection(id) {
+function openTab(
+    tabId,
+    button
+) {
 
-    document
-        .querySelectorAll(".section")
-        .forEach(function(section) {
-            section.classList.remove("active");
-        });
+    const tabs =
+        document.querySelectorAll(
+            ".tab-content"
+        );
 
-    document
-        .getElementById(id)
-        .classList.add("active");
 
-    window.scrollTo(0, 0);
+    tabs.forEach(
+        function(tab) {
+
+            tab.classList.remove(
+                "active"
+            );
+
+        }
+    );
+
+
+    const buttons =
+        document.querySelectorAll(
+            ".tab-button"
+        );
+
+
+    buttons.forEach(
+        function(btn) {
+
+            btn.classList.remove(
+                "active"
+            );
+
+        }
+    );
+
+
+    const selected =
+        document.getElementById(
+            tabId
+        );
+
+
+    if (selected) {
+
+        selected.classList.add(
+            "active"
+        );
+
+    }
+
+
+    if (button) {
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
 }
 
 
-/* =========================
+/* =========================================================
    TELEGRAM
-========================= */
+========================================================= */
 
 function openTelegram() {
 
-    if (window.AndroidBridge &&
-        window.AndroidBridge.openTelegram) {
+    if (
+        window.AndroidBridge &&
+        typeof AndroidBridge.openTelegram ===
+        "function"
+    ) {
 
         AndroidBridge.openTelegram();
 
@@ -435,393 +1186,458 @@ function openTelegram() {
             "https://t.me/liamliam131999",
             "_blank"
         );
+
     }
+
 }
 
 
-/* =========================
-   GROQ
-========================= */
+/* =========================================================
+   FORMAT BYTES
+========================================================= */
 
-async function transcribeGroq(timestampMode) {
+function formatBytes(
+    bytes
+) {
 
-    const apiKey =
-        document.getElementById("groqApiKey").value.trim();
+    if (
+        !bytes ||
+        bytes <= 0
+    ) {
 
-    const fileInput =
-        document.getElementById("groqFile");
+        return "0 MB";
 
-    const result =
-        document.getElementById("groqResult");
-
-    if (!apiKey) {
-        alert("Groq API Key ထည့်ပါ။");
-        return;
     }
 
-    if (!fileInput.files.length) {
-        alert("Audio / Video file ရွေးပါ။");
-        return;
-    }
 
-    const file = fileInput.files[0];
+    if (
+        bytes < 1024
+    ) {
 
-    if (file.size > 25 * 1024 * 1024) {
-        alert("File size သည် 25MB ထက် မကျော်ရပါ။");
-        return;
-    }
-
-    result.style.display = "block";
-    result.innerHTML = "Transcribing...";
-
-    try {
-
-        const formData = new FormData();
-
-        formData.append("file", file);
-        formData.append(
-            "model",
-            "whisper-large-v3"
-        );
-        formData.append(
-            "response_format",
-            "verbose_json"
+        return (
+            bytes +
+            " Bytes"
         );
 
-        const response = await fetch(
-            "https://api.groq.com/openai/v1/audio/transcriptions",
-            {
-                method: "POST",
-                headers: {
-                    "Authorization":
-                        "Bearer " + apiKey
-                },
-                body: formData
-            }
+    }
+
+
+    if (
+        bytes <
+        1024 * 1024
+    ) {
+
+        return (
+            (
+                bytes /
+                1024
+            ).toFixed(1) +
+            " KB"
         );
 
-        const data = await response.json();
+    }
 
-        if (!response.ok) {
-            throw new Error(
-                data.error?.message ||
-                "Groq API Error"
-            );
-        }
 
-        let output = "";
+    return (
+        (
+            bytes /
+            1024 /
+            1024
+        ).toFixed(2) +
+        " MB"
+    );
 
-        if (timestampMode && data.segments) {
+}
 
-            data.segments.forEach(function(segment) {
 
-                const seconds =
-                    Math.floor(segment.start || 0);
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
 
-                const minutes =
-                    Math.floor(seconds / 60);
+function escapeHtml(
+    text
+) {
 
-                const secs =
-                    seconds % 60;
-
-                const time =
-                    "[" +
-                    String(minutes).padStart(2, "0") +
-                    ":" +
-                    String(secs).padStart(2, "0") +
-                    "]";
-
-                output +=
-                    time +
-                    " " +
-                    segment.text.trim() +
-                    "\n";
-            });
-
-        } else {
-
-            output =
-                data.text || "";
-        }
-
-        showResult(
-            result,
-            output
+    const div =
+        document.createElement(
+            "div"
         );
 
-    } catch (error) {
 
-        result.innerHTML =
-            escapeHtml(
-                error.message || "Unknown error"
-            );
-    }
+    div.textContent =
+        text;
+
+
+    return div.innerHTML;
+
 }
 
 
-/* =========================
-   GEMINI
-========================= */
-
-async function transcribeGemini(timestampMode) {
-
-    const apiKey =
-        document.getElementById("geminiApiKey")
-            .value.trim();
-
-    const fileInput =
-        document.getElementById("geminiFile");
-
-    const result =
-        document.getElementById("geminiResult");
-
-    if (!apiKey) {
-        alert("Gemini API Key ထည့်ပါ။");
-        return;
-    }
-
-    if (!fileInput.files.length) {
-        alert("Audio / Video file ရွေးပါ။");
-        return;
-    }
-
-    const file =
-        fileInput.files[0];
-
-    result.style.display = "block";
-    result.innerHTML = "Transcribing...";
-
-    try {
-
-        const base64 =
-            await fileToBase64(file);
-
-        const prompt =
-            timestampMode
-                ? "Transcribe this audio accurately with timestamps in [mm:ss] format."
-                : "Transcribe this audio accurately as dialogue.";
-
-        const response =
-            await fetch(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
-                encodeURIComponent(apiKey),
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        contents: [
-                            {
-                                parts: [
-                                    {
-                                        text: prompt
-                                    },
-                                    {
-                                        inline_data: {
-                                            mime_type:
-                                                file.type,
-                                            data:
-                                                base64
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    })
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.error?.message ||
-                "Gemini API Error"
-            );
-        }
-
-        const text =
-            data.candidates?.[0]
-                ?.content?.parts?.[0]
-                ?.text || "";
-
-        showResult(
-            result,
-            text
-        );
-
-    } catch (error) {
-
-        result.innerHTML =
-            escapeHtml(
-                error.message ||
-                "Unknown error"
-            );
-    }
-}
-
-
-/* =========================
-   FILE TO BASE64
-========================= */
-
-function fileToBase64(file) {
-
-    return new Promise(function(resolve, reject) {
-
-        const reader =
-            new FileReader();
-
-        reader.onload = function() {
-
-            const result =
-                reader.result;
-
-            const base64 =
-                result.split(",")[1];
-
-            resolve(base64);
-        };
-
-        reader.onerror = reject;
-
-        reader.readAsDataURL(file);
-    });
-}
-
-
-/* =========================
-   RESULT
-========================= */
-
-function showResult(element, text) {
-
-    element.style.display = "block";
-
-    element.innerHTML =
-        escapeHtml(text)
-            .replace(/\n/g, "<br>");
-}
-
-
-function escapeHtml(text) {
-
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/* =========================
+/* =========================================================
    COMPRESSOR
-========================= */
+========================================================= */
+
+let compressorFileSelected =
+    false;
+
+
+let compressorOriginalSize =
+    0;
+
+
+/*
+ * Android native file picker
+ */
 
 function selectCompressorFile() {
 
-    if (window.AndroidBridge &&
-        AndroidBridge.selectCompressorFile) {
+    if (
+        window.AndroidBridge &&
+        typeof AndroidBridge.selectCompressorFile ===
+        "function"
+    ) {
 
         AndroidBridge.selectCompressorFile();
 
-    } else {
+        return;
 
-        showCompressResult(
-            false,
-            "Android file picker မရရှိပါ။",
-            0,
-            0
-        );
     }
+
+
+    showCompressResult(
+        "❌ Android File Picker မတွေ့ပါ။",
+        false
+    );
+
 }
 
 
-window.onNativeFileSelected =
-    function(name, size) {
+/*
+ * Android က file ရွေးပြီးတဲ့အခါ
+ */
 
-        const box =
+window.onNativeFileSelected =
+    function(
+        name,
+        size
+    ) {
+
+        compressorFileSelected =
+            true;
+
+
+        compressorOriginalSize =
+            Number(size) || 0;
+
+
+        showSelectedCompressorFile(
+            name,
+            compressorOriginalSize
+        );
+
+
+        const button =
             document.getElementById(
-                "compressFileName"
+                "compressButton"
             );
 
-        box.style.display = "block";
 
-        box.innerHTML =
-            "📁 " +
-            escapeHtml(name) +
-            "<br><br>" +
-            "Size: " +
-            formatSize(size);
+        if (button) {
+
+            button.disabled =
+                false;
+
+
+            button.innerText =
+                "🗜️ Audio ကို ချုံ့မည်";
+
+        }
+
+
+        const result =
+            document.getElementById(
+                "compressResult"
+            );
+
+
+        if (result) {
+
+            result.style.display =
+                "none";
+
+
+            result.innerHTML =
+                "";
+
+
+            result.classList.remove(
+                "success",
+                "error",
+                "info"
+            );
+
+        }
+
     };
 
 
-function compressAudio() {
+function showSelectedCompressorFile(
+    name,
+    size
+) {
+
+    const box =
+        document.getElementById(
+            "selectedCompressFile"
+        );
+
+
+    const nameBox =
+        document.getElementById(
+            "selectedCompressFileName"
+        );
+
+
+    const sizeBox =
+        document.getElementById(
+            "selectedCompressFileSize"
+        );
+
+
+    if (!box) {
+
+        return;
+
+    }
+
+
+    box.style.display =
+        "block";
+
+
+    if (nameBox) {
+
+        nameBox.innerHTML =
+            "📄 " +
+            escapeHtml(
+                name
+            );
+
+    }
+
+
+    if (sizeBox) {
+
+        sizeBox.innerHTML =
+            "📦 Size: " +
+            formatBytes(
+                size
+            );
+
+    }
+
+}
+
+
+/*
+ * Start compression
+ */
+
+function runCompressor() {
+
+    if (
+        !compressorFileSelected
+    ) {
+
+        showCompressResult(
+            "❌ အရင်ဆုံး Video သို့မဟုတ် Audio ဖိုင်ရွေးပါ။",
+            false
+        );
+
+
+        return;
+
+    }
+
+
+    const bitrateElement =
+        document.getElementById(
+            "compressBitrate"
+        );
+
 
     const bitrate =
         parseInt(
-            document.getElementById(
-                "compressBitrate"
-            ).value
+            bitrateElement.value,
+            10
         );
 
-    if (window.AndroidBridge &&
-        AndroidBridge.compressAudio) {
 
-        const progress =
-            document.getElementById(
-                "compressProgress"
-            );
+    const button =
+        document.getElementById(
+            "compressButton"
+        );
 
-        progress.style.display = "block";
 
-        progress.innerText =
-            "Audio ကို ချုံ့နေပါတယ်...";
+    button.disabled =
+        true;
+
+
+    button.innerHTML =
+        '<span class="loading">' +
+        '⏳ Audio ချုံ့နေပါတယ်...' +
+        '</span>';
+
+
+    showCompressResult(
+        "⏳ Audio ကို ချုံ့နေပါတယ်..." +
+        "<br><br>" +
+        "Video ဖြစ်ရင် Video track ကို ဖယ်ပြီး" +
+        "<br>" +
+        "Audio track တစ်ခုတည်းကို compressed လုပ်ပါမယ်။",
+        true
+    );
+
+
+    if (
+        window.AndroidBridge &&
+        typeof AndroidBridge.compressAudio ===
+        "function"
+    ) {
 
         AndroidBridge.compressAudio(
             bitrate
         );
 
-    } else {
 
-        showCompressResult(
-            false,
-            "Android compressor မရရှိပါ။",
-            0,
-            0
-        );
+        return;
+
     }
+
+
+    button.disabled =
+        false;
+
+
+    button.innerText =
+        "🗜️ Audio ကို ချုံ့မည်";
+
+
+    showCompressResult(
+        "❌ Android Compressor မတွေ့ပါ။" +
+        "<br>" +
+        "MainActivity.java ကို စစ်ဆေးပါ။",
+        false
+    );
+
 }
 
 
-/* =========================
+/* =========================================================
    COMPRESSION PROGRESS
-========================= */
+========================================================= */
 
 window.onCompressionProgress =
-    function(message) {
+    function(
+        message
+    ) {
 
-        const progress =
-            document.getElementById(
-                "compressProgress"
-            );
+        showCompressResult(
+            "⏳ " +
+            escapeHtml(
+                message
+            ),
+            true
+        );
 
-        progress.style.display = "block";
-
-        progress.innerText =
-            message;
     };
 
 
-/* =========================
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+function downloadCompressedFile(
+    outputPath
+) {
+
+    if (!outputPath) {
+
+        showCompressResult(
+            "❌ Download လုပ်မယ့် file မတွေ့ပါ။",
+            false
+        );
+
+
+        return;
+
+    }
+
+
+    if (
+        window.AndroidBridge &&
+        typeof AndroidBridge.downloadCompressedFile ===
+        "function"
+    ) {
+
+        AndroidBridge.downloadCompressedFile(
+            outputPath
+        );
+
+
+        return;
+
+    }
+
+
+    showCompressResult(
+        "❌ Android Download function မတွေ့ပါ။",
+        false
+    );
+
+}
+
+
+/* =========================================================
+   DOWNLOAD FINISHED
+========================================================= */
+
+window.onDownloadFinished =
+    function(
+        success,
+        message
+    ) {
+
+        if (success) {
+
+            showCompressResult(
+                "✅ " +
+                escapeHtml(
+                    message
+                ),
+                true
+            );
+
+
+        } else {
+
+            showCompressResult(
+                "❌ Download မအောင်မြင်ပါ။" +
+                "<br><br>" +
+                escapeHtml(
+                    message
+                ),
+                false
+            );
+
+        }
+
+    };
+
+
+/* =========================================================
    COMPRESSION FINISHED
-========================= */
+========================================================= */
 
 window.onCompressionFinished =
     function(
@@ -832,151 +1648,841 @@ window.onCompressionFinished =
         outputPath
     ) {
 
-        const progress =
+        const button =
             document.getElementById(
-                "compressProgress"
+                "compressButton"
             );
 
-        progress.style.display =
-            "none";
 
-        showCompressResult(
-            success,
-            message,
-            originalSize,
-            compressedSize
-        );
+        if (button) {
 
-        const downloadArea =
-            document.getElementById(
-                "downloadArea"
-            );
+            button.disabled =
+                false;
 
-        downloadArea.innerHTML = "";
-
-        if (success &&
-            outputPath) {
-
-            const button =
-                document.createElement(
-                    "button"
-                );
-
-            button.className =
-                "download-button";
 
             button.innerText =
-                "⬇️ Download Audio";
+                "🗜️ Audio ကို ချုံ့မည်";
 
-            button.onclick =
-                function() {
-
-                    downloadCompressedFile(
-                        outputPath
-                    );
-                };
-
-            downloadArea.appendChild(
-                button
-            );
         }
-    };
 
-
-/* =========================
-   DOWNLOAD
-========================= */
-
-function downloadCompressedFile(
-    outputPath
-) {
-
-    if (window.AndroidBridge &&
-        AndroidBridge.downloadCompressedFile) {
-
-        AndroidBridge.downloadCompressedFile(
-            outputPath
-        );
-
-    } else {
-
-        showDownloadFinished(
-            false,
-            "Download function မရရှိပါ။"
-        );
-    }
-}
-
-
-window.onDownloadFinished =
-    function(success, message) {
 
         if (success) {
 
-            alert(
-                "✅ " + message
+            const oldSize =
+                Number(
+                    originalSize
+                );
+
+
+            const newSize =
+                Number(
+                    compressedSize
+                );
+
+
+            let savedText =
+                "";
+
+
+            if (
+                oldSize > 0 &&
+                newSize > 0 &&
+                newSize < oldSize
+            ) {
+
+                const saved =
+                    oldSize -
+                    newSize;
+
+
+                const percent =
+                    (
+                        saved *
+                        100 /
+                        oldSize
+                    ).toFixed(1);
+
+
+                savedText =
+                    "<br><br>" +
+                    "📉 လျော့သွားသောပမာဏ: " +
+                    formatBytes(
+                        saved
+                    ) +
+                    "<br>" +
+                    "📊 လျော့သွားမှု: " +
+                    percent +
+                    "%";
+
+            }
+
+
+            showCompressResult(
+                "✅ Compression ပြီးပါပြီ။" +
+                "<br><br>" +
+                "📦 မူရင်း Size: " +
+                formatBytes(
+                    oldSize
+                ) +
+                "<br>" +
+                "🎧 အသစ် Size: " +
+                formatBytes(
+                    newSize
+                ) +
+                savedText +
+                "<br><br>" +
+                "🎵 Output: Compressed Audio",
+                true
             );
 
-        } else {
 
-            alert(
-                "❌ " + message
-            );
+            if (outputPath) {
+
+                const resultBox =
+                    document.getElementById(
+                        "compressResult"
+                    );
+
+
+                if (resultBox) {
+
+                    const br1 =
+                        document.createElement(
+                            "br"
+                        );
+
+
+                    const br2 =
+                        document.createElement(
+                            "br"
+                        );
+
+
+                    const downloadButton =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    downloadButton.className =
+                        "btn-primary";
+
+
+                    downloadButton.innerText =
+                        "⬇️ Download Audio";
+
+
+                    downloadButton.onclick =
+                        function() {
+
+                            downloadCompressedFile(
+                                outputPath
+                            );
+
+                        };
+
+
+                    resultBox.appendChild(
+                        br1
+                    );
+
+
+                    resultBox.appendChild(
+                        br2
+                    );
+
+
+                    resultBox.appendChild(
+                        downloadButton
+                    );
+
+                }
+
+            }
+
+
+            return;
+
         }
+
+
+        showCompressResult(
+            "❌ Compression မအောင်မြင်ပါ။" +
+            "<br><br>" +
+            escapeHtml(
+                message
+            ),
+            false
+        );
+
     };
 
 
-/* =========================
-   COMPRESS RESULT
-========================= */
+/* =========================================================
+   SHOW COMPRESS RESULT
+========================================================= */
 
 function showCompressResult(
-    success,
     message,
-    originalSize,
-    compressedSize
+    success
 ) {
 
-    const result =
+    const box =
         document.getElementById(
             "compressResult"
         );
 
-    result.style.display = "block";
+
+    if (!box) {
+
+        return;
+
+    }
+
+
+    box.style.display =
+        "block";
+
+
+    box.innerHTML =
+        message;
+
+
+    box.classList.remove(
+        "success",
+        "error",
+        "info"
+    );
+
+
+    if (success) {
+
+        box.classList.add(
+            "success"
+        );
+
+    } else {
+
+        box.classList.add(
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GROQ WHISPER
+========================================================= */
+
+async function groqTranscribe(
+    mode
+) {
+
+    const apiKey =
+        document.getElementById(
+            "groqApiKey"
+        ).value.trim();
+
+
+    const file =
+        document.getElementById(
+            "groqFile"
+        ).files[0];
+
+
+    const result =
+        document.getElementById(
+            "groqResult"
+        );
+
+
+    if (!apiKey) {
+
+        showResult(
+            result,
+            "❌ Groq API Key ထည့်ပါ။",
+            false
+        );
+
+
+        return;
+
+    }
+
+
+    if (!file) {
+
+        showResult(
+            result,
+            "❌ Audio/Video ဖိုင်ရွေးပါ။",
+            false
+        );
+
+
+        return;
+
+    }
+
+
+    if (
+        file.size >
+        25 * 1024 * 1024
+    ) {
+
+        showResult(
+            result,
+            "❌ File size က 25 MB ကျော်နေပါတယ်။\n" +
+            "Compressor ထဲမှာ အရင်ချုံ့ပါ။",
+            false
+        );
+
+
+        return;
+
+    }
+
+
+    result.style.display =
+        "block";
+
+
+    result.className =
+        "result-box info";
+
 
     result.innerHTML =
-        (success ? "✅ " : "❌ ") +
-        escapeHtml(message);
+        "⏳ Groq Whisper transcription လုပ်နေပါတယ်...";
+
+
+    try {
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "file",
+            file
+        );
+
+
+        formData.append(
+            "model",
+            "whisper-large-v3"
+        );
+
+
+        formData.append(
+            "response_format",
+            "verbose_json"
+        );
+
+
+        const response =
+            await fetch(
+                "https://api.groq.com/openai/v1/audio/transcriptions",
+                {
+                    method: "POST",
+
+                    headers: {
+
+                        "Authorization":
+                            "Bearer " +
+                            apiKey
+
+                    },
+
+                    body:
+                        formData
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error &&
+                data.error.message
+                    ? data.error.message
+                    : "Groq API Error"
+            );
+
+        }
+
+
+        let output =
+            "";
+
+
+        if (
+            mode ===
+            "timestamp"
+        ) {
+
+            if (
+                data.segments &&
+                data.segments.length
+            ) {
+
+                data.segments.forEach(
+                    function(
+                        segment
+                    ) {
+
+                        const start =
+                            Number(
+                                segment.start
+                            );
+
+
+                        const minutes =
+                            Math.floor(
+                                start / 60
+                            );
+
+
+                        const seconds =
+                            Math.floor(
+                                start % 60
+                            );
+
+
+                        const time =
+                            "[" +
+                            String(
+                                minutes
+                            ).padStart(
+                                2,
+                                "0"
+                            ) +
+                            ":" +
+                            String(
+                                seconds
+                            ).padStart(
+                                2,
+                                "0"
+                            ) +
+                            "]";
+
+
+                        output +=
+                            time +
+                            " " +
+                            segment.text.trim() +
+                            "\n";
+
+                    }
+                );
+
+            } else {
+
+                output =
+                    data.text ||
+                    "";
+
+            }
+
+        } else {
+
+            output =
+                data.text ||
+                "";
+
+        }
+
+
+        showResult(
+            result,
+            output ||
+            "စာသားမရပါ။",
+            true
+        );
+
+
+    } catch (error) {
+
+        showResult(
+            result,
+            "❌ Groq Error:\n" +
+            error.message,
+            false
+        );
+
+    }
+
 }
 
 
-/* =========================
-   SIZE FORMAT
-========================= */
+/* =========================================================
+   GEMINI
+========================================================= */
 
-function formatSize(bytes) {
+async function geminiTranscribe(
+    mode
+) {
 
-    if (!bytes || bytes <= 0) {
-        return "0 MB";
+    const apiKey =
+        document.getElementById(
+            "geminiApiKey"
+        ).value.trim();
+
+
+    const file =
+        document.getElementById(
+            "geminiFile"
+        ).files[0];
+
+
+    const result =
+        document.getElementById(
+            "geminiResult"
+        );
+
+
+    if (!apiKey) {
+
+        showResult(
+            result,
+            "❌ Gemini API Key ထည့်ပါ။",
+            false
+        );
+
+
+        return;
+
     }
 
-    const mb =
-        bytes / 1024 / 1024;
 
-    if (mb < 1) {
+    if (!file) {
 
-        const kb =
-            bytes / 1024;
+        showResult(
+            result,
+            "❌ Audio/Video ဖိုင်ရွေးပါ။",
+            false
+        );
 
-        return kb.toFixed(1) +
-            " KB";
+
+        return;
+
     }
 
-    return mb.toFixed(2) +
-        " MB";
+
+    result.style.display =
+        "block";
+
+
+    result.className =
+        "result-box info";
+
+
+    result.innerHTML =
+        "⏳ Gemini transcription လုပ်နေပါတယ်...";
+
+
+    try {
+
+        const base64 =
+            await fileToBase64(
+                file
+            );
+
+
+        let prompt =
+            "";
+
+
+        if (
+            mode ===
+            "timestamp"
+        ) {
+
+            prompt =
+                "Transcribe this audio or video accurately. " +
+                "Return the transcript with timestamps in [MM:SS] format. " +
+                "Do not add explanations.";
+
+        } else {
+
+            prompt =
+                "Transcribe this audio or video accurately. " +
+                "Return only the spoken dialogue as text. " +
+                "Do not add explanations.";
+
+        }
+
+
+        const url =
+            "https://generativelanguage.googleapis.com/" +
+            "v1beta/models/gemini-1.5-flash:generateContent" +
+            "?key=" +
+            encodeURIComponent(
+                apiKey
+            );
+
+
+        const body = {
+
+            contents: [
+
+                {
+
+                    parts: [
+
+                        {
+                            text:
+                                prompt
+                        },
+
+                        {
+
+                            inline_data: {
+
+                                mime_type:
+                                    file.type ||
+                                    "application/octet-stream",
+
+                                data:
+                                    base64
+
+                            }
+
+                        }
+
+                    ]
+
+                }
+
+            ]
+
+        };
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            body
+                        )
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error &&
+                data.error.message
+                    ? data.error.message
+                    : "Gemini API Error"
+            );
+
+        }
+
+
+        let output =
+            "";
+
+
+        if (
+            data.candidates &&
+            data.candidates.length &&
+            data.candidates[0].content &&
+            data.candidates[0].content.parts
+        ) {
+
+            data.candidates[0]
+                .content
+                .parts
+                .forEach(
+                    function(
+                        part
+                    ) {
+
+                        if (
+                            part.text
+                        ) {
+
+                            output +=
+                                part.text;
+
+                        }
+
+                    }
+                );
+
+        }
+
+
+        showResult(
+            result,
+            output ||
+            "စာသားမရပါ။",
+            true
+        );
+
+
+    } catch (error) {
+
+        showResult(
+            result,
+            "❌ Gemini Error:\n" +
+            error.message,
+            false
+        );
+
+    }
+
 }
+
+
+/* =========================================================
+   FILE TO BASE64
+========================================================= */
+
+function fileToBase64(
+    file
+) {
+
+    return new Promise(
+        function(
+            resolve,
+            reject
+        ) {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function() {
+
+                    const result =
+                        reader.result;
+
+
+                    const comma =
+                        result.indexOf(
+                            ","
+                        );
+
+
+                    if (
+                        comma >= 0
+                    ) {
+
+                        resolve(
+                            result.substring(
+                                comma + 1
+                            )
+                        );
+
+                    } else {
+
+                        resolve(
+                            result
+                        );
+
+                    }
+
+                };
+
+
+            reader.onerror =
+                function() {
+
+                    reject(
+                        new Error(
+                            "File ဖတ်မရပါ။"
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   GENERAL RESULT
+========================================================= */
+
+function showResult(
+    element,
+    message,
+    success
+) {
+
+    element.style.display =
+        "block";
+
+
+    element.innerHTML =
+        escapeHtml(
+            message
+        );
+
+
+    element.className =
+        "result-box " +
+        (
+            success
+                ? "success"
+                : "error"
+        );
+
+}
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        openTab(
+            "home",
+            document.querySelector(
+                ".tab-button"
+            )
+        );
+
+    }
+);
 
 </script>
 
 </body>
-</html>
+
+      </html>
