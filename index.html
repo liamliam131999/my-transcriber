@@ -185,11 +185,11 @@
             </div>
             <div class="home-card" onclick="switchTab('compressor')">
                 <h4>📉 Smart Compressor</h4>
-                <p style="font-size: 12px; color: #8b949e;">25MB အောက်ရောက်အောင် local processing</p>
+                <p style="font-size: 12px; color: #8b949e;">25MB အောက်ရောက်အောင် ပြုလုပ်ရန်</p>
             </div>
             <div class="home-card" onclick="switchTab('contact')">
                 <h4>💬 ဆက်သွယ်ရန်</h4>
-                <p style="font-size: 12px; color: #8b949e;">Telegram bot & Ads collaboration</p>
+                <p style="font-size: 12px; color: #8b949e;">Telegram & Ads collaboration</p>
             </div>
         </div>
     </div>
@@ -232,17 +232,11 @@
 
     <!-- 4. COMPRESSOR TAB -->
     <div id="compressor" class="tab-content card">
-        <h3>Smart Compressor & Video-to-Audio</h3>
+        <h3>Smart Compressor & Audio Converter</h3>
         <label>ဖိုင်ရွေးချယ်ပါ (Video သို့မဟုတ် Audio)</label>
         <input type="file" id="compressFile" accept="audio/*,video/*">
         
-        <label>လုပ်ဆောင်ချက် ရွေးချယ်ရန်</label>
-        <select id="compressMode">
-            <option value="compress">ဖိုင်ဆိုဒ်လျှော့ချရန် (Compress to &lt; 25MB)</option>
-            <option value="toAudio">ဗီဒီယိုကို အသံဖိုင် (Audio/MP3) သို့ ပြောင်းရန်</option>
-        </select>
-
-        <button class="btn-primary" onclick="runCompressor()">စတင် လုပ်ဆောင်မည်</button>
+        <button class="btn-primary" onclick="runCompressor()">ဖိုင်ဆိုဒ်ချုံ့ပြီး အသံဖိုင်သို့ ပြောင်းမည်</button>
         <div id="compressResult" class="result-box" style="display:none;"></div>
     </div>
 
@@ -250,7 +244,7 @@
     <div id="contact" class="tab-content card">
         <h3>ဆက်သွယ်ရန် (Contact & Ads)</h3>
         <p>အဆင်မပြေသည်များ၊ အကြံပြုလိုသည်များရှိပါက သို့မဟုတ် ကြော်ငြာအပ်နှံလိုပါက တိုက်ရိုက်ဆက်သွယ်နိုင်ပါသည် -</p>
-        <a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank" class="btn-telegram">💬 Telegram သို့ တိုက်ရိုက်ဆက်သွယ်ရန်</a>
+        <a href="https://t.me/liamliam131999" target="_blank" class="btn-telegram">💬 Telegram သို့ တိုက်ရိုက်ဆက်သွယ်ရန် (@liamliam131999)</a>
     </div>
 </div>
 
@@ -267,7 +261,6 @@
         });
     }
 
-    // Copy Functionality
     function copyText(elementId) {
         const textElement = document.getElementById(elementId);
         const textToCopy = textElement.innerText;
@@ -297,7 +290,7 @@
 
         const file = fileInput.files[0];
         if (file.size > 25 * 1024 * 1024) {
-            alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ Compressor ဖြင့် အရင်ချုံ့ပါ။');
+            alert('ဖိုင်ဆိုဒ် 25MB ထက် ကျော်လွန်နေပါသည်။ Compressor Tab ဖြင့် အရင်ချုံ့ပါ။');
             return;
         }
 
@@ -395,10 +388,9 @@
         }
     }
 
-    // --- 3. Smart Compressor & Video-to-Audio ---
+    // --- 3. Smart Compressor (Compressed Audio Encoding) ---
     async function runCompressor() {
         const fileInput = document.getElementById('compressFile');
-        const mode = document.getElementById('compressMode').value;
         const resultDiv = document.getElementById('compressResult');
 
         if (fileInput.files.length === 0) {
@@ -410,91 +402,49 @@
         const fileSizeMB = file.size / (1024 * 1024);
 
         resultDiv.style.display = 'block';
-        resultDiv.innerHTML = `ဖိုင်ကို လုပ်ဆောင်နေပါပြီ၊ ခဏစောင့်ပါ... (မူလဆိုဒ်: ${fileSizeMB.toFixed(2)} MB)`;
+        resultDiv.innerHTML = `ဖိုင်ကို ချုံ့နေပါပြီ၊ ခဏစောင့်ပါ... (မူလဆိုဒ်: ${fileSizeMB.toFixed(2)} MB)`;
 
         try {
-            if (file.type.startsWith('audio/') || file.type.startsWith('video/')) {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const arrayBuffer = await file.arrayBuffer();
-                
-                try {
-                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-                    const offlineCtx = new OfflineAudioContext(
-                        audioBuffer.numberOfChannels,
-                        audioBuffer.length,
-                        audioBuffer.sampleRate
-                    );
-                    const source = offlineCtx.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(offlineCtx.destination);
-                    source.start(0);
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const arrayBuffer = await file.arrayBuffer();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-                    const renderedBuffer = await offlineCtx.startRendering();
-                    const wavBlob = bufferToWave(renderedBuffer, renderedBuffer.length);
-                    const newSizeMB = wavBlob.size / (1024 * 1024);
-                    const downloadUrl = URL.createObjectURL(wavBlob);
+            const dest = audioCtx.createMediaStreamDestination();
+            const source = audioCtx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(dest);
+            source.connect(audioCtx.destination);
 
-                    resultDiv.innerHTML = `
-                        <span style="color:#3fb950;">✓ အောင်မြင်ပါပြီ!</span><br>
-                        <p><b>မူလဆိုဒ်:</b> ${fileSizeMB.toFixed(2)} MB → <b>အသစ်ဆိုဒ်:</b> ${newSizeMB.toFixed(2)} MB</p>
-                        <a href="${downloadUrl}" download="converted_audio.wav" style="display:block; text-align:center; background:#238636; color:white; padding:8px; text-decoration:none; border-radius:6px; margin-top:8px;">ဖိုင်အသစ် ဒေါင်းလုဒ်ဆွဲရန်</a>
-                    `;
-                } catch (decodeErr) {
-                    resultDiv.innerHTML = `<span style="color:#f85149;">ဤဖိုင်အမျိုးအစားကို အသံဖိုင်အဖြစ် ပြောင်းလဲ၍ မရပါ။</span>`;
-                }
-            }
+            const mediaRecorder = new MediaRecorder(dest.stream, { mimeType: 'audio/webm;codecs=opus' });
+            let chunks = [];
+
+            mediaRecorder.ondataavailable = function(evt) {
+                chunks.push(evt.data);
+            };
+
+            mediaRecorder.onstop = function() {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const newSizeMB = blob.size / (1024 * 1024);
+                const downloadUrl = URL.createObjectURL(blob);
+
+                resultDiv.innerHTML = `
+                    <span style="color:#3fb950;">✓ အောင်မြင်ပါပြီ!</span><br>
+                    <p><b>မူလဆိုဒ်:</b> ${fileSizeMB.toFixed(2)} MB → <b>အသစ်ဆိုဒ်:</b> ${newSizeMB.toFixed(2)} MB</p>
+                    <a href="${downloadUrl}" download="compressed_audio.webm" style="display:block; text-align:center; background:#238636; color:white; padding:8px; text-decoration:none; border-radius:6px; margin-top:8px;">ဖိုင်အသစ် ဒေါင်းလုဒ်ဆွဲရန်</a>
+                `;
+            };
+
+            source.start(0);
+            mediaRecorder.start();
+
+            setTimeout(() => {
+                mediaRecorder.stop();
+                source.stop();
+            }, (audioBuffer.duration * 1000) + 100);
+
         } catch (error) {
             resultDiv.innerHTML = `<span style="color:#f85149;">လုပ်ဆောင်ရာတွင် အမှားအယွင်းရှိသည်: ${error.message}</span>`;
         }
-    }
-
-    function bufferToWave(abuffer, len) {
-        let numOfChan = abuffer.numberOfChannels,
-            length = len * numOfChan * 2 + 44,
-            buffer = new ArrayBuffer(length),
-            view = new DataView(buffer),
-            channels = [],
-            sampleRate = abuffer.sampleRate,
-            offset = 0,
-            pos = 0;
-
-        function setUint16(data) {
-            view.setUint16(pos, data, true);
-            pos += 2;
-        }
-
-        function setUint32(data) {
-            view.setUint32(pos, data, true);
-            pos += 4;
-        }
-
-        setUint32(0x46464952);
-        setUint32(length - 8);
-        setUint32(0x45564157);
-        setUint32(0x20746d66);
-        setUint32(16);
-        setUint16(1);
-        setUint16(numOfChan);
-        setUint32(sampleRate);
-        setUint32(sampleRate * 2 * numOfChan);
-        setUint16(numOfChan * 2);
-        setUint16(16);
-        setUint32(0x61746164);
-        setUint32(length - pos - 4);
-
-        for (let i = 0; i < abuffer.numberOfChannels; i++)
-            channels.push(abuffer.getChannelData(i));
-
-        while (pos < length) {
-            for (let i = 0; i < numOfChan; i++) {
-                let sample = Math.max(-1, Math.min(1, channels[i][offset]));
-                sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767);
-                view.setInt16(pos, sample, true);
-                pos += 2;
-            }
-            offset++;
-        }
-        return new Blob([buffer], { type: "audio/wav" });
     }
 </script>
 
