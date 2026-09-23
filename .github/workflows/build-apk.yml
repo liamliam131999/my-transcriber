@@ -1,0 +1,149 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+
+    - name: Create Simple WebView Android Project
+      run: |
+        mkdir -p android-app/app/src/main/assets
+        mkdir -p android-app/app/src/main/java/com/my/transcriber
+        mkdir -p android-app/app/src/main/res/values
+        mkdir -p android-app/app/src/main/res/mipmap-hdpi
+
+        # Copy index.html to Android assets
+        cp index.html android-app/app/src/main/assets/index.html
+
+        # Create AndroidManifest.xml
+        cat << 'EOF' > android-app/app/src/main/AndroidManifest.xml
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="com.my.transcriber">
+            <uses-permission android:name="android.permission.INTERNET" />
+            <application
+                android:allowBackup="true"
+                android:label="My Transcriber"
+                android:theme="@android:style/Theme.NoTitleBar">
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN" />
+                        <category android:name="android.intent.category.LAUNCHER" />
+                    </intent-filter>
+                </activity>
+            </application>
+        </manifest>
+        EOF
+
+        # Create MainActivity.java
+        cat << 'EOF' > android-app/app/src/main/java/com/my/transcriber/MainActivity.java
+        package com.my.transcriber;
+        import android.app.Activity;
+        import android.os.Bundle;
+        import android.webkit.WebView;
+        import android.webkit.WebSettings;
+        import android.webkit.WebViewClient;
+
+        public class MainActivity extends Activity {
+            private WebView myWebView;
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                myWebView = new WebView(this);
+                WebSettings webSettings = myWebView.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                webSettings.setDomStorageEnabled(true);
+                myWebView.setWebViewClient(new WebViewClient());
+                myWebView.loadUrl("file:///android_asset/index.html");
+                setContentView(myWebView);
+            }
+            @Override
+            public void onBackPressed() {
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack();
+                } else {
+                    super.onBackPressed();
+                }
+            }
+        }
+        EOF
+
+        # Create build.gradle (app level)
+        cat << 'EOF' > android-app/app/build.gradle
+        plugins {
+            id 'com.android.application'
+        }
+        android {
+            namespace 'com.my.transcriber'
+            compileSdk 33
+            defaultConfig {
+                applicationId "com.my.transcriber"
+                minSdk 21
+                targetSdk 33
+                versionCode 1
+                versionName "1.0"
+            }
+            buildTypes {
+                release {
+                    minifyEnabled false
+                }
+            }
+        }
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+        }
+        EOF
+
+        # Create build.gradle (project level)
+        cat << 'EOF' > android-app/build.gradle
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:8.1.0'
+            }
+        }
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        EOF
+
+        # Create settings.gradle
+        echo "include ':app'" > android-app/settings.gradle
+
+        # Create gradle.properties
+        echo "android.useAndroidX=true" > android-app/gradle.properties
+
+    - name: Build APK with Gradle
+      working-directory: ./android-app
+      run: |
+        chmod +x gradlew || gradle wrapper
+        ./gradlew assembleDebug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: MyTranscriber-APK
+        path: android-app/app/build/outputs/apk/debug/app-debug.apk
