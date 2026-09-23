@@ -2,23 +2,30 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Microphone / Speech-to-Text -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
-    android:allowBackup="true"
-    android:label="My Transcriber"
-    android:icon="@drawable/app_icon"
-    android:theme="@style/Theme.MyTranscriber">
+        android:allowBackup="true"
+        android:label="My Transcriber"
+        android:icon="@drawable/app_icon"
+        android:theme="@style/Theme.MyTranscriber"
+        android:usesCleartextTraffic="true">
 
-    <activity
-        android:name=".MainActivity"
-        android:exported="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
 
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
-    </activity>
+        </activity>
 
-</application>
+    </application>
 
 </manifest>
