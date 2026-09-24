@@ -74,7 +74,6 @@ public class MainActivity extends Activity {
 
     private boolean maintenanceMode = false;
 
-
     /*
      * =========================================================
      * COMPRESSOR STATE
@@ -87,16 +86,12 @@ public class MainActivity extends Activity {
 
     private static final int MAX_COMPRESSION_ATTEMPTS = 2;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
 
         checkMaintenance();
-
     }
-
 
     // =========================================================
     // MAINTENANCE CHECK
@@ -108,8 +103,7 @@ public class MainActivity extends Activity {
                 new Thread(
                         () -> {
 
-                            HttpURLConnection connection =
-                                    null;
+                            HttpURLConnection connection = null;
 
                             try {
 
@@ -124,21 +118,13 @@ public class MainActivity extends Activity {
                                         (HttpURLConnection)
                                                 url.openConnection();
 
-                                connection.setRequestMethod(
-                                        "GET"
-                                );
+                                connection.setRequestMethod("GET");
 
-                                connection.setConnectTimeout(
-                                        8000
-                                );
+                                connection.setConnectTimeout(8000);
 
-                                connection.setReadTimeout(
-                                        8000
-                                );
+                                connection.setReadTimeout(8000);
 
-                                connection.setUseCaches(
-                                        false
-                                );
+                                connection.setUseCaches(false);
 
                                 connection.setRequestProperty(
                                         "Cache-Control",
@@ -147,14 +133,12 @@ public class MainActivity extends Activity {
 
                                 connection.connect();
 
-
                                 int responseCode =
                                         connection.getResponseCode();
 
-
                                 if (
                                         responseCode >= 200 &&
-                                        responseCode < 300
+                                                responseCode < 300
                                 ) {
 
                                     InputStream input =
@@ -168,13 +152,10 @@ public class MainActivity extends Activity {
                                                     )
                                             );
 
-
                                     StringBuilder result =
                                             new StringBuilder();
 
-
                                     String line;
-
 
                                     while (
                                             (line =
@@ -182,22 +163,17 @@ public class MainActivity extends Activity {
                                                     != null
                                     ) {
 
-                                        result.append(
-                                                line
-                                        );
+                                        result.append(line);
 
                                     }
 
-
                                     reader.close();
                                     input.close();
-
 
                                     JSONObject json =
                                             new JSONObject(
                                                     result.toString()
                                             );
-
 
                                     boolean maintenance =
                                             json.optBoolean(
@@ -205,13 +181,11 @@ public class MainActivity extends Activity {
                                                     false
                                             );
 
-
                                     String message =
                                             json.optString(
                                                     "message",
                                                     "We are currently performing maintenance. Please try again later."
                                             );
-
 
                                     if (maintenance) {
 
@@ -231,7 +205,6 @@ public class MainActivity extends Activity {
 
                                     }
 
-
                                 } else {
 
                                     runOnUiThread(
@@ -241,7 +214,6 @@ public class MainActivity extends Activity {
 
                                 }
 
-
                             } catch (Exception e) {
 
                                 runOnUiThread(
@@ -249,13 +221,10 @@ public class MainActivity extends Activity {
                                                 startNormalApp()
                                 );
 
-
                             } finally {
 
                                 if (connection != null) {
-
                                     connection.disconnect();
-
                                 }
 
                             }
@@ -263,11 +232,8 @@ public class MainActivity extends Activity {
                         }
                 );
 
-
         thread.start();
-
     }
-
 
     // =========================================================
     // NORMAL APP
@@ -280,19 +246,15 @@ public class MainActivity extends Activity {
         }
 
         setupWebView();
-
     }
-
 
     // =========================================================
     // MAINTENANCE SCREEN
     // =========================================================
 
-    private void showMaintenanceScreen(
-            String message) {
+    private void showMaintenanceScreen(String message) {
 
         maintenanceMode = true;
-
 
         LinearLayout root =
                 new LinearLayout(this);
@@ -320,7 +282,6 @@ public class MainActivity extends Activity {
                 )
         );
 
-
         LinearLayout box =
                 new LinearLayout(this);
 
@@ -347,41 +308,25 @@ public class MainActivity extends Activity {
                 )
         );
 
-
         TextView icon =
                 new TextView(this);
 
-        icon.setText(
-                "🔧"
-        );
+        icon.setText("🔧");
 
-        icon.setTextSize(
-                50
-        );
+        icon.setTextSize(50);
 
-        icon.setGravity(
-                Gravity.CENTER
-        );
-
+        icon.setGravity(Gravity.CENTER);
 
         TextView title =
                 new TextView(this);
 
-        title.setText(
-                "App Maintenance"
-        );
+        title.setText("App Maintenance");
 
-        title.setTextColor(
-                Color.WHITE
-        );
+        title.setTextColor(Color.WHITE);
 
-        title.setTextSize(
-                23
-        );
+        title.setTextSize(23);
 
-        title.setGravity(
-                Gravity.CENTER
-        );
+        title.setGravity(Gravity.CENTER);
 
         title.setPadding(
                 0,
@@ -390,13 +335,10 @@ public class MainActivity extends Activity {
                 10
         );
 
-
         TextView messageView =
                 new TextView(this);
 
-        messageView.setText(
-                message
-        );
+        messageView.setText(message);
 
         messageView.setTextColor(
                 Color.rgb(
@@ -406,19 +348,14 @@ public class MainActivity extends Activity {
                 )
         );
 
-        messageView.setTextSize(
-                15
-        );
+        messageView.setTextSize(15);
 
-        messageView.setGravity(
-                Gravity.CENTER
-        );
+        messageView.setGravity(Gravity.CENTER);
 
         messageView.setLineSpacing(
                 0,
                 1.4f
         );
-
 
         ProgressBar progressBar =
                 new ProgressBar(this);
@@ -426,7 +363,6 @@ public class MainActivity extends Activity {
         progressBar.setVisibility(
                 View.GONE
         );
-
 
         box.addView(
                 icon,
@@ -436,7 +372,6 @@ public class MainActivity extends Activity {
                 )
         );
 
-
         box.addView(
                 title,
                 new LinearLayout.LayoutParams(
@@ -444,7 +379,6 @@ public class MainActivity extends Activity {
                         LinearLayout.LayoutParams.WRAP_CONTENT
                 )
         );
-
 
         box.addView(
                 messageView,
@@ -454,7 +388,6 @@ public class MainActivity extends Activity {
                 )
         );
 
-
         root.addView(
                 box,
                 new LinearLayout.LayoutParams(
@@ -463,13 +396,10 @@ public class MainActivity extends Activity {
                 )
         );
 
-
         setContentView(root);
 
         maintenanceView = root;
-
     }
-
 
     // =========================================================
     // WEBVIEW SETUP
@@ -480,35 +410,20 @@ public class MainActivity extends Activity {
         webView =
                 new WebView(this);
 
-
         WebSettings settings =
                 webView.getSettings();
 
+        settings.setJavaScriptEnabled(true);
 
-        settings.setJavaScriptEnabled(
-                true
-        );
+        settings.setDomStorageEnabled(true);
 
+        settings.setAllowFileAccess(true);
 
-        settings.setDomStorageEnabled(
-                true
-        );
-
-
-        settings.setAllowFileAccess(
-                true
-        );
-
-
-        settings.setAllowContentAccess(
-                true
-        );
-
+        settings.setAllowContentAccess(true);
 
         webView.setWebViewClient(
                 new WebViewClient()
         );
-
 
         webView.setWebChromeClient(
                 new WebChromeClient() {
@@ -527,17 +442,12 @@ public class MainActivity extends Activity {
 
                             MainActivity.this
                                     .filePathCallback
-                                    .onReceiveValue(
-                                            null
-                                    );
-
+                                    .onReceiveValue(null);
                         }
-
 
                         MainActivity.this
                                 .filePathCallback =
                                 callback;
-
 
                         try {
 
@@ -546,16 +456,11 @@ public class MainActivity extends Activity {
                                             Intent.ACTION_OPEN_DOCUMENT
                                     );
 
-
                             intent.addCategory(
                                     Intent.CATEGORY_OPENABLE
                             );
 
-
-                            intent.setType(
-                                    "*/*"
-                            );
-
+                            intent.setType("*/*");
 
                             intent.putExtra(
                                     Intent.EXTRA_MIME_TYPES,
@@ -565,15 +470,12 @@ public class MainActivity extends Activity {
                                     }
                             );
 
-
                             startActivityForResult(
                                     intent,
                                     WEB_FILE_PICKER_REQUEST
                             );
 
-
                             return true;
-
 
                         } catch (Exception e) {
 
@@ -581,34 +483,23 @@ public class MainActivity extends Activity {
                                     .filePathCallback =
                                     null;
 
-
                             return false;
-
                         }
-
                     }
-
                 }
         );
-
 
         webView.addJavascriptInterface(
                 new AndroidBridge(),
                 "AndroidBridge"
         );
 
-
         webView.loadUrl(
                 "file:///android_asset/index.html"
         );
 
-
-        setContentView(
-                webView
-        );
-
+        setContentView(webView);
     }
-
 
     // =========================================================
     // FILE PICKER
@@ -623,16 +514,11 @@ public class MainActivity extends Activity {
                             Intent.ACTION_OPEN_DOCUMENT
                     );
 
-
             intent.addCategory(
                     Intent.CATEGORY_OPENABLE
             );
 
-
-            intent.setType(
-                    "*/*"
-            );
-
+            intent.setType("*/*");
 
             intent.putExtra(
                     Intent.EXTRA_MIME_TYPES,
@@ -642,12 +528,10 @@ public class MainActivity extends Activity {
                     }
             );
 
-
             startActivityForResult(
                     intent,
                     FILE_PICKER_REQUEST
             );
-
 
         } catch (Exception e) {
 
@@ -659,11 +543,8 @@ public class MainActivity extends Activity {
                     0,
                     ""
             );
-
         }
-
     }
-
 
     // =========================================================
     // ACTIVITY RESULT
@@ -681,7 +562,6 @@ public class MainActivity extends Activity {
                 data
         );
 
-
         // -----------------------------------------------------
         // WEBVIEW FILE PICKER
         // -----------------------------------------------------
@@ -695,9 +575,7 @@ public class MainActivity extends Activity {
                     filePathCallback != null
             ) {
 
-                Uri[] results =
-                        null;
-
+                Uri[] results = null;
 
                 if (
                         resultCode ==
@@ -710,26 +588,16 @@ public class MainActivity extends Activity {
                             new Uri[]{
                                     data.getData()
                             };
-
                 }
 
-
                 filePathCallback
-                        .onReceiveValue(
-                                results
-                        );
+                        .onReceiveValue(results);
 
-
-                filePathCallback =
-                        null;
-
+                filePathCallback = null;
             }
 
-
             return;
-
         }
-
 
         // -----------------------------------------------------
         // SAVE COMPRESSED FILE
@@ -752,14 +620,12 @@ public class MainActivity extends Activity {
                 Uri destinationUri =
                         data.getData();
 
-
                 try {
 
                     File sourceFile =
                             new File(
                                     pendingDownloadPath
                             );
-
 
                     if (
                             !sourceFile.exists()
@@ -768,15 +634,12 @@ public class MainActivity extends Activity {
                         throw new Exception(
                                 "Output file မတွေ့ပါ။"
                         );
-
                     }
-
 
                     InputStream input =
                             new FileInputStream(
                                     sourceFile
                             );
-
 
                     OutputStream output =
                             getContentResolver()
@@ -784,25 +647,19 @@ public class MainActivity extends Activity {
                                             destinationUri
                                     );
 
-
                     if (output == null) {
 
                         input.close();
 
-
                         throw new Exception(
                                 "Save location ကို ဖွင့်မရပါ။"
                         );
-
                     }
-
 
                     byte[] buffer =
                             new byte[8192];
 
-
                     int length;
-
 
                     while (
                             (
@@ -818,40 +675,28 @@ public class MainActivity extends Activity {
                                 0,
                                 length
                         );
-
                     }
 
-
                     output.flush();
-
 
                     input.close();
 
                     output.close();
 
-
                     showDownloadSuccess();
-
 
                 } catch (Exception e) {
 
                     showDownloadError(
                             e.getMessage()
                     );
-
                 }
-
             }
 
-
-            pendingDownloadPath =
-                    "";
-
+            pendingDownloadPath = "";
 
             return;
-
         }
-
 
         // -----------------------------------------------------
         // COMPRESSOR FILE PICKER
@@ -869,7 +714,6 @@ public class MainActivity extends Activity {
             lastSelectedUri =
                     data.getData();
 
-
             try {
 
                 final int takeFlags =
@@ -880,21 +724,16 @@ public class MainActivity extends Activity {
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                         );
 
-
                 getContentResolver()
                         .takePersistableUriPermission(
                                 lastSelectedUri,
                                 takeFlags
                         );
 
-
             } catch (Exception ignored) {
             }
 
-
-            originalFileSize =
-                    0;
-
+            originalFileSize = 0;
 
             try {
 
@@ -907,14 +746,12 @@ public class MainActivity extends Activity {
                                 null
                         );
 
-
                 if (cursor != null) {
 
                     int sizeIndex =
                             cursor.getColumnIndex(
                                     OpenableColumns.SIZE
                             );
-
 
                     if (
                             cursor.moveToFirst()
@@ -925,74 +762,50 @@ public class MainActivity extends Activity {
                                 cursor.getLong(
                                         sizeIndex
                                 );
-
                     }
 
-
                     cursor.close();
-
                 }
-
 
             } catch (Exception e) {
 
-                originalFileSize =
-                        0;
-
+                originalFileSize = 0;
             }
-
 
             String name =
                     getFileName(
                             lastSelectedUri
                     );
 
-
             String jsName =
-                    escapeJsString(
-                            name
-                    );
-
+                    escapeJsString(name);
 
             final long selectedSize =
                     originalFileSize;
 
-
             runOnUiThread(
                     () ->
                             webView.evaluateJavascript(
-
                                     "if(window.onNativeFileSelected){" +
-
                                             "window.onNativeFileSelected('" +
-
                                             jsName +
-
                                             "'," +
-
                                             selectedSize +
-
                                             ");}",
-
                                     null
                             )
             );
-
         }
-
     }
-
 
     // =========================================================
     // GET FILE NAME
     // =========================================================
 
-    private String getFileName(
-            Uri uri) {
+    private String getFileName(Uri uri) {
 
         String result =
                 "selected_file";
-
 
         try {
 
@@ -1005,14 +818,12 @@ public class MainActivity extends Activity {
                             null
                     );
 
-
             if (cursor != null) {
 
                 int nameIndex =
                         cursor.getColumnIndex(
                                 OpenableColumns.DISPLAY_NAME
                         );
-
 
                 if (
                         cursor.moveToFirst()
@@ -1023,23 +834,16 @@ public class MainActivity extends Activity {
                             cursor.getString(
                                     nameIndex
                             );
-
                 }
 
-
                 cursor.close();
-
             }
-
 
         } catch (Exception ignored) {
         }
 
-
         return result;
-
     }
-
 
     // =========================================================
     // COMPRESS AUDIO
@@ -1060,11 +864,8 @@ public class MainActivity extends Activity {
                     ""
             );
 
-
             return;
-
         }
-
 
         if (
                 originalFileSize <= 0
@@ -1078,25 +879,10 @@ public class MainActivity extends Activity {
                     ""
             );
 
-
             return;
-
         }
 
-
-        /*
-         * -----------------------------------------------------
-         * Compression state reset
-         * -----------------------------------------------------
-         */
-
         compressionAttempt = 0;
-
-
-        /*
-         * User ရွေးထားတဲ့ bitrate ကို
-         * 24 - 128 kbps အတွင်းထားမယ်။
-         */
 
         int safeRequestedBitrate =
                 Math.max(
@@ -1107,43 +893,17 @@ public class MainActivity extends Activity {
                         )
                 );
 
-
-        /*
-         * မူရင်းဖိုင်ရဲ့ bitrate ကို စစ်မယ်။
-         *
-         * Audio-only file ဖြစ်ရင်
-         * မူရင်း bitrate ထက် မြင့်တဲ့ bitrate
-         * နဲ့ encode မလုပ်အောင် ကာကွယ်မယ်။
-         */
-
         int sourceBitrateKbps =
                 getSourceBitrateKbps(
                         lastSelectedUri
                 );
 
-
         int targetBitrate =
                 safeRequestedBitrate;
-
 
         if (
                 sourceBitrateKbps > 0
         ) {
-
-            /*
-             * မူရင်း bitrate ထက် 70% ခန့်အထိ
-             * လျှော့ပြီး encode လုပ်မယ်။
-             *
-             * ဥပမာ
-             *
-             * Source = 128 kbps
-             * User = 96 kbps
-             * Target = 89 kbps ခန့်
-             *
-             * Source = 64 kbps
-             * User = 64 kbps
-             * Target = 44 kbps ခန့်
-             */
 
             int sourceBasedTarget =
                     (int)
@@ -1152,26 +912,21 @@ public class MainActivity extends Activity {
                                             0.70
                             );
 
-
             sourceBasedTarget =
                     Math.max(
                             24,
                             sourceBasedTarget
                     );
 
-
             targetBitrate =
                     Math.min(
                             safeRequestedBitrate,
                             sourceBasedTarget
                     );
-
         }
-
 
         currentCompressionBitrate =
                 targetBitrate;
-
 
         runOnUiThread(
                 () ->
@@ -1180,14 +935,12 @@ public class MainActivity extends Activity {
                         )
         );
 
-
         try {
 
             File musicDir =
                     getExternalFilesDir(
                             Environment.DIRECTORY_MUSIC
                     );
-
 
             if (
                     musicDir == null
@@ -1196,16 +949,13 @@ public class MainActivity extends Activity {
                 throw new Exception(
                         "Music folder မရပါ။"
                 );
-
             }
-
 
             File outputDir =
                     new File(
                             musicDir,
                             "MyTranscriber"
                     );
-
 
             if (
                     !outputDir.exists()
@@ -1215,9 +965,7 @@ public class MainActivity extends Activity {
                 throw new Exception(
                         "Output folder ဖန်တီးမရပါ။"
                 );
-
             }
-
 
             String timestamp =
                     new SimpleDateFormat(
@@ -1227,7 +975,6 @@ public class MainActivity extends Activity {
                             new Date()
                     );
 
-
             File outputFile =
                     new File(
                             outputDir,
@@ -1236,21 +983,17 @@ public class MainActivity extends Activity {
                                     ".mp4"
                     );
 
-
             if (
                     outputFile.exists()
             ) {
 
                 outputFile.delete();
-
             }
-
 
             startAudioCompression(
                     outputFile,
                     targetBitrate
             );
-
 
         } catch (Exception e) {
 
@@ -1263,11 +1006,8 @@ public class MainActivity extends Activity {
                     0,
                     ""
             );
-
         }
-
     }
-
 
     // =========================================================
     // GET SOURCE BITRATE
@@ -1279,7 +1019,6 @@ public class MainActivity extends Activity {
         MediaMetadataRetriever retriever =
                 new MediaMetadataRetriever();
 
-
         try {
 
             retriever.setDataSource(
@@ -1287,22 +1026,11 @@ public class MainActivity extends Activity {
                     uri
             );
 
-
             String mimeType =
                     retriever.extractMetadata(
                             MediaMetadataRetriever
                                     .METADATA_KEY_MIMETYPE
                     );
-
-
-            /*
-             * Video file ဖြစ်ရင် source bitrate က
-             * Video + Audio နှစ်ခုလုံးပါနိုင်တာကြောင့်
-             * source bitrate အဖြစ် မသုံးဘူး။
-             *
-             * Video → Audio only ဖြစ်တဲ့အတွက်
-             * user ရွေးထားတဲ့ bitrate ကိုပဲ သုံးမယ်။
-             */
 
             if (
                     mimeType != null &&
@@ -1312,16 +1040,13 @@ public class MainActivity extends Activity {
             ) {
 
                 return 0;
-
             }
-
 
             String bitrate =
                     retriever.extractMetadata(
                             MediaMetadataRetriever
                                     .METADATA_KEY_BITRATE
                     );
-
 
             if (
                     bitrate != null &&
@@ -1333,7 +1058,6 @@ public class MainActivity extends Activity {
                                 bitrate
                         );
 
-
                 if (
                         bitrateValue > 0
                 ) {
@@ -1343,11 +1067,8 @@ public class MainActivity extends Activity {
                                     1,
                                     bitrateValue / 1000
                             );
-
                 }
-
             }
-
 
         } catch (Exception ignored) {
 
@@ -1359,14 +1080,10 @@ public class MainActivity extends Activity {
 
             } catch (Exception ignored) {
             }
-
         }
 
-
         return 0;
-
     }
-
 
     // =========================================================
     // START AUDIO COMPRESSION
@@ -1383,14 +1100,12 @@ public class MainActivity extends Activity {
                             lastSelectedUri
                     );
 
-
             AudioEncoderSettings audioSettings =
                     new AudioEncoderSettings.Builder()
                             .setBitrate(
                                     bitrateKbps * 1000
                             )
                             .build();
-
 
             DefaultEncoderFactory encoderFactory =
                     new DefaultEncoderFactory.Builder(
@@ -1400,7 +1115,6 @@ public class MainActivity extends Activity {
                                     audioSettings
                             )
                             .build();
-
 
             Transformer transformer =
                     new Transformer.Builder(
@@ -1421,9 +1135,7 @@ public class MainActivity extends Activity {
                                                     outputFile,
                                                     bitrateKbps
                                             );
-
                                         }
-
 
                                         @Override
                                         public void onError(
@@ -1434,29 +1146,22 @@ public class MainActivity extends Activity {
                                             handleCompressionError(
                                                     exportException
                                             );
-
                                         }
-
                                     }
                             )
                             .build();
-
 
             EditedMediaItem editedMediaItem =
                     new EditedMediaItem.Builder(
                             mediaItem
                     )
-                            .setRemoveVideo(
-                                    true
-                            )
+                            .setRemoveVideo(true)
                             .build();
-
 
             final String progressMessage =
                     "Audio ကို " +
                             bitrateKbps +
                             " kbps နဲ့ encode လုပ်နေပါတယ်...";
-
 
             runOnUiThread(
                     () ->
@@ -1465,27 +1170,34 @@ public class MainActivity extends Activity {
                             )
             );
 
-
             transformer.start(
                     editedMediaItem,
                     outputFile.getAbsolutePath()
             );
 
-
         } catch (Exception e) {
 
-            handleCompressionError(
-                    new ExportException(
-                            e.getMessage() != null
-                                    ? e.getMessage()
-                                    : "Compression error"
-                    )
+            /*
+             * FIX:
+             * ExportException constructor ကို
+             * manually မခေါ်တော့ပါ။
+             *
+             * အဲဒါကြောင့်
+             * "no suitable constructor found for ExportException"
+             * compile error မဖြစ်တော့ပါ။
+             */
+
+            sendResult(
+                    false,
+                    e.getMessage() != null
+                            ? e.getMessage()
+                            : "Compression error",
+                    originalFileSize,
+                    0,
+                    ""
             );
-
         }
-
     }
-
 
     // =========================================================
     // COMPRESSION SUCCESS
@@ -1510,22 +1222,17 @@ public class MainActivity extends Activity {
                                 ""
                         );
 
-
                         return;
-
                     }
-
 
                     long compressedSize =
                             outputFile.length();
-
 
                     if (
                             compressedSize <= 0
                     ) {
 
                         outputFile.delete();
-
 
                         sendResult(
                                 false,
@@ -1535,19 +1242,15 @@ public class MainActivity extends Activity {
                                 ""
                         );
 
-
                         return;
-
                     }
 
-
                     /*
-                     * -------------------------------------------------
                      * OUTPUT SIZE CHECK
-                     * -------------------------------------------------
                      *
                      * Output က မူရင်းထက် မသေးရင်
-                     * bitrate ကို ထပ်လျှော့ပြီး တစ်ကြိမ် retry လုပ်မယ်။
+                     * bitrate ကို ထပ်လျှော့ပြီး
+                     * တစ်ကြိမ် retry လုပ်မယ်။
                      */
 
                     if (
@@ -1562,18 +1265,11 @@ public class MainActivity extends Activity {
 
                             compressionAttempt++;
 
-
                             int retryBitrate =
                                     Math.max(
                                             24,
                                             usedBitrateKbps / 2
                                     );
-
-
-                            /*
-                             * Bitrate ထပ်လျှော့လို့ မရတော့ရင်
-                             * ဒီ output ကိုပဲ error ပြမယ်။
-                             */
 
                             if (
                                     retryBitrate <
@@ -1582,17 +1278,14 @@ public class MainActivity extends Activity {
 
                                 outputFile.delete();
 
-
                                 currentCompressionBitrate =
                                         retryBitrate;
-
 
                                 sendProgress(
                                         "Output size မသေးသေးပါ။ " +
                                                 retryBitrate +
                                                 " kbps နဲ့ ထပ်ချုံ့နေပါတယ်..."
                                 );
-
 
                                 String timestamp =
                                         new SimpleDateFormat(
@@ -1602,7 +1295,6 @@ public class MainActivity extends Activity {
                                                 new Date()
                                         );
 
-
                                 File retryFile =
                                         new File(
                                                 outputFile.getParentFile(),
@@ -1611,27 +1303,16 @@ public class MainActivity extends Activity {
                                                         ".mp4"
                                         );
 
-
                                 startAudioCompression(
                                         retryFile,
                                         retryBitrate
                                 );
 
-
                                 return;
-
                             }
-
                         }
 
-
-                        /*
-                         * Retry လုပ်ပြီးတာတောင်
-                         * output က မသေးရင် failure.
-                         */
-
                         outputFile.delete();
-
 
                         sendResult(
                                 false,
@@ -1642,16 +1323,11 @@ public class MainActivity extends Activity {
                                 ""
                         );
 
-
                         return;
-
                     }
 
-
                     /*
-                     * -------------------------------------------------
                      * SUCCESS
-                     * -------------------------------------------------
                      */
 
                     sendResult(
@@ -1661,12 +1337,9 @@ public class MainActivity extends Activity {
                             compressedSize,
                             outputFile.getAbsolutePath()
                     );
-
                 }
         );
-
     }
-
 
     // =========================================================
     // COMPRESSION ERROR
@@ -1681,7 +1354,6 @@ public class MainActivity extends Activity {
                     String message =
                             exception.getMessage();
 
-
                     if (
                             message == null
                                     || message.isEmpty()
@@ -1689,9 +1361,7 @@ public class MainActivity extends Activity {
 
                         message =
                                 "Compression မအောင်မြင်ပါ။";
-
                     }
-
 
                     sendResult(
                             false,
@@ -1700,12 +1370,9 @@ public class MainActivity extends Activity {
                             0,
                             ""
                     );
-
                 }
         );
-
     }
-
 
     // =========================================================
     // SEND RESULT TO JAVASCRIPT
@@ -1725,7 +1392,6 @@ public class MainActivity extends Activity {
                                 : message
                 );
 
-
         String jsPath =
                 escapeJsString(
                         outputPath == null
@@ -1733,32 +1399,19 @@ public class MainActivity extends Activity {
                                 : outputPath
                 );
 
-
         String script =
                 "if(window.onCompressionFinished){" +
-
                         "window.onCompressionFinished(" +
-
                         success +
-
                         ",'" +
-
                         jsMessage +
-
                         "'," +
-
                         originalSize +
-
                         "," +
-
                         compressedSize +
-
                         ",'" +
-
                         jsPath +
-
                         "');}";
-
 
         runOnUiThread(
                 () ->
@@ -1767,9 +1420,7 @@ public class MainActivity extends Activity {
                                 null
                         )
         );
-
     }
-
 
     // =========================================================
     // PROGRESS
@@ -1785,16 +1436,11 @@ public class MainActivity extends Activity {
                                 : message
                 );
 
-
         String script =
                 "if(window.onCompressionProgress){" +
-
                         "window.onCompressionProgress('" +
-
                         jsMessage +
-
                         "');}";
-
 
         runOnUiThread(
                 () ->
@@ -1803,9 +1449,7 @@ public class MainActivity extends Activity {
                                 null
                         )
         );
-
     }
-
 
     // =========================================================
     // DOWNLOAD COMPRESSED FILE
@@ -1823,17 +1467,13 @@ public class MainActivity extends Activity {
                     "Output file မတွေ့ပါ။"
             );
 
-
             return;
-
         }
-
 
         File file =
                 new File(
                         outputPath
                 );
-
 
         if (
                 !file.exists()
@@ -1843,37 +1483,29 @@ public class MainActivity extends Activity {
                     "Output file မတွေ့ပါ။"
             );
 
-
             return;
-
         }
-
 
         pendingDownloadPath =
                 outputPath;
-
 
         Intent intent =
                 new Intent(
                         Intent.ACTION_CREATE_DOCUMENT
                 );
 
-
         intent.addCategory(
                 Intent.CATEGORY_OPENABLE
         );
-
 
         intent.setType(
                 "audio/mp4"
         );
 
-
         intent.putExtra(
                 Intent.EXTRA_TITLE,
                 file.getName()
         );
-
 
         try {
 
@@ -1882,21 +1514,15 @@ public class MainActivity extends Activity {
                     SAVE_FILE_REQUEST
             );
 
-
         } catch (Exception e) {
 
-            pendingDownloadPath =
-                    "";
-
+            pendingDownloadPath = "";
 
             showDownloadError(
                     e.getMessage()
             );
-
         }
-
     }
-
 
     // =========================================================
     // DOWNLOAD SUCCESS
@@ -1912,17 +1538,13 @@ public class MainActivity extends Activity {
                                     "window.onDownloadFinished(true," +
                                     "'File ကို သိမ်းပြီးပါပြီ။');}";
 
-
                     webView.evaluateJavascript(
                             script,
                             null
                     );
-
                 }
         );
-
     }
-
 
     // =========================================================
     // DOWNLOAD ERROR
@@ -1938,7 +1560,6 @@ public class MainActivity extends Activity {
                                 : message
                 );
 
-
         runOnUiThread(
                 () -> {
 
@@ -1948,17 +1569,13 @@ public class MainActivity extends Activity {
                                     safeMessage +
                                     "');}";
 
-
                     webView.evaluateJavascript(
                             script,
                             null
                     );
-
                 }
         );
-
     }
-
 
     // =========================================================
     // ESCAPE JAVASCRIPT STRING
@@ -1972,9 +1589,7 @@ public class MainActivity extends Activity {
         ) {
 
             return "";
-
         }
-
 
         return value
                 .replace(
@@ -2001,9 +1616,7 @@ public class MainActivity extends Activity {
                         "</",
                         "<\\/"
                 );
-
     }
-
 
     // =========================================================
     // ANDROID BRIDGE
@@ -2018,9 +1631,7 @@ public class MainActivity extends Activity {
                     () ->
                             openFilePicker()
             );
-
         }
-
 
         @JavascriptInterface
         public void compressAudio(
@@ -2033,9 +1644,7 @@ public class MainActivity extends Activity {
                                             bitrateKbps
                                     )
             );
-
         }
-
 
         @JavascriptInterface
         public void downloadCompressedFile(
@@ -2048,9 +1657,7 @@ public class MainActivity extends Activity {
                                             outputPath
                                     )
             );
-
         }
-
 
         @JavascriptInterface
         public void openTelegram() {
@@ -2068,11 +1675,9 @@ public class MainActivity extends Activity {
                                             )
                                     );
 
-
                             startActivity(
                                     telegramIntent
                             );
-
 
                         } catch (
                                 ActivityNotFoundException e
@@ -2086,13 +1691,11 @@ public class MainActivity extends Activity {
                                                 Uri.parse(
                                                         "https://t.me/liamliam131999"
                                                 )
-                                );
-
+                                        );
 
                                 startActivity(
                                         browserIntent
                                 );
-
 
                             } catch (
                                     Exception browserError
@@ -2101,16 +1704,10 @@ public class MainActivity extends Activity {
                                 showDownloadError(
                                         "Telegram / Browser ဖွင့်မရပါ။"
                                 );
-
                             }
-
                         }
-
                     }
             );
-
         }
-
     }
-
-                    }
+                        }
