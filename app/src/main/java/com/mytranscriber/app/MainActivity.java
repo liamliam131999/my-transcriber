@@ -84,11 +84,17 @@ public class MainActivity extends Activity {
     private static final boolean UNITY_TEST_MODE = true;
 
     /*
-     * Unity Dashboard မှာရှိတဲ့
-     * BP_Interstitial_Android ရဲ့ Placement ID
+     * Unity Dashboard
+     * Monetization > Placements
+     *
+     * Placement name:
+     * BP_Interstitial_Android
+     *
+     * Placement ID:
+     * BP_Interstitial_Android
      */
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
-            "2371efce-e990-498c-991f-877f167bc049";
+            "BP_Interstitial_Android";
 
     private boolean unityInterstitialReady = false;
 
