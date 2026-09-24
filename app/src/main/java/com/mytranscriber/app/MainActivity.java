@@ -1,1081 +1,589 @@
 package com.mytranscriber.app;
 
+import android.Manifest;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.OpenableColumns;
-import android.util.Log;
-import android.view.Gravity;
+import android.provider.Settings;
 import android.view.View;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.media3.common.MediaItem;
-import androidx.media3.transformer.AudioEncoderSettings;
-import androidx.media3.transformer.Composition;
-import androidx.media3.transformer.DefaultEncoderFactory;
-import androidx.media3.transformer.EditedMediaItem;
-import androidx.media3.transformer.ExportException;
-import androidx.media3.transformer.ExportResult;
-import androidx.media3.transformer.Transformer;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
+import com.google.android.exoplayer2.transformer.Composition;
+import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.Transformer;
+import com.unity3d.ads.IUnityAdsLoadListener;
+import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.InitializationConfiguration;
-import com.unity3d.ads.InitializationListener;
-import com.unity3d.ads.InterstitialAd;
-import com.unity3d.ads.LoadConfiguration;
-import com.unity3d.ads.ShowConfiguration;
-import com.unity3d.ads.ShowFinishState;
 import com.unity3d.ads.UnityAds;
-import com.unity3d.ads.UnityAdsError;
-import com.unity3d.ads.listeners.InterstitialShowListener;
+import com.unity3d.ads.UnityAdsShowOptions;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
-    private WebView webView;
-    private ValueCallback<Uri[]> filePathCallback;
-    private Uri lastSelectedUri;
-
-    private long originalFileSize = 0;
-    private String pendingDownloadPath = "";
-
-    private static final int FILE_PICKER_REQUEST = 1001;
-    private static final int WEB_FILE_PICKER_REQUEST = 2001;
-    private static final int SAVE_FILE_REQUEST = 3001;
-
-    // ============================================================
+    // =========================================================
     // UNITY ADS
-    // ============================================================
+    // =========================================================
 
     private static final String UNITY_GAME_ID = "800380386";
 
+    // Test Mode
+    // Release မတင်ခင် false ပြောင်းနိုင်ပါတယ်။
     private static final boolean UNITY_TEST_MODE = true;
 
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
             "BP_Interstitial_Android";
 
-    private InterstitialAd unityInterstitialAd = null;
+    private boolean unityInterstitialReady = false;
 
     private TextView unityDebugText;
 
-    // ============================================================
-    // MAINTENANCE
-    // ============================================================
+    // =========================================================
+    // WEBVIEW
+    // =========================================================
 
-    private static final String MAINTENANCE_URL =
-            "https://liamliam131999.github.io/my-transcriber/maintenance.json";
+    private WebView webView;
 
-    private View maintenanceView;
-    private boolean maintenanceMode = false;
+    // =========================================================
+    // FILE / COMPRESSION
+    // =========================================================
 
-    // ============================================================
-    // COMPRESSION
-    // ============================================================
+    private static final int REQUEST_PICK_FILE = 1001;
 
-    private int currentCompressionBitrate = 64;
-    private int compressionAttempt = 0;
+    private String selectedFilePath = null;
+    private String compressedFilePath = null;
 
-    private static final int MAX_COMPRESSION_ATTEMPTS = 2;
+    private int requestedBitrateKbps = 128;
 
-    private boolean compressionResultSent = false;
-
-    // ============================================================
+    // =========================================================
     // ON CREATE
-    // ============================================================
+    // =========================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        checkMaintenance();
-    }
-
-    // ============================================================
-    // UNITY DEBUG
-    // ============================================================
-
-    private void showUnityDebug(final String message) {
-
-        Log.d("UnityAds", message);
-
-        runOnUiThread(() -> {
-
-            Toast.makeText(
-                    MainActivity.this,
-                    message,
-                    Toast.LENGTH_LONG
-            ).show();
-
-            if (unityDebugText != null) {
-                unityDebugText.setText(
-                        "Unity Ads: " + message
-                );
-            }
-        });
-    }
-
-    // ============================================================
-    // MAINTENANCE CHECK
-    // ============================================================
-
-    private void checkMaintenance() {
-
-        Thread thread = new Thread(() -> {
-
-            HttpURLConnection connection = null;
-
-            try {
-
-                URL url = new URL(
-                        MAINTENANCE_URL +
-                                "?t=" +
-                                System.currentTimeMillis()
-                );
-
-                connection =
-                        (HttpURLConnection)
-                                url.openConnection();
-
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(8000);
-                connection.setUseCaches(false);
-
-                connection.setRequestProperty(
-                        "Cache-Control",
-                        "no-cache"
-                );
-
-                connection.connect();
-
-                int responseCode =
-                        connection.getResponseCode();
-
-                if (responseCode >= 200
-                        && responseCode < 300) {
-
-                    InputStream input =
-                            connection.getInputStream();
-
-                    BufferedReader reader =
-                            new BufferedReader(
-                                    new InputStreamReader(
-                                            input,
-                                            "UTF-8"
-                                    )
-                            );
-
-                    StringBuilder result =
-                            new StringBuilder();
-
-                    String line;
-
-                    while ((line = reader.readLine()) != null) {
-                        result.append(line);
-                    }
-
-                    reader.close();
-                    input.close();
-
-                    JSONObject json =
-                            new JSONObject(
-                                    result.toString()
-                            );
-
-                    boolean maintenance =
-                            json.optBoolean(
-                                    "maintenance",
-                                    false
-                            );
-
-                    String message =
-                            json.optString(
-                                    "message",
-                                    "We are currently performing maintenance. Please try again later."
-                            );
-
-                    if (maintenance) {
-
-                        runOnUiThread(
-                                () ->
-                                        showMaintenanceScreen(
-                                                message
-                                        )
-                        );
-
-                    } else {
-
-                        runOnUiThread(
-                                this::startNormalApp
-                        );
-                    }
-
-                } else {
-
-                    runOnUiThread(
-                            this::startNormalApp
-                    );
-                }
-
-            } catch (Exception e) {
-
-                runOnUiThread(
-                        this::startNormalApp
-                );
-
-            } finally {
-
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            }
-        });
-
-        thread.start();
-    }
-
-    // ============================================================
-    // START APP
-    // ============================================================
-
-    private void startNormalApp() {
-
-        if (maintenanceMode) {
-            return;
-        }
-
-        initializeUnityAds();
-
-        setupWebView();
-    }
-
-    // ============================================================
-    // UNITY ADS INITIALIZATION
-    // ============================================================
-
-    private void initializeUnityAds() {
-
-        showUnityDebug(
-                "Initializing..."
-        );
-
-        try {
-
-            InitializationConfiguration config =
-                    new InitializationConfiguration.Builder(
-                            UNITY_GAME_ID
-                    )
-                            .withTestMode(
-                                    UNITY_TEST_MODE
-                            )
-                            .build();
-
-            InitializationListener listener =
-                    error -> {
-
-                        if (error == null) {
-
-                            showUnityDebug(
-                                    "Initialized successfully"
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "================================"
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "INIT SUCCESS"
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "Game ID: " +
-                                            UNITY_GAME_ID
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "Test Mode: " +
-                                            UNITY_TEST_MODE
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "SDK Version: " +
-                                            UnityAds.getVersion()
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "Is Initialized: " +
-                                            UnityAds.isInitialized()
-                            );
-
-                            Log.d(
-                                    "UnityAds",
-                                    "================================"
-                            );
-
-                            loadUnityInterstitial();
-
-                        } else {
-
-                            String message =
-                                    "INIT FAILED: " +
-                                            error;
-
-                            showUnityDebug(
-                                    message
-                            );
-
-                            Log.e(
-                                    "UnityAds",
-                                    message
-                            );
-                        }
-                    };
-
-            Log.d(
-                    "UnityAds",
-                    "Calling UnityAds.initialize()..."
-            );
-
-            UnityAds.initialize(
-                    config,
-                    listener
-            );
-
-            Log.d(
-                    "UnityAds",
-                    "UnityAds.initialize() called"
-            );
-
-        } catch (Exception e) {
-
-            String message =
-                    "INIT EXCEPTION: " +
-                            e.getMessage();
-
-            showUnityDebug(
-                    message
-            );
-
-            Log.e(
-                    "UnityAds",
-                    message,
-                    e
-            );
-        }
-    }
-
-    // ============================================================
-    // LOAD INTERSTITIAL - UNITY 4.20.1
-    // ============================================================
-
-    private void loadUnityInterstitial() {
-
-        runOnUiThread(() -> {
-
-            showUnityDebug(
-                    "Ad loading..."
-            );
-
-            try {
-
-                unityInterstitialAd = null;
-
-                LoadConfiguration loadConfiguration =
-                        new LoadConfiguration.Builder(
-                                UNITY_INTERSTITIAL_AD_UNIT_ID
-                        )
-                                .build();
-
-                InterstitialAd.load(
-                        loadConfiguration,
-                        (interstitialAd, error) -> {
-
-                            if (interstitialAd != null) {
-
-                                unityInterstitialAd =
-                                        interstitialAd;
-
-                                showUnityDebug(
-                                        "AD LOADED ✓"
-                                );
-
-                                Log.d(
-                                        "UnityAds",
-                                        "Interstitial loaded successfully"
-                                );
-
-                                interstitialAd.setOnAdExpired(
-                                        expiredAd -> {
-
-                                            Log.d(
-                                                    "UnityAds",
-                                                    "Interstitial expired"
-                                            );
-
-                                            if (
-                                                    unityInterstitialAd
-                                                            == expiredAd
-                                            ) {
-
-                                                unityInterstitialAd =
-                                                        null;
-                                            }
-
-                                            loadUnityInterstitial();
-                                        }
-                                );
-
-                            } else {
-
-                                unityInterstitialAd =
-                                        null;
-
-                                String errorMessage =
-                                        error != null
-                                                ? error.getMessage()
-                                                : "Unknown error";
-
-                                String debugMessage =
-                                        "AD LOAD FAILED: " +
-                                                errorMessage;
-
-                                showUnityDebug(
-                                        debugMessage
-                                );
-
-                                Log.e(
-                                        "UnityAds",
-                                        debugMessage
-                                );
-                            }
-                        }
-                );
-
-            } catch (Exception e) {
-
-                unityInterstitialAd =
-                        null;
-
-                String message =
-                        "AD LOAD EXCEPTION: " +
-                                e.getMessage();
-
-                showUnityDebug(
-                        message
-                );
-
-                Log.e(
-                        "UnityAds",
-                        message,
-                        e
-                );
-            }
-        });
-    }
-
-    // ============================================================
-    // SHOW INTERSTITIAL THEN RESULT
-    // ============================================================
-
-    private void showInterstitialThenResult(
-            final File outputFile,
-            final long compressedSize
-    ) {
-
-        runOnUiThread(() -> {
-
-            if (unityInterstitialAd == null) {
-
-                showUnityDebug(
-                        "Ad NOT READY - showing result"
-                );
-
-                if (UnityAds.isInitialized()) {
-                    loadUnityInterstitial();
-                }
-
-                sendCompressionSuccessResult(
-                        outputFile,
-                        compressedSize
-                );
-
-                return;
-            }
-
-            final InterstitialAd adToShow =
-                    unityInterstitialAd;
-
-            unityInterstitialAd = null;
-
-            showUnityDebug(
-                    "Showing Interstitial..."
-            );
-
-            try {
-
-                ShowConfiguration showConfiguration =
-                        new ShowConfiguration.Builder()
-                                .build();
-
-                adToShow.show(
-                        MainActivity.this,
-                        showConfiguration,
-                        new InterstitialShowListener() {
-
-                            @Override
-                            public void onStarted(
-                                    InterstitialAd ad
-                            ) {
-
-                                showUnityDebug(
-                                        "AD STARTED ✓"
-                                );
-
-                                Log.d(
-                                        "UnityAds",
-                                        "Interstitial started"
-                                );
-                            }
-
-                            @Override
-                            public void onClicked(
-                                    InterstitialAd ad
-                            ) {
-
-                                showUnityDebug(
-                                        "AD CLICKED"
-                                );
-
-                                Log.d(
-                                        "UnityAds",
-                                        "Interstitial clicked"
-                                );
-                            }
-
-                            @Override
-                            public void onCompleted(
-                                    InterstitialAd ad,
-                                    ShowFinishState state
-                            ) {
-
-                                showUnityDebug(
-                                        "AD COMPLETED ✓"
-                                );
-
-                                Log.d(
-                                        "UnityAds",
-                                        "Interstitial completed: " +
-                                                state
-                                );
-
-                                loadUnityInterstitial();
-
-                                sendCompressionSuccessResult(
-                                        outputFile,
-                                        compressedSize
-                                );
-                            }
-
-                            @Override
-                            public void onFailed(
-                                    InterstitialAd ad,
-                                    UnityAdsError error
-                            ) {
-
-                                String message =
-                                        "AD SHOW FAILED: " +
-                                                (
-                                                        error != null
-                                                                ? error.getMessage()
-                                                                : "Unknown error"
-                                                );
-
-                                showUnityDebug(
-                                        message
-                                );
-
-                                Log.e(
-                                        "UnityAds",
-                                        message
-                                );
-
-                                loadUnityInterstitial();
-
-                                sendCompressionSuccessResult(
-                                        outputFile,
-                                        compressedSize
-                                );
-                            }
-                        }
-                );
-
-            } catch (Exception e) {
-
-                String message =
-                        "AD SHOW EXCEPTION: " +
-                                e.getMessage();
-
-                showUnityDebug(
-                        message
-                );
-
-                Log.e(
-                        "UnityAds",
-                        message,
-                        e
-                );
-
-                loadUnityInterstitial();
-
-                sendCompressionSuccessResult(
-                        outputFile,
-                        compressedSize
-                );
-            }
-        });
-    }
-
-    // ============================================================
-    // SEND COMPRESSION SUCCESS
-    // ============================================================
-
-    private void sendCompressionSuccessResult(
-            File outputFile,
-            long compressedSize
-    ) {
-
-        if (compressionResultSent) {
-            return;
-        }
-
-        compressionResultSent = true;
-
-        sendResult(
-                true,
-                "Compression အောင်မြင်ပါပြီ။",
-                originalFileSize,
-                compressedSize,
-                outputFile.getAbsolutePath()
-        );
-    }
-
-    // ============================================================
-    // MAINTENANCE SCREEN
-    // ============================================================
-
-    private void showMaintenanceScreen(
-            String message
-    ) {
-
-        maintenanceMode = true;
-
-        LinearLayout root =
-                new LinearLayout(this);
-
-        root.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        root.setGravity(
-                Gravity.CENTER
-        );
-
-        root.setPadding(
-                30,
-                30,
-                30,
-                30
-        );
-
-        root.setBackgroundColor(
-                Color.rgb(
-                        16,
-                        17,
-                        20
-                )
-        );
-
-        LinearLayout box =
-                new LinearLayout(this);
-
-        box.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        box.setGravity(
-                Gravity.CENTER
-        );
-
-        box.setPadding(
-                30,
-                30,
-                30,
-                30
-        );
-
-        box.setBackgroundColor(
-                Color.rgb(
-                        25,
-                        26,
-                        31
-                )
-        );
-
-        TextView icon =
-                new TextView(this);
-
-        icon.setText("");
-        icon.setTextSize(50);
-        icon.setGravity(
-                Gravity.CENTER
-        );
-
-        TextView title =
-                new TextView(this);
-
-        title.setText(
-                "App Maintenance"
-        );
-
-        title.setTextColor(
-                Color.WHITE
-        );
-
-        title.setTextSize(23);
-
-        title.setGravity(
-                Gravity.CENTER
-        );
-
-        title.setPadding(
-                0,
-                15,
-                0,
-                10
-        );
-
-        TextView messageView =
-                new TextView(this);
-
-        messageView.setText(
-                message
-        );
-
-        messageView.setTextColor(
-                Color.rgb(
-                        169,
-                        173,
-                        183
-                )
-        );
-
-        messageView.setTextSize(15);
-
-        messageView.setGravity(
-                Gravity.CENTER
-        );
-
-        messageView.setLineSpacing(
-                0,
-                1.4f
-        );
-
-        ProgressBar progressBar =
-                new ProgressBar(this);
-
-        progressBar.setVisibility(
-                View.GONE
-        );
-
-        box.addView(
-                icon,
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-        );
-
-        box.addView(
-                title,
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-        );
-
-        box.addView(
-                messageView,
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-        );
+        // -----------------------------------------------------
+        // Root Layout
+        // -----------------------------------------------------
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+
+        // -----------------------------------------------------
+        // Unity Debug Text
+        // -----------------------------------------------------
+
+        unityDebugText = new TextView(this);
+        unityDebugText.setText("Unity Ads: Initializing...");
+        unityDebugText.setTextSize(12);
+        unityDebugText.setPadding(12, 8, 12, 8);
 
         root.addView(
-                box,
+                unityDebugText,
                 new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
+
+        // -----------------------------------------------------
+        // WebView
+        // -----------------------------------------------------
+
+        webView = new WebView(this);
+
+        root.addView(
+                webView,
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        0,
+                        1
                 )
         );
 
         setContentView(root);
 
-        maintenanceView = root;
-    }
+        // -----------------------------------------------------
+        // WebView Settings
+        // -----------------------------------------------------
 
-    // ============================================================
-    // WEBVIEW
-    // ============================================================
+        WebSettings settings = webView.getSettings();
 
-    private void setupWebView() {
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(true);
+        settings.setMediaPlaybackRequiresUserGesture(false);
 
-        webView =
-                new WebView(this);
+        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
 
-        WebSettings settings =
-                webView.getSettings();
-
-        settings.setJavaScriptEnabled(
-                true
-        );
-
-        settings.setDomStorageEnabled(
-                true
-        );
-
-        settings.setAllowFileAccess(
-                true
-        );
-
-        settings.setAllowContentAccess(
-                true
-        );
-
-        webView.setWebViewClient(
-                new WebViewClient()
-        );
-
-        webView.setWebChromeClient(
-                new WebChromeClient() {
-
-                    @Override
-                    public boolean onShowFileChooser(
-                            WebView webView,
-                            ValueCallback<Uri[]> callback,
-                            FileChooserParams fileChooserParams
-                    ) {
-
-                        if (
-                                MainActivity.this
-                                        .filePathCallback
-                                        != null
-                        ) {
-
-                            MainActivity.this
-                                    .filePathCallback
-                                    .onReceiveValue(
-                                            null
-                                    );
-                        }
-
-                        MainActivity.this
-                                .filePathCallback =
-                                callback;
-
-                        try {
-
-                            Intent intent =
-                                    new Intent(
-                                            Intent.ACTION_OPEN_DOCUMENT
-                                    );
-
-                            intent.addCategory(
-                                    Intent.CATEGORY_OPENABLE
-                            );
-
-                            intent.setType("*/*");
-
-                            intent.putExtra(
-                                    Intent.EXTRA_MIME_TYPES,
-                                    new String[]{
-                                            "audio/*",
-                                            "video/*"
-                                    }
-                            );
-
-                            startActivityForResult(
-                                    intent,
-                                    WEB_FILE_PICKER_REQUEST
-                            );
-
-                            return true;
-
-                        } catch (Exception e) {
-
-                            MainActivity.this
-                                    .filePathCallback =
-                                    null;
-
-                            return false;
-                        }
-                    }
-                }
-        );
+        // -----------------------------------------------------
+        // JavaScript Interface
+        // -----------------------------------------------------
 
         webView.addJavascriptInterface(
                 new AndroidBridge(),
-                "AndroidBridge"
+                "Android"
         );
 
-        FrameLayout frameLayout =
-                new FrameLayout(this);
+        // -----------------------------------------------------
+        // Load Website
+        // -----------------------------------------------------
 
-        frameLayout.addView(
-                webView,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT
-                )
-        );
+        webView.loadUrl("file:///android_asset/index.html");
 
-        unityDebugText =
-                new TextView(this);
+        // -----------------------------------------------------
+        // Unity Ads
+        // -----------------------------------------------------
 
-        unityDebugText.setText(
-                "Unity Ads: Starting..."
-        );
+        initializeUnityAds();
+    }
 
-        unityDebugText.setTextColor(
-                Color.WHITE
-        );
+    // =========================================================
+    // UNITY ADS INITIALIZATION
+    // =========================================================
 
-        unityDebugText.setTextSize(12);
+    private void initializeUnityAds() {
 
-        unityDebugText.setBackgroundColor(
-                Color.argb(
-                        190,
-                        0,
-                        0,
-                        0
-                )
-        );
+        updateUnityDebug("Unity Ads: Initializing...");
 
-        unityDebugText.setPadding(
-                12,
-                8,
-                12,
-                8
-        );
+        InitializationConfiguration configuration =
+                new InitializationConfiguration.Builder(UNITY_GAME_ID)
+                        .withTestMode(UNITY_TEST_MODE)
+                        .build();
 
-        FrameLayout.LayoutParams debugParams =
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT
-                );
+        UnityAds.initialize(
+                this,
+                configuration,
+                new UnityAds.IUnityAdsInitializationListener() {
 
-        debugParams.gravity =
-                Gravity.TOP |
-                        Gravity.CENTER_HORIZONTAL;
+                    @Override
+                    public void onInitializationComplete() {
 
-        debugParams.topMargin = 20;
+                        runOnUiThread(() -> {
 
-        frameLayout.addView(
-                unityDebugText,
-                debugParams
-        );
+                            updateUnityDebug(
+                                    "Unity Ads: Initialized successfully"
+                            );
 
-        webView.loadUrl(
-                "file:///android_asset/index.html"
-        );
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "Unity Ads initialized",
+                                    Toast.LENGTH_SHORT
+                            ).show();
 
-        setContentView(
-                frameLayout
+                            loadUnityInterstitial();
+                        });
+                    }
+
+                    @Override
+                    public void onInitializationFailed(
+                            UnityAds.UnityAdsInitializationError error,
+                            String message
+                    ) {
+
+                        runOnUiThread(() -> {
+
+                            unityInterstitialReady = false;
+
+                            updateUnityDebug(
+                                    "AD INIT FAILED: "
+                                            + error
+                                            + " - "
+                                            + message
+                            );
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "Unity Ads init failed: " + message,
+                                    Toast.LENGTH_LONG
+                            ).show();
+                        });
+                    }
+                }
         );
     }
 
-    // ============================================================
-    // OPEN FILE PICKER
-    // ============================================================
+    // =========================================================
+    // LOAD INTERSTITIAL
+    // =========================================================
 
-    public void openFilePicker() {
+    private void loadUnityInterstitial() {
 
-        try {
+        unityInterstitialReady = false;
 
-            Intent intent =
-                    new Intent(
-                            Intent.ACTION_OPEN_DOCUMENT
-                    );
+        updateUnityDebug("Unity Ads: Ad loading...");
 
-            intent.addCategory(
-                    Intent.CATEGORY_OPENABLE
-            );
+        UnityAds.load(
+                UNITY_INTERSTITIAL_AD_UNIT_ID,
+                new IUnityAdsLoadListener() {
 
-            intent.setType("*/*");
+                    @Override
+                    public void onUnityAdsAdLoaded(String placementId) {
 
-            intent.putExtra(
-                    Intent.EXTRA_MIME_TYPES,
-                    new String[]{
-                            "audio/*",
-                            "video/*"
+                        runOnUiThread(() -> {
+
+                            unityInterstitialReady = true;
+
+                            updateUnityDebug(
+                                    "AD LOADED: " + placementId
+                            );
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "Unity Interstitial Ready",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        });
                     }
+
+                    @Override
+                    public void onUnityAdsFailedToLoad(
+                            String placementId,
+                            UnityAds.UnityAdsLoadError error,
+                            String message
+                    ) {
+
+                        runOnUiThread(() -> {
+
+                            unityInterstitialReady = false;
+
+                            updateUnityDebug(
+                                    "AD LOAD FAILED: "
+                                            + error
+                                            + " - "
+                                            + message
+                            );
+
+                            Toast.makeText(
+                                    MainActivity.this,
+                                    "Ad load failed: " + error,
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        });
+                    }
+                }
+        );
+    }
+
+    // =========================================================
+    // SHOW INTERSTITIAL
+    // =========================================================
+
+    private void showInterstitialThenResult(
+            final String outputPath
+    ) {
+
+        if (!unityInterstitialReady) {
+
+            updateUnityDebug(
+                    "Ad not ready - showing result"
             );
 
-            startActivityForResult(
-                    intent,
-                    FILE_PICKER_REQUEST
-            );
+            sendCompressionResult(outputPath);
 
-        } catch (Exception e) {
+            // နောက်တစ်ကြိမ်အတွက် ပြန် load
+            loadUnityInterstitial();
 
-            sendResult(
-                    false,
-                    "File picker ဖွင့်မရပါ:\n" +
-                            e.getMessage(),
-                    0,
-                    0,
-                    ""
+            return;
+        }
+
+        updateUnityDebug("Unity Ads: Showing ad...");
+
+        unityInterstitialReady = false;
+
+        UnityAds.show(
+                this,
+                UNITY_INTERSTITIAL_AD_UNIT_ID,
+                new UnityAdsShowOptions(),
+                new IUnityAdsShowListener() {
+
+                    @Override
+                    public void onUnityAdsShowFailure(
+                            String placementId,
+                            UnityAds.UnityAdsShowError error,
+                            String message
+                    ) {
+
+                        runOnUiThread(() -> {
+
+                            updateUnityDebug(
+                                    "AD SHOW FAILED: "
+                                            + error
+                                            + " - "
+                                            + message
+                            );
+
+                            sendCompressionResult(outputPath);
+
+                            loadUnityInterstitial();
+                        });
+                    }
+
+                    @Override
+                    public void onUnityAdsShowStart(
+                            String placementId
+                    ) {
+
+                        runOnUiThread(() -> {
+
+                            updateUnityDebug(
+                                    "AD STARTED"
+                            );
+                        });
+                    }
+
+                    @Override
+                    public void onUnityAdsShowClick(
+                            String placementId
+                    ) {
+
+                        runOnUiThread(() -> {
+
+                            updateUnityDebug(
+                                    "AD CLICKED"
+                            );
+                        });
+                    }
+
+                    @Override
+                    public void onUnityAdsShowComplete(
+                            String placementId,
+                            UnityAds.UnityAdsShowCompletionState state
+                    ) {
+
+                        runOnUiThread(() -> {
+
+                            updateUnityDebug(
+                                    "AD COMPLETED: " + state
+                            );
+
+                            sendCompressionResult(outputPath);
+
+                            loadUnityInterstitial();
+                        });
+                    }
+                }
+        );
+    }
+
+    // =========================================================
+    // UNITY DEBUG
+    // =========================================================
+
+    private void updateUnityDebug(String message) {
+
+        if (unityDebugText == null) {
+            return;
+        }
+
+        runOnUiThread(() -> {
+
+            unityDebugText.setText(
+                    "Unity Ads: " + message
             );
+        });
+    }
+
+    // =========================================================
+    // SEND COMPRESSION RESULT TO WEBVIEW
+    // =========================================================
+
+    private void sendCompressionResult(String outputPath) {
+
+        if (webView == null) {
+            return;
+        }
+
+        String safePath = outputPath
+                .replace("\\", "\\\\")
+                .replace("'", "\\'");
+
+        webView.post(() -> {
+
+            webView.evaluateJavascript(
+                    "window.onCompressionComplete && " +
+                            "window.onCompressionComplete('" +
+                            safePath +
+                            "')",
+                    null
+            );
+        });
+    }
+
+    // =========================================================
+    // JAVASCRIPT BRIDGE
+    // =========================================================
+
+    public class AndroidBridge {
+
+        // -----------------------------------------------------
+        // SELECT FILE
+        // -----------------------------------------------------
+
+        @JavascriptInterface
+        public void selectCompressorFile() {
+
+            runOnUiThread(() -> {
+
+                Intent intent = new Intent(
+                        Intent.ACTION_OPEN_DOCUMENT
+                );
+
+                intent.addCategory(
+                        Intent.CATEGORY_OPENABLE
+                );
+
+                intent.setType("*/*");
+
+                startActivityForResult(
+                        intent,
+                        REQUEST_PICK_FILE
+                );
+            });
+        }
+
+        // -----------------------------------------------------
+        // COMPRESS AUDIO
+        // -----------------------------------------------------
+
+        @JavascriptInterface
+        public void compressAudio(
+                int bitrateKbps
+        ) {
+
+            runOnUiThread(() -> {
+
+                if (selectedFilePath == null) {
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Please select a file first",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    return;
+                }
+
+                requestedBitrateKbps =
+                        Math.max(
+                                24,
+                                Math.min(
+                                        bitrateKbps,
+                                        128
+                                )
+                        );
+
+                startCompression(
+                        selectedFilePath,
+                        requestedBitrateKbps
+                );
+            });
+        }
+
+        // -----------------------------------------------------
+        // DOWNLOAD / SAVE
+        // -----------------------------------------------------
+
+        @JavascriptInterface
+        public void downloadCompressedFile(
+                String outputPath
+        ) {
+
+            runOnUiThread(() -> {
+
+                if (outputPath == null ||
+                        outputPath.trim().isEmpty()) {
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Output file not found",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    return;
+                }
+
+                File sourceFile =
+                        new File(outputPath);
+
+                if (!sourceFile.exists()) {
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Compressed file not found",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    return;
+                }
+
+                Toast.makeText(
+                        MainActivity.this,
+                        "File ready: " +
+                                sourceFile.getName(),
+                        Toast.LENGTH_SHORT
+                ).show();
+            });
+        }
+
+        // -----------------------------------------------------
+        // OPEN TELEGRAM
+        // -----------------------------------------------------
+
+        @JavascriptInterface
+        public void openTelegram() {
+
+            runOnUiThread(() -> {
+
+                try {
+
+                    Intent intent =
+                            new Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(
+                                            "https://t.me/"
+                                    )
+                            );
+
+                    startActivity(intent);
+
+                } catch (Exception e) {
+
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Cannot open Telegram",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
         }
     }
 
-    // ============================================================
-    // ACTIVITY RESULT
-    // ============================================================
+    // =========================================================
+    // FILE PICKER RESULT
+    // =========================================================
 
     @Override
     protected void onActivityResult(
@@ -1090,244 +598,77 @@ public class MainActivity extends Activity {
                 data
         );
 
-        // WEB FILE PICKER
-        if (
-                requestCode ==
-                        WEB_FILE_PICKER_REQUEST
-        ) {
+        if (requestCode != REQUEST_PICK_FILE) {
+            return;
+        }
 
-            if (filePathCallback != null) {
-
-                Uri[] results = null;
-
-                if (
-                        resultCode ==
-                                RESULT_OK
-                                && data != null
-                                && data.getData() != null
-                ) {
-
-                    results =
-                            new Uri[]{
-                                    data.getData()
-                            };
-                }
-
-                filePathCallback
-                        .onReceiveValue(
-                                results
-                        );
-
-                filePathCallback = null;
-            }
+        if (resultCode != RESULT_OK ||
+                data == null ||
+                data.getData() == null) {
 
             return;
         }
 
-        // SAVE FILE
-        if (
-                requestCode ==
-                        SAVE_FILE_REQUEST
-        ) {
+        Uri uri = data.getData();
 
-            if (
-                    resultCode ==
-                            RESULT_OK
-                            && data != null
-                            && data.getData() != null
-                            && pendingDownloadPath != null
-                            && !pendingDownloadPath.isEmpty()
-            ) {
+        selectedFilePath =
+                getPathFromUri(uri);
 
-                Uri destinationUri =
-                        data.getData();
+        if (selectedFilePath == null) {
 
-                try {
-
-                    File sourceFile =
-                            new File(
-                                    pendingDownloadPath
-                            );
-
-                    if (!sourceFile.exists()) {
-
-                        throw new Exception(
-                                "Output file မတွေ့ပါ။"
-                        );
-                    }
-
-                    InputStream input =
-                            new FileInputStream(
-                                    sourceFile
-                            );
-
-                    OutputStream output =
-                            getContentResolver()
-                                    .openOutputStream(
-                                            destinationUri
-                                    );
-
-                    if (output == null) {
-
-                        input.close();
-
-                        throw new Exception(
-                                "Save location ကို ဖွင့်မရပါ။"
-                        );
-                    }
-
-                    byte[] buffer =
-                            new byte[8192];
-
-                    int length;
-
-                    while (
-                            (length =
-                                    input.read(buffer))
-                                    != -1
-                    ) {
-
-                        output.write(
-                                buffer,
-                                0,
-                                length
-                        );
-                    }
-
-                    output.flush();
-
-                    input.close();
-                    output.close();
-
-                    showDownloadSuccess();
-
-                } catch (Exception e) {
-
-                    showDownloadError(
-                            e.getMessage()
-                    );
-                }
-            }
-
-            pendingDownloadPath = "";
+            Toast.makeText(
+                    this,
+                    "Cannot read selected file",
+                    Toast.LENGTH_SHORT
+            ).show();
 
             return;
         }
 
-        // NORMAL FILE PICKER
-        if (
-                requestCode ==
-                        FILE_PICKER_REQUEST
-                        && resultCode ==
-                        RESULT_OK
-                        && data != null
-                        && data.getData() != null
-        ) {
+        String fileName =
+                new File(
+                        selectedFilePath
+                ).getName();
 
-            lastSelectedUri =
-                    data.getData();
+        Toast.makeText(
+                this,
+                "Selected: " + fileName,
+                Toast.LENGTH_SHORT
+        ).show();
 
-            try {
+        if (webView != null) {
 
-                final int takeFlags =
-                        data.getFlags()
-                                & (
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                        |
-                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        );
+            String safeName =
+                    fileName
+                            .replace("\\", "\\\\")
+                            .replace("'", "\\'");
 
-                getContentResolver()
-                        .takePersistableUriPermission(
-                                lastSelectedUri,
-                                takeFlags
-                        );
-
-            } catch (Exception ignored) {
-            }
-
-            originalFileSize = 0;
-
-            try {
-
-                Cursor cursor =
-                        getContentResolver().query(
-                                lastSelectedUri,
-                                null,
-                                null,
-                                null,
-                                null
-                        );
-
-                if (cursor != null) {
-
-                    int sizeIndex =
-                            cursor.getColumnIndex(
-                                    OpenableColumns.SIZE
-                            );
-
-                    if (
-                            cursor.moveToFirst()
-                                    && sizeIndex >= 0
-                    ) {
-
-                        originalFileSize =
-                                cursor.getLong(
-                                        sizeIndex
-                                );
-                    }
-
-                    cursor.close();
-                }
-
-            } catch (Exception e) {
-
-                originalFileSize = 0;
-            }
-
-            String name =
-                    getFileName(
-                            lastSelectedUri
-                    );
-
-            String jsName =
-                    escapeJsString(name);
-
-            final long selectedSize =
-                    originalFileSize;
-
-            runOnUiThread(
-                    () ->
-                            webView.evaluateJavascript(
-                                    "if(window.onNativeFileSelected){" +
-                                            "window.onNativeFileSelected('" +
-                                            jsName +
-                                            "'," +
-                                            selectedSize +
-                                            ");}",
-                                    null
-                            )
+            webView.evaluateJavascript(
+                    "window.onFileSelected && " +
+                            "window.onFileSelected('" +
+                            safeName +
+                            "')",
+                    null
             );
         }
     }
 
-    // ============================================================
-    // GET FILE NAME
-    // ============================================================
+    // =========================================================
+    // URI -> PATH
+    // =========================================================
 
-    private String getFileName(
-            Uri uri
-    ) {
-
-        String result =
-                "selected_file";
+    private String getPathFromUri(Uri uri) {
 
         try {
 
-            Cursor cursor =
+            String[] projection = {
+                    android.provider.MediaStore.MediaColumns.DATA
+            };
+
+            android.database.Cursor cursor =
                     getContentResolver().query(
                             uri,
-                            null,
+                            projection,
                             null,
                             null,
                             null
@@ -1335,352 +676,226 @@ public class MainActivity extends Activity {
 
             if (cursor != null) {
 
-                int nameIndex =
-                        cursor.getColumnIndex(
-                                OpenableColumns.DISPLAY_NAME
+                int columnIndex =
+                        cursor.getColumnIndexOrThrow(
+                                android.provider.MediaStore.MediaColumns.DATA
                         );
 
-                if (
-                        cursor.moveToFirst()
-                                && nameIndex >= 0
-                ) {
+                cursor.moveToFirst();
 
-                    result =
-                            cursor.getString(
-                                    nameIndex
-                            );
-                }
+                String path =
+                        cursor.getString(columnIndex);
 
                 cursor.close();
+
+                if (path != null) {
+                    return path;
+                }
             }
 
         } catch (Exception ignored) {
         }
 
-        return result;
-    }
-
-    // ============================================================
-    // COMPRESS AUDIO
-    // ============================================================
-
-    private void compressAudio(
-            final int requestedBitrateKbps
-    ) {
-
-        if (lastSelectedUri == null) {
-
-            sendResult(
-                    false,
-                    "အရင်ဆုံး Video သို့မဟုတ် Audio ဖိုင်ရွေးပါ။",
-                    0,
-                    0,
-                    ""
-            );
-
-            return;
-        }
-
-        if (originalFileSize <= 0) {
-
-            sendResult(
-                    false,
-                    "မူရင်း file size ကို မဖတ်နိုင်ပါ။",
-                    0,
-                    0,
-                    ""
-            );
-
-            return;
-        }
-
-        compressionAttempt = 0;
-
-        compressionResultSent = false;
-
-        int safeRequestedBitrate =
-                Math.max(
-                        24,
-                        Math.min(
-                                requestedBitrateKbps,
-                                128
-                        )
-                );
-
-        int sourceBitrateKbps =
-                getSourceBitrateKbps(
-                        lastSelectedUri
-                );
-
-        int targetBitrate =
-                safeRequestedBitrate;
-
-        if (sourceBitrateKbps > 0) {
-
-            int sourceBasedTarget =
-                    (int)
-                            Math.floor(
-                                    sourceBitrateKbps *
-                                            0.70
-                            );
-
-            sourceBasedTarget =
-                    Math.max(
-                            24,
-                            sourceBasedTarget
-                    );
-
-            targetBitrate =
-                    Math.min(
-                            safeRequestedBitrate,
-                            sourceBasedTarget
-                    );
-        }
-
-        currentCompressionBitrate =
-                targetBitrate;
-
-        runOnUiThread(
-                () ->
-                        sendProgress(
-                                "Audio ကို စတင်ချုံ့နေပါတယ်..."
-                        )
-        );
+        /*
+         * Android အသစ်တွေမှာ DATA column မရနိုင်တာကြောင့်
+         * URI ကို cache ထဲ copy လုပ်ပါတယ်။
+         */
 
         try {
 
-            File musicDir =
-                    getExternalFilesDir(
-                            Environment.DIRECTORY_MUSIC
+            File cacheFile =
+                    new File(
+                            getCacheDir(),
+                            "input_" +
+                                    System.currentTimeMillis()
                     );
 
-            if (musicDir == null) {
+            java.io.InputStream input =
+                    getContentResolver()
+                            .openInputStream(uri);
 
-                throw new Exception(
-                        "Music folder မရပါ။"
-                );
+            if (input == null) {
+                return null;
             }
 
-            File outputDir =
-                    new File(
-                            musicDir,
-                            "MyTranscriber"
+            java.io.FileOutputStream output =
+                    new java.io.FileOutputStream(
+                            cacheFile
                     );
 
-            if (
-                    !outputDir.exists()
-                            && !outputDir.mkdirs()
+            byte[] buffer =
+                    new byte[8192];
+
+            int length;
+
+            while (
+                    (length = input.read(buffer))
+                            > 0
             ) {
 
-                throw new Exception(
-                        "Output folder ဖန်တီးမရပါ။"
+                output.write(
+                        buffer,
+                        0,
+                        length
                 );
             }
 
-            String timestamp =
-                    new SimpleDateFormat(
-                            "yyyyMMdd_HHmmss",
-                            Locale.US
-                    ).format(
-                            new Date()
-                    );
+            output.flush();
+            output.close();
+            input.close();
 
-            File outputFile =
-                    new File(
-                            outputDir,
-                            "compressed_audio_" +
-                                    timestamp +
-                                    ".mp4"
+            return cacheFile.getAbsolutePath();
+
+        } catch (Exception e) {
+
+            return null;
+        }
+    }
+
+    // =========================================================
+    // START COMPRESSION
+    // =========================================================
+
+    private void startCompression(
+            String inputPath,
+            int bitrateKbps
+    ) {
+
+        File inputFile =
+                new File(inputPath);
+
+        if (!inputFile.exists()) {
+
+            Toast.makeText(
+                    this,
+                    "Input file not found",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        Toast.makeText(
+                this,
+                "Compressing...",
+                Toast.LENGTH_SHORT
+        ).show();
+
+        File outputDir =
+                getExternalFilesDir(
+                        Environment.DIRECTORY_MUSIC
+                );
+
+        if (outputDir == null) {
+
+            outputDir =
+                    getCacheDir();
+        }
+
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+
+        String baseName =
+                inputFile.getName();
+
+        int dot =
+                baseName.lastIndexOf('.');
+
+        if (dot > 0) {
+
+            baseName =
+                    baseName.substring(
+                            0,
+                            dot
                     );
+        }
+
+        File outputFile =
+                new File(
+                        outputDir,
+                        baseName +
+                                "_compressed.m4a"
+                );
+
+        compressWithTransformer(
+                inputFile,
+                outputFile,
+                bitrateKbps
+        );
+    }
+
+    // =========================================================
+    // COMPRESS WITH MEDIA3
+    // =========================================================
+
+    private void compressWithTransformer(
+            File inputFile,
+            File outputFile,
+            int bitrateKbps
+    ) {
+
+        try {
 
             if (outputFile.exists()) {
                 outputFile.delete();
             }
 
-            startAudioCompression(
-                    outputFile,
-                    targetBitrate
-            );
-
-        } catch (Exception e) {
-
-            sendResult(
-                    false,
-                    e.getMessage() != null
-                            ? e.getMessage()
-                            : "Compression error",
-                    originalFileSize,
-                    0,
-                    ""
-            );
-        }
-    }
-
-    // ============================================================
-    // SOURCE BITRATE
-    // ============================================================
-
-    private int getSourceBitrateKbps(
-            Uri uri
-    ) {
-
-        MediaMetadataRetriever retriever =
-                new MediaMetadataRetriever();
-
-        try {
-
-            retriever.setDataSource(
-                    this,
-                    uri
-            );
-
-            String mimeType =
-                    retriever.extractMetadata(
-                            MediaMetadataRetriever
-                                    .METADATA_KEY_MIMETYPE
-                    );
-
-            if (
-                    mimeType != null
-                            &&
-                    mimeType
-                            .toLowerCase(
-                                    Locale.US
-                            )
-                            .startsWith(
-                                    "video/"
-                            )
-            ) {
-
-                return 0;
-            }
-
-            String bitrate =
-                    retriever.extractMetadata(
-                            MediaMetadataRetriever
-                                    .METADATA_KEY_BITRATE
-                    );
-
-            if (
-                    bitrate != null
-                            && !bitrate.isEmpty()
-            ) {
-
-                long bitrateValue =
-                        Long.parseLong(
-                                bitrate
-                        );
-
-                if (bitrateValue > 0) {
-
-                    return (int)
-                            Math.max(
-                                    1,
-                                    bitrateValue / 1000
-                            );
-                }
-            }
-
-        } catch (Exception ignored) {
-
-        } finally {
-
-            try {
-                retriever.release();
-            } catch (Exception ignored) {
-            }
-        }
-
-        return 0;
-    }
-
-    // ============================================================
-    // START AUDIO COMPRESSION
-    // ============================================================
-
-    private void startAudioCompression(
-            final File outputFile,
-            final int bitrateKbps
-    ) {
-
-        try {
-
             MediaItem mediaItem =
                     MediaItem.fromUri(
-                            lastSelectedUri
+                            Uri.fromFile(inputFile)
                     );
-
-            AudioEncoderSettings audioSettings =
-                    new AudioEncoderSettings.Builder()
-                            .setBitrate(
-                                    bitrateKbps * 1000
-                            )
-                            .build();
-
-            DefaultEncoderFactory encoderFactory =
-                    new DefaultEncoderFactory.Builder(
-                            this
-                    )
-                            .setRequestedAudioEncoderSettings(
-                                    audioSettings
-                            )
-                            .build();
-
-            Transformer transformer =
-                    new Transformer.Builder(
-                            this
-                    )
-                            .setEncoderFactory(
-                                    encoderFactory
-                            )
-                            .addListener(
-                                    new Transformer.Listener() {
-
-                                        @Override
-                                        public void onCompleted(
-                                                Composition composition,
-                                                ExportResult exportResult
-                                        ) {
-
-                                            handleCompressionSuccess(
-                                                    outputFile,
-                                                    bitrateKbps
-                                            );
-                                        }
-
-                                        @Override
-                                        public void onError(
-                                                Composition composition,
-                                                ExportResult exportResult,
-                                                ExportException exportException
-                                        ) {
-
-                                            handleCompressionError(
-                                                    exportException
-                                            );
-                                        }
-                                    }
-                            )
-                            .build();
 
             EditedMediaItem editedMediaItem =
                     new EditedMediaItem.Builder(
                             mediaItem
                     )
-                            .setRemoveVideo(true)
                             .build();
 
-            final String progressMessage =
-                    "Audio ကို " +
-                            bitrateKbps +
-                            " kbps နဲ့ encode လုပ်နေပါတယ်...";
-
-            runOnUiThread(
-                    () ->
-                            sendProgress(
-                                    progressMessage
+            Transformer transformer =
+                    new Transformer.Builder(this)
+                            .setAudioMimeType(
+                                    "audio/mp4"
                             )
-            );
+                            .setAudioBitrate(
+                                    bitrateKbps * 1000
+                            )
+                            .addListener(
+                                    new Transformer.Listener() {
+
+                                        @Override
+                                        public void onTransformationCompleted(
+                                                @NonNull MediaItem mediaItem
+                                        ) {
+
+                                            runOnUiThread(() -> {
+
+                                                handleCompressionFinished(
+                                                        inputFile,
+                                                        outputFile
+                                                );
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onTransformationError(
+                                                @NonNull MediaItem mediaItem,
+                                                @NonNull TransformationException exception
+                                        ) {
+
+                                            runOnUiThread(() -> {
+
+                                                Toast.makeText(
+                                                        MainActivity.this,
+                                                        "Compression failed: " +
+                                                                exception.getMessage(),
+                                                        Toast.LENGTH_LONG
+                                                ).show();
+                                            });
+                                        }
+                                    }
+                            )
+                            .build();
 
             transformer.start(
                     editedMediaItem,
@@ -1689,510 +904,107 @@ public class MainActivity extends Activity {
 
         } catch (Exception e) {
 
-            sendResult(
-                    false,
-                    e.getMessage() != null
-                            ? e.getMessage()
-                            : "Compression error",
-                    originalFileSize,
-                    0,
-                    ""
-            );
+            Toast.makeText(
+                    this,
+                    "Compression error: " +
+                            e.getMessage(),
+                    Toast.LENGTH_LONG
+            ).show();
         }
     }
 
-    // ============================================================
-    // COMPRESSION SUCCESS
-    // ============================================================
+    // =========================================================
+    // COMPRESSION FINISHED
+    // =========================================================
 
-    private void handleCompressionSuccess(
-            File outputFile,
-            int usedBitrateKbps
+    private void handleCompressionFinished(
+            File inputFile,
+            File outputFile
     ) {
 
-        runOnUiThread(
-                () -> {
+        if (!outputFile.exists()) {
 
-                    if (!outputFile.exists()) {
+            Toast.makeText(
+                    this,
+                    "Output file not created",
+                    Toast.LENGTH_LONG
+            ).show();
 
-                        sendResult(
-                                false,
-                                "Output file မတွေ့ပါ။",
-                                originalFileSize,
-                                0,
-                                ""
-                        );
+            return;
+        }
 
-                        return;
-                    }
+        long originalSize =
+                inputFile.length();
 
-                    long compressedSize =
-                            outputFile.length();
+        long compressedSize =
+                outputFile.length();
 
-                    if (compressedSize <= 0) {
+        /*
+         * Output မသေးဘူးဆိုရင် bitrate ကို တစ်ဝက်ချပြီး
+         * တစ်ကြိမ် ထပ်ကြိုးစားပါတယ်။
+         */
 
-                        outputFile.delete();
+        if (compressedSize >= originalSize &&
+                requestedBitrateKbps > 24) {
 
-                        sendResult(
-                                false,
-                                "Output file အရွယ်အစား မမှန်ပါ။",
-                                originalFileSize,
-                                0,
-                                ""
-                        );
-
-                        return;
-                    }
-
-                    if (
-                            compressedSize >=
-                                    originalFileSize
-                    ) {
-
-                        if (
-                                compressionAttempt <
-                                        MAX_COMPRESSION_ATTEMPTS - 1
-                        ) {
-
-                            compressionAttempt++;
-
-                            int retryBitrate =
-                                    Math.max(
-                                            24,
-                                            usedBitrateKbps / 2
-                                    );
-
-                            if (
-                                    retryBitrate <
-                                            usedBitrateKbps
-                            ) {
-
-                                outputFile.delete();
-
-                                currentCompressionBitrate =
-                                        retryBitrate;
-
-                                sendProgress(
-                                        "Output size မသေးသေးပါ။ " +
-                                                retryBitrate +
-                                                " kbps နဲ့ ထပ်ချုံ့နေပါတယ်..."
-                                );
-
-                                String timestamp =
-                                        new SimpleDateFormat(
-                                                "yyyyMMdd_HHmmss_SSS",
-                                                Locale.US
-                                        ).format(
-                                                new Date()
-                                        );
-
-                                File retryFile =
-                                        new File(
-                                                outputFile.getParentFile(),
-                                                "compressed_audio_" +
-                                                        timestamp +
-                                                        ".mp4"
-                                        );
-
-                                startAudioCompression(
-                                        retryFile,
-                                        retryBitrate
-                                );
-
-                                return;
-                            }
-                        }
-
-                        outputFile.delete();
-
-                        sendResult(
-                                false,
-                                "ဒီဖိုင်က သေးအောင်ချုံ့ဖို့ မလွယ်ပါ။ " +
-                                        "မူရင်း Audio က bitrate နိမ့်နေပြီးသား ဖြစ်နိုင်ပါတယ်။",
-                                originalFileSize,
-                                compressedSize,
-                                ""
-                        );
-
-                        return;
-                    }
-
-                    showInterstitialThenResult(
-                            outputFile,
-                            compressedSize
+            int retryBitrate =
+                    Math.max(
+                            24,
+                            requestedBitrateKbps / 2
                     );
-                }
-        );
-    }
 
-    // ============================================================
-    // COMPRESSION ERROR
-    // ============================================================
+            Toast.makeText(
+                    this,
+                    "Trying lower bitrate...",
+                    Toast.LENGTH_SHORT
+            ).show();
 
-    private void handleCompressionError(
-            ExportException exception
-    ) {
+            requestedBitrateKbps =
+                    retryBitrate;
 
-        runOnUiThread(
-                () -> {
-
-                    String message =
-                            exception.getMessage();
-
-                    if (
-                            message == null
-                                    || message.isEmpty()
-                    ) {
-
-                        message =
-                                "Compression မအောင်မြင်ပါ။";
-                    }
-
-                    sendResult(
-                            false,
-                            message,
-                            originalFileSize,
-                            0,
-                            ""
-                    );
-                }
-        );
-    }
-
-    // ============================================================
-    // SEND RESULT TO WEBVIEW
-    // ============================================================
-
-    private void sendResult(
-            boolean success,
-            String message,
-            long originalSize,
-            long compressedSize,
-            String outputPath
-    ) {
-
-        String jsMessage =
-                escapeJsString(
-                        message == null
-                                ? ""
-                                : message
-                );
-
-        String jsPath =
-                escapeJsString(
-                        outputPath == null
-                                ? ""
-                                : outputPath
-                );
-
-        String script =
-                "if(window.onCompressionFinished){" +
-                        "window.onCompressionFinished(" +
-                        success +
-                        ",'" +
-                        jsMessage +
-                        "'," +
-                        originalSize +
-                        "," +
-                        compressedSize +
-                        ",'" +
-                        jsPath +
-                        "');}";
-
-        runOnUiThread(
-                () ->
-                        webView.evaluateJavascript(
-                                script,
-                                null
-                        )
-        );
-    }
-
-    // ============================================================
-    // SEND PROGRESS
-    // ============================================================
-
-    private void sendProgress(
-            String message
-    ) {
-
-        String jsMessage =
-                escapeJsString(
-                        message == null
-                                ? ""
-                                : message
-                );
-
-        String script =
-                "if(window.onCompressionProgress){" +
-                        "window.onCompressionProgress('" +
-                        jsMessage +
-                        "');}";
-
-        runOnUiThread(
-                () ->
-                        webView.evaluateJavascript(
-                                script,
-                                null
-                        )
-        );
-    }
-
-    // ============================================================
-    // DOWNLOAD COMPRESSED FILE
-    // ============================================================
-
-    private void downloadCompressedFile(
-            String outputPath
-    ) {
-
-        if (
-                outputPath == null
-                        || outputPath.isEmpty()
-        ) {
-
-            showDownloadError(
-                    "Output file မတွေ့ပါ။"
+            compressWithTransformer(
+                    inputFile,
+                    outputFile,
+                    retryBitrate
             );
 
             return;
         }
 
-        File file =
-                new File(outputPath);
+        compressedFilePath =
+                outputFile.getAbsolutePath();
 
-        if (!file.exists()) {
+        Toast.makeText(
+                this,
+                "Compression complete",
+                Toast.LENGTH_SHORT
+        ).show();
 
-            showDownloadError(
-                    "Output file မတွေ့ပါ။"
-            );
+        /*
+         * Ad ရှိရင် အရင်ပြပြီးမှ result ပြမယ်။
+         * Ad မရှိရင် result ကို တန်းပြမယ်။
+         */
 
-            return;
-        }
-
-        pendingDownloadPath =
-                outputPath;
-
-        Intent intent =
-                new Intent(
-                        Intent.ACTION_CREATE_DOCUMENT
-                );
-
-        intent.addCategory(
-                Intent.CATEGORY_OPENABLE
-        );
-
-        intent.setType(
-                "audio/mp4"
-        );
-
-        intent.putExtra(
-                Intent.EXTRA_TITLE,
-                file.getName()
-        );
-
-        try {
-
-            startActivityForResult(
-                    intent,
-                    SAVE_FILE_REQUEST
-            );
-
-        } catch (Exception e) {
-
-            pendingDownloadPath = "";
-
-            showDownloadError(
-                    e.getMessage()
-            );
-        }
-    }
-
-    // ============================================================
-    // DOWNLOAD SUCCESS
-    // ============================================================
-
-    private void showDownloadSuccess() {
-
-        runOnUiThread(
-                () -> {
-
-                    String script =
-                            "if(window.onDownloadFinished){" +
-                                    "window.onDownloadFinished(true," +
-                                    "'File ကို သိမ်းပြီးပါပြီ။');}";
-
-                    webView.evaluateJavascript(
-                            script,
-                            null
-                    );
-                }
+        showInterstitialThenResult(
+                compressedFilePath
         );
     }
 
-    // ============================================================
-    // DOWNLOAD ERROR
-    // ============================================================
+    // =========================================================
+    // BACK BUTTON
+    // =========================================================
 
-    private void showDownloadError(
-            String message
-    ) {
+    @Override
+    public void onBackPressed() {
 
-        String safeMessage =
-                escapeJsString(
-                        message == null
-                                ? "Unknown error"
-                                : message
-                );
+        if (webView != null &&
+                webView.canGoBack()) {
 
-        runOnUiThread(
-                () -> {
+            webView.goBack();
 
-                    String script =
-                            "if(window.onDownloadFinished){" +
-                                    "window.onDownloadFinished(false,'" +
-                                    safeMessage +
-                                    "');}";
+        } else {
 
-                    webView.evaluateJavascript(
-                            script,
-                            null
-                    );
-                }
-        );
-    }
-
-    // ============================================================
-    // ESCAPE JAVASCRIPT STRING
-    // ============================================================
-
-    private String escapeJsString(
-            String value
-    ) {
-
-        if (value == null) {
-            return "";
-        }
-
-        return value
-                .replace(
-                        "\\",
-                        "\\\\"
-                )
-                .replace(
-                        "'",
-                        "\\'"
-                )
-                .replace(
-                        "\"",
-                        "\\\""
-                )
-                .replace(
-                        "\r",
-                        "\\r"
-                )
-                .replace(
-                        "\n",
-                        "\\n"
-                )
-                .replace(
-                        "</",
-                        "<\\/"
-                );
-    }
-
-    // ============================================================
-    // ANDROID BRIDGE
-    // ============================================================
-
-    public class AndroidBridge {
-
-        @JavascriptInterface
-        public void selectCompressorFile() {
-
-            runOnUiThread(
-                    () ->
-                            openFilePicker()
-            );
-        }
-
-        @JavascriptInterface
-        public void compressAudio(
-                int bitrateKbps
-        ) {
-
-            runOnUiThread(
-                    () ->
-                            MainActivity.this
-                                    .compressAudio(
-                                            bitrateKbps
-                                    )
-            );
-        }
-
-        @JavascriptInterface
-        public void downloadCompressedFile(
-                String outputPath
-        ) {
-
-            runOnUiThread(
-                    () ->
-                            MainActivity.this
-                                    .downloadCompressedFile(
-                                            outputPath
-                                    )
-            );
-        }
-
-        @JavascriptInterface
-        public void openTelegram() {
-
-            runOnUiThread(
-                    () -> {
-
-                        try {
-
-                            Intent telegramIntent =
-                                    new Intent(
-                                            Intent.ACTION_VIEW,
-                                            Uri.parse(
-                                                    "tg://resolve?domain=liamliam131999"
-                                            )
-                                    );
-
-                            startActivity(
-                                    telegramIntent
-                            );
-
-                        } catch (
-                                ActivityNotFoundException e
-                        ) {
-
-                            try {
-
-                                Intent browserIntent =
-                                        new Intent(
-                                                Intent.ACTION_VIEW,
-                                                Uri.parse(
-                                                        "https://t.me/liamliam131999"
-                                                )
-                                        );
-
-                                startActivity(
-                                        browserIntent
-                                );
-
-                            } catch (
-                                    Exception browserError
-                            ) {
-
-                                showDownloadError(
-                                        "Telegram / Browser ဖွင့်မရပါ။"
-                                );
-                            }
-                        }
-                    }
-            );
+            super.onBackPressed();
         }
     }
-    }
+        }
