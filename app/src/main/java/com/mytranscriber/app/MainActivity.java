@@ -37,13 +37,12 @@ import androidx.media3.transformer.Transformer;
 import com.unity3d.ads.InitializationConfiguration;
 import com.unity3d.ads.InitializationListener;
 import com.unity3d.ads.InterstitialAd;
-import com.unity3d.ads.InterstitialLoadListener;
-import com.unity3d.ads.InterstitialShowListener;
 import com.unity3d.ads.LoadConfiguration;
 import com.unity3d.ads.ShowConfiguration;
 import com.unity3d.ads.ShowFinishState;
 import com.unity3d.ads.UnityAds;
 import com.unity3d.ads.UnityAdsError;
+import com.unity3d.ads.listeners.InterstitialShowListener;
 
 import org.json.JSONObject;
 
@@ -78,14 +77,11 @@ public class MainActivity extends Activity {
 
     private static final String UNITY_GAME_ID = "800380386";
 
-    // Testing အတွက် true
-    // Test ပြီး Live ထုတ်မယ်ဆို false ပြောင်းပါ
     private static final boolean UNITY_TEST_MODE = true;
 
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
             "BP_Interstitial_Android";
 
-    // New Unity Ads API
     private InterstitialAd unityInterstitialAd = null;
 
     private TextView unityDebugText;
@@ -403,7 +399,7 @@ public class MainActivity extends Activity {
     }
 
     // ============================================================
-    // LOAD INTERSTITIAL - NEW API
+    // LOAD INTERSTITIAL - UNITY 4.20.1
     // ============================================================
 
     private void loadUnityInterstitial() {
@@ -426,76 +422,65 @@ public class MainActivity extends Activity {
 
                 InterstitialAd.load(
                         loadConfiguration,
-                        new InterstitialLoadListener() {
+                        (interstitialAd, error) -> {
 
-                            @Override
-                            public void onInterstitialLoaded(
-                                    InterstitialAd interstitialAd,
-                                    UnityAdsError error
-                            ) {
+                            if (interstitialAd != null) {
 
-                                if (interstitialAd != null
-                                        && error == null) {
+                                unityInterstitialAd =
+                                        interstitialAd;
 
-                                    unityInterstitialAd =
-                                            interstitialAd;
+                                showUnityDebug(
+                                        "AD LOADED ✓"
+                                );
 
-                                    showUnityDebug(
-                                            "AD LOADED ✓"
-                                    );
+                                Log.d(
+                                        "UnityAds",
+                                        "Interstitial loaded successfully"
+                                );
 
-                                    Log.d(
-                                            "UnityAds",
-                                            "Interstitial loaded successfully"
-                                    );
+                                interstitialAd.setOnAdExpired(
+                                        expiredAd -> {
 
-                                    // Ad expire ဖြစ်သွားရင်
-                                    // reference ကိုဖျက်ပြီး
-                                    // နောက်တစ်ကြိမ် load လုပ်မယ်
-                                    interstitialAd.setOnAdExpired(
-                                            expiredAd -> {
+                                            Log.d(
+                                                    "UnityAds",
+                                                    "Interstitial expired"
+                                            );
 
-                                                Log.d(
-                                                        "UnityAds",
-                                                        "Interstitial expired"
-                                                );
+                                            if (
+                                                    unityInterstitialAd
+                                                            == expiredAd
+                                            ) {
 
-                                                if (
-                                                        unityInterstitialAd
-                                                                == expiredAd
-                                                ) {
-
-                                                    unityInterstitialAd =
-                                                            null;
-                                                }
-
-                                                loadUnityInterstitial();
+                                                unityInterstitialAd =
+                                                        null;
                                             }
-                                    );
 
-                                } else {
+                                            loadUnityInterstitial();
+                                        }
+                                );
 
-                                    unityInterstitialAd =
-                                            null;
+                            } else {
 
-                                    String errorMessage =
-                                            error != null
-                                                    ? error.toString()
-                                                    : "Unknown error";
+                                unityInterstitialAd =
+                                        null;
 
-                                    String debugMessage =
-                                            "AD LOAD FAILED: " +
-                                                    errorMessage;
+                                String errorMessage =
+                                        error != null
+                                                ? error.getMessage()
+                                                : "Unknown error";
 
-                                    showUnityDebug(
-                                            debugMessage
-                                    );
+                                String debugMessage =
+                                        "AD LOAD FAILED: " +
+                                                errorMessage;
 
-                                    Log.e(
-                                            "UnityAds",
-                                            debugMessage
-                                    );
-                                }
+                                showUnityDebug(
+                                        debugMessage
+                                );
+
+                                Log.e(
+                                        "UnityAds",
+                                        debugMessage
+                                );
                             }
                         }
                 );
@@ -532,10 +517,6 @@ public class MainActivity extends Activity {
     ) {
 
         runOnUiThread(() -> {
-
-            // ----------------------------------------------------
-            // AD မရှိရင် Result ချက်ချင်း
-            // ----------------------------------------------------
 
             if (unityInterstitialAd == null) {
 
@@ -637,7 +618,11 @@ public class MainActivity extends Activity {
 
                                 String message =
                                         "AD SHOW FAILED: " +
-                                                error;
+                                                (
+                                                        error != null
+                                                                ? error.getMessage()
+                                                                : "Unknown error"
+                                                );
 
                                 showUnityDebug(
                                         message
@@ -1111,9 +1096,7 @@ public class MainActivity extends Activity {
                         WEB_FILE_PICKER_REQUEST
         ) {
 
-            if (
-                    filePathCallback != null
-            ) {
+            if (filePathCallback != null) {
 
                 Uri[] results = null;
 
@@ -1167,6 +1150,7 @@ public class MainActivity extends Activity {
                             );
 
                     if (!sourceFile.exists()) {
+
                         throw new Exception(
                                 "Output file မတွေ့ပါ။"
                         );
