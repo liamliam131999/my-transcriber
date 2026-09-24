@@ -19,11 +19,11 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout;
 
 import androidx.media3.common.MediaItem;
 import androidx.media3.transformer.AudioEncoderSettings;
@@ -58,41 +58,26 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     private WebView webView;
-
     private ValueCallback<Uri[]> filePathCallback;
-
     private Uri lastSelectedUri;
 
     private long originalFileSize = 0;
-
     private String pendingDownloadPath = "";
 
     private static final int FILE_PICKER_REQUEST = 1001;
     private static final int WEB_FILE_PICKER_REQUEST = 2001;
     private static final int SAVE_FILE_REQUEST = 3001;
 
-    // =========================================================
+    // ============================================================
     // UNITY ADS
-    // =========================================================
+    // ============================================================
 
     private static final String UNITY_GAME_ID = "800380386";
 
-    /*
-     * true = Test Ads
-     * false = Live Ads
-     */
+    // Test mode = true
+    // Testing ပြီးမှ false ပြောင်းပါ
     private static final boolean UNITY_TEST_MODE = true;
 
-    /*
-     * Unity Dashboard
-     * Monetization > Placements
-     *
-     * Placement name:
-     * BP_Interstitial_Android
-     *
-     * Placement ID:
-     * BP_Interstitial_Android
-     */
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
             "BP_Interstitial_Android";
 
@@ -100,32 +85,30 @@ public class MainActivity extends Activity {
 
     private TextView unityDebugText;
 
-    // =========================================================
-    // REMOTE MAINTENANCE
-    // =========================================================
+    // ============================================================
+    // MAINTENANCE
+    // ============================================================
 
     private static final String MAINTENANCE_URL =
             "https://liamliam131999.github.io/my-transcriber/maintenance.json";
 
     private View maintenanceView;
-
     private boolean maintenanceMode = false;
 
-    // =========================================================
-    // COMPRESSOR STATE
-    // =========================================================
+    // ============================================================
+    // COMPRESSION
+    // ============================================================
 
     private int currentCompressionBitrate = 64;
-
     private int compressionAttempt = 0;
 
     private static final int MAX_COMPRESSION_ATTEMPTS = 2;
 
     private boolean compressionResultSent = false;
 
-    // =========================================================
+    // ============================================================
     // ON CREATE
-    // =========================================================
+    // ============================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,9 +117,9 @@ public class MainActivity extends Activity {
         checkMaintenance();
     }
 
-    // =========================================================
-    // DEBUG UNITY STATUS
-    // =========================================================
+    // ============================================================
+    // UNITY DEBUG
+    // ============================================================
 
     private void showUnityDebug(final String message) {
 
@@ -151,7 +134,6 @@ public class MainActivity extends Activity {
             ).show();
 
             if (unityDebugText != null) {
-
                 unityDebugText.setText(
                         "Unity Ads: " + message
                 );
@@ -159,9 +141,9 @@ public class MainActivity extends Activity {
         });
     }
 
-    // =========================================================
+    // ============================================================
     // MAINTENANCE CHECK
-    // =========================================================
+    // ============================================================
 
     private void checkMaintenance() {
 
@@ -178,7 +160,8 @@ public class MainActivity extends Activity {
                 );
 
                 connection =
-                        (HttpURLConnection) url.openConnection();
+                        (HttpURLConnection)
+                                url.openConnection();
 
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(8000);
@@ -195,8 +178,8 @@ public class MainActivity extends Activity {
                 int responseCode =
                         connection.getResponseCode();
 
-                if (responseCode >= 200 &&
-                        responseCode < 300) {
+                if (responseCode >= 200
+                        && responseCode < 300) {
 
                     InputStream input =
                             connection.getInputStream();
@@ -222,7 +205,9 @@ public class MainActivity extends Activity {
                     input.close();
 
                     JSONObject json =
-                            new JSONObject(result.toString());
+                            new JSONObject(
+                                    result.toString()
+                            );
 
                     boolean maintenance =
                             json.optBoolean(
@@ -239,7 +224,10 @@ public class MainActivity extends Activity {
                     if (maintenance) {
 
                         runOnUiThread(
-                                () -> showMaintenanceScreen(message)
+                                () ->
+                                        showMaintenanceScreen(
+                                                message
+                                        )
                         );
 
                     } else {
@@ -273,9 +261,9 @@ public class MainActivity extends Activity {
         thread.start();
     }
 
-    // =========================================================
-    // NORMAL APP
-    // =========================================================
+    // ============================================================
+    // START APP
+    // ============================================================
 
     private void startNormalApp() {
 
@@ -288,13 +276,15 @@ public class MainActivity extends Activity {
         setupWebView();
     }
 
-    // =========================================================
+    // ============================================================
     // UNITY ADS INITIALIZATION
-    // =========================================================
+    // ============================================================
 
     private void initializeUnityAds() {
 
-        showUnityDebug("Initializing...");
+        showUnityDebug(
+                "Initializing..."
+        );
 
         try {
 
@@ -318,74 +308,110 @@ public class MainActivity extends Activity {
 
                             Log.d(
                                     "UnityAds",
-                                    "Unity Game ID: "
-                                            + UNITY_GAME_ID
+                                    "================================"
                             );
 
                             Log.d(
                                     "UnityAds",
-                                    "Test Mode: "
-                                            + UNITY_TEST_MODE
+                                    "INIT SUCCESS"
                             );
 
                             Log.d(
                                     "UnityAds",
-                                    "SDK Version: "
-                                            + UnityAds.getVersion()
+                                    "Game ID: " +
+                                            UNITY_GAME_ID
                             );
 
                             Log.d(
                                     "UnityAds",
-                                    "Is Initialized: "
-                                            + UnityAds.isInitialized()
+                                    "Test Mode: " +
+                                            UNITY_TEST_MODE
                             );
 
+                            Log.d(
+                                    "UnityAds",
+                                    "SDK Version: " +
+                                            UnityAds.getVersion()
+                            );
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Is Initialized: " +
+                                            UnityAds.isInitialized()
+                            );
+
+                            Log.d(
+                                    "UnityAds",
+                                    "================================"
+                            );
+
+                            // Initialization အောင်မြင်မှ
+                            // Interstitial ကို load လုပ်မယ်
                             loadUnityInterstitial();
 
                         } else {
 
+                            String message =
+                                    "INIT FAILED: " +
+                                            error;
+
                             showUnityDebug(
-                                    "Initialization FAILED: "
-                                            + error
+                                    message
                             );
 
                             Log.e(
                                     "UnityAds",
-                                    "Unity Ads initialization failed: "
-                                            + error
+                                    message
                             );
                         }
                     };
 
+            Log.d(
+                    "UnityAds",
+                    "Calling UnityAds.initialize()..."
+            );
+
+            // IMPORTANT:
+            // Unity Ads 4.20.1 API
             UnityAds.initialize(
                     config,
                     listener
             );
 
+            Log.d(
+                    "UnityAds",
+                    "UnityAds.initialize() called"
+            );
+
         } catch (Exception e) {
 
+            String message =
+                    "INIT EXCEPTION: " +
+                            e.getMessage();
+
             showUnityDebug(
-                    "Initialization ERROR: "
-                            + e.getMessage()
+                    message
             );
 
             Log.e(
                     "UnityAds",
-                    "Unity Ads initialization error",
+                    message,
                     e
             );
         }
     }
 
-    // =========================================================
-    // UNITY INTERSTITIAL LOAD
-    // =========================================================
+    // ============================================================
+    // LOAD INTERSTITIAL
+    // ============================================================
 
     private void loadUnityInterstitial() {
 
         runOnUiThread(() -> {
 
-            showUnityDebug("Ad loading...");
+            showUnityDebug(
+                    "Ad loading..."
+            );
 
             try {
 
@@ -393,18 +419,23 @@ public class MainActivity extends Activity {
 
                 UnityAds.load(
                         UNITY_INTERSTITIAL_AD_UNIT_ID,
+
                         new IUnityAdsLoadListener() {
 
                             @Override
                             public void onUnityAdsAdLoaded(
-                                    String placementId) {
+                                    String placementId
+                            ) {
 
                                 if (
                                         UNITY_INTERSTITIAL_AD_UNIT_ID
-                                                .equals(placementId)
+                                                .equals(
+                                                        placementId
+                                                )
                                 ) {
 
-                                    unityInterstitialReady = true;
+                                    unityInterstitialReady =
+                                            true;
 
                                     showUnityDebug(
                                             "AD LOADED ✓"
@@ -412,8 +443,8 @@ public class MainActivity extends Activity {
 
                                     Log.d(
                                             "UnityAds",
-                                            "Interstitial loaded successfully. "
-                                                    + placementId
+                                            "Interstitial loaded: " +
+                                                    placementId
                                     );
                                 }
                             }
@@ -422,15 +453,17 @@ public class MainActivity extends Activity {
                             public void onUnityAdsFailedToLoad(
                                     String placementId,
                                     UnityAds.UnityAdsLoadError error,
-                                    String message) {
+                                    String message
+                            ) {
 
-                                unityInterstitialReady = false;
+                                unityInterstitialReady =
+                                        false;
 
                                 String debugMessage =
-                                        "AD LOAD FAILED: "
-                                                + error
-                                                + " - "
-                                                + message;
+                                        "AD LOAD FAILED: " +
+                                                error +
+                                                " - " +
+                                                message;
 
                                 showUnityDebug(
                                         debugMessage
@@ -446,11 +479,12 @@ public class MainActivity extends Activity {
 
             } catch (Exception e) {
 
-                unityInterstitialReady = false;
+                unityInterstitialReady =
+                        false;
 
                 showUnityDebug(
-                        "AD LOAD EXCEPTION: "
-                                + e.getMessage()
+                        "AD LOAD EXCEPTION: " +
+                                e.getMessage()
                 );
 
                 Log.e(
@@ -462,23 +496,29 @@ public class MainActivity extends Activity {
         });
     }
 
-    // =========================================================
-    // UNITY INTERSTITIAL SHOW
-    // =========================================================
+    // ============================================================
+    // SHOW INTERSTITIAL THEN RESULT
+    // ============================================================
 
     private void showInterstitialThenResult(
             final File outputFile,
-            final long compressedSize) {
+            final long compressedSize
+    ) {
 
         runOnUiThread(() -> {
 
+            // Ad မရသေးရင်
+            // User ကို result ချက်ချင်းပြမယ်
             if (!unityInterstitialReady) {
 
                 showUnityDebug(
                         "Ad NOT READY - showing result"
                 );
 
-                loadUnityInterstitial();
+                // နောက်တစ်ကြိမ်အတွက် load
+                if (UnityAds.isInitialized()) {
+                    loadUnityInterstitial();
+                }
 
                 sendCompressionSuccessResult(
                         outputFile,
@@ -498,21 +538,25 @@ public class MainActivity extends Activity {
 
                 UnityAds.show(
                         MainActivity.this,
+
                         UNITY_INTERSTITIAL_AD_UNIT_ID,
+
                         new UnityAdsShowOptions(),
+
                         new IUnityAdsShowListener() {
 
                             @Override
                             public void onUnityAdsShowFailure(
                                     String placementId,
                                     UnityAds.UnityAdsShowError error,
-                                    String message) {
+                                    String message
+                            ) {
 
                                 String debugMessage =
-                                        "AD SHOW FAILED: "
-                                                + error
-                                                + " - "
-                                                + message;
+                                        "AD SHOW FAILED: " +
+                                                error +
+                                                " - " +
+                                                message;
 
                                 showUnityDebug(
                                         debugMessage
@@ -533,7 +577,8 @@ public class MainActivity extends Activity {
 
                             @Override
                             public void onUnityAdsShowStart(
-                                    String placementId) {
+                                    String placementId
+                            ) {
 
                                 showUnityDebug(
                                         "AD STARTED ✓"
@@ -541,14 +586,15 @@ public class MainActivity extends Activity {
 
                                 Log.d(
                                         "UnityAds",
-                                        "Interstitial started: "
-                                                + placementId
+                                        "Interstitial started: " +
+                                                placementId
                                 );
                             }
 
                             @Override
                             public void onUnityAdsShowClick(
-                                    String placementId) {
+                                    String placementId
+                            ) {
 
                                 showUnityDebug(
                                         "AD CLICKED"
@@ -556,15 +602,16 @@ public class MainActivity extends Activity {
 
                                 Log.d(
                                         "UnityAds",
-                                        "Interstitial clicked: "
-                                                + placementId
+                                        "Interstitial clicked: " +
+                                                placementId
                                 );
                             }
 
                             @Override
                             public void onUnityAdsShowComplete(
                                     String placementId,
-                                    UnityAds.UnityAdsShowCompletionState state) {
+                                    UnityAds.UnityAdsShowCompletionState state
+                            ) {
 
                                 showUnityDebug(
                                         "AD COMPLETED ✓"
@@ -572,10 +619,10 @@ public class MainActivity extends Activity {
 
                                 Log.d(
                                         "UnityAds",
-                                        "Interstitial completed: "
-                                                + placementId
-                                                + " State: "
-                                                + state
+                                        "Interstitial completed: " +
+                                                placementId +
+                                                " State: " +
+                                                state
                                 );
 
                                 loadUnityInterstitial();
@@ -591,8 +638,8 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
 
                 showUnityDebug(
-                        "AD SHOW EXCEPTION: "
-                                + e.getMessage()
+                        "AD SHOW EXCEPTION: " +
+                                e.getMessage()
                 );
 
                 Log.e(
@@ -611,13 +658,14 @@ public class MainActivity extends Activity {
         });
     }
 
-    // =========================================================
-    // SEND COMPRESSION SUCCESS RESULT
-    // =========================================================
+    // ============================================================
+    // SEND COMPRESSION SUCCESS
+    // ============================================================
 
     private void sendCompressionSuccessResult(
             File outputFile,
-            long compressedSize) {
+            long compressedSize
+    ) {
 
         if (compressionResultSent) {
             return;
@@ -634,11 +682,13 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
+    // ============================================================
     // MAINTENANCE SCREEN
-    // =========================================================
+    // ============================================================
 
-    private void showMaintenanceScreen(String message) {
+    private void showMaintenanceScreen(
+            String message
+    ) {
 
         maintenanceMode = true;
 
@@ -661,7 +711,11 @@ public class MainActivity extends Activity {
         );
 
         root.setBackgroundColor(
-                Color.rgb(16, 17, 20)
+                Color.rgb(
+                        16,
+                        17,
+                        20
+                )
         );
 
         LinearLayout box =
@@ -683,7 +737,11 @@ public class MainActivity extends Activity {
         );
 
         box.setBackgroundColor(
-                Color.rgb(25, 26, 31)
+                Color.rgb(
+                        25,
+                        26,
+                        31
+                )
         );
 
         TextView icon =
@@ -691,15 +749,26 @@ public class MainActivity extends Activity {
 
         icon.setText("🔧");
         icon.setTextSize(50);
-        icon.setGravity(Gravity.CENTER);
+        icon.setGravity(
+                Gravity.CENTER
+        );
 
         TextView title =
                 new TextView(this);
 
-        title.setText("App Maintenance");
-        title.setTextColor(Color.WHITE);
+        title.setText(
+                "App Maintenance"
+        );
+
+        title.setTextColor(
+                Color.WHITE
+        );
+
         title.setTextSize(23);
-        title.setGravity(Gravity.CENTER);
+
+        title.setGravity(
+                Gravity.CENTER
+        );
 
         title.setPadding(
                 0,
@@ -711,10 +780,16 @@ public class MainActivity extends Activity {
         TextView messageView =
                 new TextView(this);
 
-        messageView.setText(message);
+        messageView.setText(
+                message
+        );
 
         messageView.setTextColor(
-                Color.rgb(169, 173, 183)
+                Color.rgb(
+                        169,
+                        173,
+                        183
+                )
         );
 
         messageView.setTextSize(15);
@@ -772,21 +847,33 @@ public class MainActivity extends Activity {
         maintenanceView = root;
     }
 
-    // =========================================================
-    // WEBVIEW SETUP
-    // =========================================================
+    // ============================================================
+    // WEBVIEW
+    // ============================================================
 
     private void setupWebView() {
 
-        webView = new WebView(this);
+        webView =
+                new WebView(this);
 
         WebSettings settings =
                 webView.getSettings();
 
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
+        settings.setJavaScriptEnabled(
+                true
+        );
+
+        settings.setDomStorageEnabled(
+                true
+        );
+
+        settings.setAllowFileAccess(
+                true
+        );
+
+        settings.setAllowContentAccess(
+                true
+        );
 
         webView.setWebViewClient(
                 new WebViewClient()
@@ -799,7 +886,8 @@ public class MainActivity extends Activity {
                     public boolean onShowFileChooser(
                             WebView webView,
                             ValueCallback<Uri[]> callback,
-                            FileChooserParams fileChooserParams) {
+                            FileChooserParams fileChooserParams
+                    ) {
 
                         if (
                                 MainActivity.this
@@ -809,7 +897,9 @@ public class MainActivity extends Activity {
 
                             MainActivity.this
                                     .filePathCallback
-                                    .onReceiveValue(null);
+                                    .onReceiveValue(
+                                            null
+                                    );
                         }
 
                         MainActivity.this
@@ -922,12 +1012,14 @@ public class MainActivity extends Activity {
                 "file:///android_asset/index.html"
         );
 
-        setContentView(frameLayout);
+        setContentView(
+                frameLayout
+        );
     }
 
-    // =========================================================
-    // FILE PICKER
-    // =========================================================
+    // ============================================================
+    // OPEN FILE PICKER
+    // ============================================================
 
     public void openFilePicker() {
 
@@ -961,8 +1053,8 @@ public class MainActivity extends Activity {
 
             sendResult(
                     false,
-                    "File picker ဖွင့်မရပါ:\n"
-                            + e.getMessage(),
+                    "File picker ဖွင့်မရပါ:\n" +
+                            e.getMessage(),
                     0,
                     0,
                     ""
@@ -970,21 +1062,26 @@ public class MainActivity extends Activity {
         }
     }
 
-    // =========================================================
+    // ============================================================
     // ACTIVITY RESULT
-    // =========================================================
+    // ============================================================
 
     @Override
     protected void onActivityResult(
             int requestCode,
             int resultCode,
-            Intent data) {
+            Intent data
+    ) {
 
         super.onActivityResult(
                 requestCode,
                 resultCode,
                 data
         );
+
+        // --------------------------------------------------------
+        // WEB FILE PICKER
+        // --------------------------------------------------------
 
         if (
                 requestCode ==
@@ -1011,13 +1108,19 @@ public class MainActivity extends Activity {
                 }
 
                 filePathCallback
-                        .onReceiveValue(results);
+                        .onReceiveValue(
+                                results
+                        );
 
                 filePathCallback = null;
             }
 
             return;
         }
+
+        // --------------------------------------------------------
+        // SAVE FILE
+        // --------------------------------------------------------
 
         if (
                 requestCode ==
@@ -1043,10 +1146,7 @@ public class MainActivity extends Activity {
                                     pendingDownloadPath
                             );
 
-                    if (
-                            !sourceFile.exists()
-                    ) {
-
+                    if (!sourceFile.exists()) {
                         throw new Exception(
                                 "Output file မတွေ့ပါ။"
                         );
@@ -1109,6 +1209,10 @@ public class MainActivity extends Activity {
 
             return;
         }
+
+        // --------------------------------------------------------
+        // NORMAL FILE PICKER
+        // --------------------------------------------------------
 
         if (
                 requestCode ==
@@ -1206,11 +1310,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    // =========================================================
+    // ============================================================
     // GET FILE NAME
-    // =========================================================
+    // ============================================================
 
-    private String getFileName(Uri uri) {
+    private String getFileName(
+            Uri uri
+    ) {
 
         String result =
                 "selected_file";
@@ -1253,16 +1359,15 @@ public class MainActivity extends Activity {
         return result;
     }
 
-    // =========================================================
+    // ============================================================
     // COMPRESS AUDIO
-    // =========================================================
+    // ============================================================
 
     private void compressAudio(
-            final int requestedBitrateKbps) {
+            final int requestedBitrateKbps
+    ) {
 
-        if (
-                lastSelectedUri == null
-        ) {
+        if (lastSelectedUri == null) {
 
             sendResult(
                     false,
@@ -1275,9 +1380,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        if (
-                originalFileSize <= 0
-        ) {
+        if (originalFileSize <= 0) {
 
             sendResult(
                     false,
@@ -1311,9 +1414,7 @@ public class MainActivity extends Activity {
         int targetBitrate =
                 safeRequestedBitrate;
 
-        if (
-                sourceBitrateKbps > 0
-        ) {
+        if (sourceBitrateKbps > 0) {
 
             int sourceBasedTarget =
                     (int)
@@ -1414,12 +1515,13 @@ public class MainActivity extends Activity {
         }
     }
 
-    // =========================================================
-    // GET SOURCE BITRATE
-    // =========================================================
+    // ============================================================
+    // SOURCE BITRATE
+    // ============================================================
 
     private int getSourceBitrateKbps(
-            Uri uri) {
+            Uri uri
+    ) {
 
         MediaMetadataRetriever retriever =
                 new MediaMetadataRetriever();
@@ -1438,10 +1540,15 @@ public class MainActivity extends Activity {
                     );
 
             if (
-                    mimeType != null &&
-                            mimeType.toLowerCase(
+                    mimeType != null
+                            &&
+                    mimeType
+                            .toLowerCase(
                                     Locale.US
-                            ).startsWith("video/")
+                            )
+                            .startsWith(
+                                    "video/"
+                            )
             ) {
 
                 return 0;
@@ -1454,8 +1561,8 @@ public class MainActivity extends Activity {
                     );
 
             if (
-                    bitrate != null &&
-                            !bitrate.isEmpty()
+                    bitrate != null
+                            && !bitrate.isEmpty()
             ) {
 
                 long bitrateValue =
@@ -1463,9 +1570,7 @@ public class MainActivity extends Activity {
                                 bitrate
                         );
 
-                if (
-                        bitrateValue > 0
-                ) {
+                if (bitrateValue > 0) {
 
                     return (int)
                             Math.max(
@@ -1488,13 +1593,14 @@ public class MainActivity extends Activity {
         return 0;
     }
 
-    // =========================================================
+    // ============================================================
     // START AUDIO COMPRESSION
-    // =========================================================
+    // ============================================================
 
     private void startAudioCompression(
             final File outputFile,
-            final int bitrateKbps) {
+            final int bitrateKbps
+    ) {
 
         try {
 
@@ -1532,7 +1638,8 @@ public class MainActivity extends Activity {
                                         @Override
                                         public void onCompleted(
                                                 Composition composition,
-                                                ExportResult exportResult) {
+                                                ExportResult exportResult
+                                        ) {
 
                                             handleCompressionSuccess(
                                                     outputFile,
@@ -1544,7 +1651,8 @@ public class MainActivity extends Activity {
                                         public void onError(
                                                 Composition composition,
                                                 ExportResult exportResult,
-                                                ExportException exportException) {
+                                                ExportException exportException
+                                        ) {
 
                                             handleCompressionError(
                                                     exportException
@@ -1592,13 +1700,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    // =========================================================
+    // ============================================================
     // COMPRESSION SUCCESS
-    // =========================================================
+    // ============================================================
 
     private void handleCompressionSuccess(
             File outputFile,
-            int usedBitrateKbps) {
+            int usedBitrateKbps
+    ) {
 
         runOnUiThread(
                 () -> {
@@ -1707,6 +1816,9 @@ public class MainActivity extends Activity {
                         return;
                     }
 
+                    // Compression success
+                    // Ad ရှိရင် Ad ပြပြီးမှ Result
+                    // Ad မရှိရင် Result ချက်ချင်း
                     showInterstitialThenResult(
                             outputFile,
                             compressedSize
@@ -1715,12 +1827,13 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
+    // ============================================================
     // COMPRESSION ERROR
-    // =========================================================
+    // ============================================================
 
     private void handleCompressionError(
-            ExportException exception) {
+            ExportException exception
+    ) {
 
         runOnUiThread(
                 () -> {
@@ -1729,8 +1842,8 @@ public class MainActivity extends Activity {
                             exception.getMessage();
 
                     if (
-                            message == null ||
-                                    message.isEmpty()
+                            message == null
+                                    || message.isEmpty()
                     ) {
 
                         message =
@@ -1748,16 +1861,17 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
-    // SEND RESULT TO JAVASCRIPT
-    // =========================================================
+    // ============================================================
+    // SEND RESULT TO WEBVIEW
+    // ============================================================
 
     private void sendResult(
             boolean success,
             String message,
             long originalSize,
             long compressedSize,
-            String outputPath) {
+            String outputPath
+    ) {
 
         String jsMessage =
                 escapeJsString(
@@ -1796,12 +1910,13 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
-    // PROGRESS
-    // =========================================================
+    // ============================================================
+    // SEND PROGRESS
+    // ============================================================
 
     private void sendProgress(
-            String message) {
+            String message
+    ) {
 
         String jsMessage =
                 escapeJsString(
@@ -1825,12 +1940,13 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
+    // ============================================================
     // DOWNLOAD COMPRESSED FILE
-    // =========================================================
+    // ============================================================
 
     private void downloadCompressedFile(
-            String outputPath) {
+            String outputPath
+    ) {
 
         if (
                 outputPath == null
@@ -1894,9 +2010,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    // =========================================================
+    // ============================================================
     // DOWNLOAD SUCCESS
-    // =========================================================
+    // ============================================================
 
     private void showDownloadSuccess() {
 
@@ -1916,12 +2032,13 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
+    // ============================================================
     // DOWNLOAD ERROR
-    // =========================================================
+    // ============================================================
 
     private void showDownloadError(
-            String message) {
+            String message
+    ) {
 
         String safeMessage =
                 escapeJsString(
@@ -1947,29 +2064,48 @@ public class MainActivity extends Activity {
         );
     }
 
-    // =========================================================
+    // ============================================================
     // ESCAPE JAVASCRIPT STRING
-    // =========================================================
+    // ============================================================
 
     private String escapeJsString(
-            String value) {
+            String value
+    ) {
 
         if (value == null) {
             return "";
         }
 
         return value
-                .replace("\\", "\\\\")
-                .replace("'", "\\'")
-                .replace("\"", "\\\"")
-                .replace("\r", "\\r")
-                .replace("\n", "\\n")
-                .replace("</", "<\\/");
+                .replace(
+                        "\\",
+                        "\\\\"
+                )
+                .replace(
+                        "'",
+                        "\\'"
+                )
+                .replace(
+                        "\"",
+                        "\\\""
+                )
+                .replace(
+                        "\r",
+                        "\\r"
+                )
+                .replace(
+                        "\n",
+                        "\\n"
+                )
+                .replace(
+                        "</",
+                        "<\\/"
+                );
     }
 
-    // =========================================================
+    // ============================================================
     // ANDROID BRIDGE
-    // =========================================================
+    // ============================================================
 
     public class AndroidBridge {
 
@@ -1977,13 +2113,15 @@ public class MainActivity extends Activity {
         public void selectCompressorFile() {
 
             runOnUiThread(
-                    () -> openFilePicker()
+                    () ->
+                            openFilePicker()
             );
         }
 
         @JavascriptInterface
         public void compressAudio(
-                int bitrateKbps) {
+                int bitrateKbps
+        ) {
 
             runOnUiThread(
                     () ->
@@ -1996,7 +2134,8 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void downloadCompressedFile(
-                String outputPath) {
+                String outputPath
+        ) {
 
             runOnUiThread(
                     () ->
@@ -2058,4 +2197,4 @@ public class MainActivity extends Activity {
             );
         }
     }
-            }
+    }
