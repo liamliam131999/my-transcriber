@@ -84,19 +84,14 @@ public class MainActivity extends Activity {
     private static final boolean UNITY_TEST_MODE = true;
 
     /*
-     * Unity test Interstitial Ad Unit
+     * Unity Dashboard မှာရှိတဲ့
+     * BP_Interstitial_Android ရဲ့ Placement ID
      */
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
-            "video";
+            "2371efce-e990-498c-991f-877f167bc049";
 
-    /*
-     * Ad ready ဖြစ်/မဖြစ်
-     */
     private boolean unityInterstitialReady = false;
 
-    /*
-     * Debug status
-     */
     private TextView unityDebugText;
 
     // =========================================================
@@ -139,28 +134,23 @@ public class MainActivity extends Activity {
 
     private void showUnityDebug(final String message) {
 
-        Log.d(
-                "UnityAds",
-                message
-        );
+        Log.d("UnityAds", message);
 
-        runOnUiThread(
-                () -> {
+        runOnUiThread(() -> {
 
-                    Toast.makeText(
-                            MainActivity.this,
-                            message,
-                            Toast.LENGTH_LONG
-                    ).show();
+            Toast.makeText(
+                    MainActivity.this,
+                    message,
+                    Toast.LENGTH_LONG
+            ).show();
 
-                    if (unityDebugText != null) {
+            if (unityDebugText != null) {
 
-                        unityDebugText.setText(
-                                "Unity Ads: " + message
-                        );
-                    }
-                }
-        );
+                unityDebugText.setText(
+                        "Unity Ads: " + message
+                );
+            }
+        });
     }
 
     // =========================================================
@@ -169,134 +159,110 @@ public class MainActivity extends Activity {
 
     private void checkMaintenance() {
 
-        Thread thread =
-                new Thread(
-                        () -> {
+        Thread thread = new Thread(() -> {
 
-                            HttpURLConnection connection = null;
+            HttpURLConnection connection = null;
 
-                            try {
+            try {
 
-                                URL url =
-                                        new URL(
-                                                MAINTENANCE_URL +
-                                                        "?t=" +
-                                                        System.currentTimeMillis()
-                                        );
-
-                                connection =
-                                        (HttpURLConnection)
-                                                url.openConnection();
-
-                                connection.setRequestMethod("GET");
-
-                                connection.setConnectTimeout(8000);
-
-                                connection.setReadTimeout(8000);
-
-                                connection.setUseCaches(false);
-
-                                connection.setRequestProperty(
-                                        "Cache-Control",
-                                        "no-cache"
-                                );
-
-                                connection.connect();
-
-                                int responseCode =
-                                        connection.getResponseCode();
-
-                                if (
-                                        responseCode >= 200 &&
-                                                responseCode < 300
-                                ) {
-
-                                    InputStream input =
-                                            connection.getInputStream();
-
-                                    BufferedReader reader =
-                                            new BufferedReader(
-                                                    new InputStreamReader(
-                                                            input,
-                                                            "UTF-8"
-                                                    )
-                                            );
-
-                                    StringBuilder result =
-                                            new StringBuilder();
-
-                                    String line;
-
-                                    while (
-                                            (line =
-                                                    reader.readLine())
-                                                    != null
-                                    ) {
-
-                                        result.append(line);
-                                    }
-
-                                    reader.close();
-
-                                    input.close();
-
-                                    JSONObject json =
-                                            new JSONObject(
-                                                    result.toString()
-                                            );
-
-                                    boolean maintenance =
-                                            json.optBoolean(
-                                                    "maintenance",
-                                                    false
-                                            );
-
-                                    String message =
-                                            json.optString(
-                                                    "message",
-                                                    "We are currently performing maintenance. Please try again later."
-                                            );
-
-                                    if (maintenance) {
-
-                                        runOnUiThread(
-                                                () ->
-                                                        showMaintenanceScreen(
-                                                                message
-                                                        )
-                                        );
-
-                                    } else {
-
-                                        runOnUiThread(
-                                                () ->
-                                                        startNormalApp()
-                                        );
-                                    }
-
-                                } else {
-
-                                    runOnUiThread(
-                                            () ->
-                                                    startNormalApp()
-                                    );
-                                }
-
-                            } catch (Exception e) {
-
-                                runOnUiThread(
-                                        () ->
-                                                startNormalApp()
-                                );
-
-                            } finally {
-
-                                if (connection != null) {
-                                    connection.disconnect();
-                                }
-                            }
-                        }
+                URL url = new URL(
+                        MAINTENANCE_URL +
+                                "?t=" +
+                                System.currentTimeMillis()
                 );
+
+                connection =
+                        (HttpURLConnection) url.openConnection();
+
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(8000);
+                connection.setReadTimeout(8000);
+                connection.setUseCaches(false);
+
+                connection.setRequestProperty(
+                        "Cache-Control",
+                        "no-cache"
+                );
+
+                connection.connect();
+
+                int responseCode =
+                        connection.getResponseCode();
+
+                if (responseCode >= 200 &&
+                        responseCode < 300) {
+
+                    InputStream input =
+                            connection.getInputStream();
+
+                    BufferedReader reader =
+                            new BufferedReader(
+                                    new InputStreamReader(
+                                            input,
+                                            "UTF-8"
+                                    )
+                            );
+
+                    StringBuilder result =
+                            new StringBuilder();
+
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    reader.close();
+                    input.close();
+
+                    JSONObject json =
+                            new JSONObject(result.toString());
+
+                    boolean maintenance =
+                            json.optBoolean(
+                                    "maintenance",
+                                    false
+                            );
+
+                    String message =
+                            json.optString(
+                                    "message",
+                                    "We are currently performing maintenance. Please try again later."
+                            );
+
+                    if (maintenance) {
+
+                        runOnUiThread(
+                                () -> showMaintenanceScreen(message)
+                        );
+
+                    } else {
+
+                        runOnUiThread(
+                                this::startNormalApp
+                        );
+                    }
+
+                } else {
+
+                    runOnUiThread(
+                            this::startNormalApp
+                    );
+                }
+
+            } catch (Exception e) {
+
+                runOnUiThread(
+                        this::startNormalApp
+                );
+
+            } finally {
+
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
 
         thread.start();
     }
@@ -322,9 +288,7 @@ public class MainActivity extends Activity {
 
     private void initializeUnityAds() {
 
-        showUnityDebug(
-                "Initializing..."
-        );
+        showUnityDebug("Initializing...");
 
         try {
 
@@ -370,10 +334,6 @@ public class MainActivity extends Activity {
                                             + UnityAds.isInitialized()
                             );
 
-                            /*
-                             * Initialize အောင်မြင်ပြီဆို
-                             * Interstitial ကို preload လုပ်မယ်။
-                             */
                             loadUnityInterstitial();
 
                         } else {
@@ -417,92 +377,83 @@ public class MainActivity extends Activity {
 
     private void loadUnityInterstitial() {
 
-        runOnUiThread(
-                () -> {
+        runOnUiThread(() -> {
 
-                    showUnityDebug(
-                            "Ad loading..."
-                    );
+            showUnityDebug("Ad loading...");
 
-                    try {
+            try {
 
-                        unityInterstitialReady = false;
+                unityInterstitialReady = false;
 
-                        UnityAds.load(
-                                UNITY_INTERSTITIAL_AD_UNIT_ID,
-                                new IUnityAdsLoadListener() {
+                UnityAds.load(
+                        UNITY_INTERSTITIAL_AD_UNIT_ID,
+                        new IUnityAdsLoadListener() {
 
-                                    @Override
-                                    public void onUnityAdsAdLoaded(
-                                            String placementId) {
+                            @Override
+                            public void onUnityAdsAdLoaded(
+                                    String placementId) {
 
-                                        if (
-                                                UNITY_INTERSTITIAL_AD_UNIT_ID
-                                                        .equals(
-                                                                placementId
-                                                        )
-                                        ) {
+                                if (
+                                        UNITY_INTERSTITIAL_AD_UNIT_ID
+                                                .equals(placementId)
+                                ) {
 
-                                            unityInterstitialReady =
-                                                    true;
+                                    unityInterstitialReady = true;
 
-                                            showUnityDebug(
-                                                    "AD LOADED ✓"
-                                            );
+                                    showUnityDebug(
+                                            "AD LOADED ✓"
+                                    );
 
-                                            Log.d(
-                                                    "UnityAds",
-                                                    "Interstitial loaded successfully. "
-                                                            + placementId
-                                            );
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onUnityAdsFailedToLoad(
-                                            String placementId,
-                                            UnityAds.UnityAdsLoadError error,
-                                            String message) {
-
-                                        unityInterstitialReady =
-                                                false;
-
-                                        String debugMessage =
-                                                "AD LOAD FAILED: "
-                                                        + error
-                                                        + " - "
-                                                        + message;
-
-                                        showUnityDebug(
-                                                debugMessage
-                                        );
-
-                                        Log.e(
-                                                "UnityAds",
-                                                debugMessage
-                                        );
-                                    }
+                                    Log.d(
+                                            "UnityAds",
+                                            "Interstitial loaded successfully. "
+                                                    + placementId
+                                    );
                                 }
-                        );
+                            }
 
-                    } catch (Exception e) {
+                            @Override
+                            public void onUnityAdsFailedToLoad(
+                                    String placementId,
+                                    UnityAds.UnityAdsLoadError error,
+                                    String message) {
 
-                        unityInterstitialReady =
-                                false;
+                                unityInterstitialReady = false;
 
-                        showUnityDebug(
-                                "AD LOAD EXCEPTION: "
-                                        + e.getMessage()
-                        );
+                                String debugMessage =
+                                        "AD LOAD FAILED: "
+                                                + error
+                                                + " - "
+                                                + message;
 
-                        Log.e(
-                                "UnityAds",
-                                "Interstitial load exception",
-                                e
-                        );
-                    }
-                }
-        );
+                                showUnityDebug(
+                                        debugMessage
+                                );
+
+                                Log.e(
+                                        "UnityAds",
+                                        debugMessage
+                                );
+                            }
+                        }
+                );
+
+            } catch (Exception e) {
+
+                unityInterstitialReady = false;
+
+                showUnityDebug(
+                        "AD LOAD EXCEPTION: "
+                                + e.getMessage()
+                );
+
+                Log.e(
+                        "UnityAds",
+                        "Interstitial load exception",
+                        e
+                );
+            }
+        });
     }
 
     // =========================================================
@@ -513,164 +464,145 @@ public class MainActivity extends Activity {
             final File outputFile,
             final long compressedSize) {
 
-        runOnUiThread(
-                () -> {
+        runOnUiThread(() -> {
 
-                    /*
-                     * Ad မ ready ဖြစ်သေးရင်
-                     * compression result ကို တန်းပြမယ်။
-                     */
-                    if (!unityInterstitialReady) {
+            if (!unityInterstitialReady) {
 
-                        showUnityDebug(
-                                "Ad NOT READY - showing result"
-                        );
+                showUnityDebug(
+                        "Ad NOT READY - showing result"
+                );
 
-                        loadUnityInterstitial();
+                loadUnityInterstitial();
 
-                        sendCompressionSuccessResult(
-                                outputFile,
-                                compressedSize
-                        );
+                sendCompressionSuccessResult(
+                        outputFile,
+                        compressedSize
+                );
 
-                        return;
-                    }
+                return;
+            }
 
-                    /*
-                     * Ad show လုပ်မယ်။
-                     */
-                    unityInterstitialReady = false;
+            unityInterstitialReady = false;
 
-                    showUnityDebug(
-                            "Showing Interstitial..."
-                    );
+            showUnityDebug(
+                    "Showing Interstitial..."
+            );
 
-                    try {
+            try {
 
-                        UnityAds.show(
-                                MainActivity.this,
-                                UNITY_INTERSTITIAL_AD_UNIT_ID,
-                                new UnityAdsShowOptions(),
-                                new IUnityAdsShowListener() {
+                UnityAds.show(
+                        MainActivity.this,
+                        UNITY_INTERSTITIAL_AD_UNIT_ID,
+                        new UnityAdsShowOptions(),
+                        new IUnityAdsShowListener() {
 
-                                    @Override
-                                    public void onUnityAdsShowFailure(
-                                            String placementId,
-                                            UnityAds.UnityAdsShowError error,
-                                            String message) {
+                            @Override
+                            public void onUnityAdsShowFailure(
+                                    String placementId,
+                                    UnityAds.UnityAdsShowError error,
+                                    String message) {
 
-                                        String debugMessage =
-                                                "AD SHOW FAILED: "
-                                                        + error
-                                                        + " - "
-                                                        + message;
+                                String debugMessage =
+                                        "AD SHOW FAILED: "
+                                                + error
+                                                + " - "
+                                                + message;
 
-                                        showUnityDebug(
-                                                debugMessage
-                                        );
+                                showUnityDebug(
+                                        debugMessage
+                                );
 
-                                        Log.e(
-                                                "UnityAds",
-                                                debugMessage
-                                        );
+                                Log.e(
+                                        "UnityAds",
+                                        debugMessage
+                                );
 
-                                        /*
-                                         * Ad မပေါ်လည်း
-                                         * App result ကို ပြမယ်။
-                                         */
-                                        loadUnityInterstitial();
+                                loadUnityInterstitial();
 
-                                        sendCompressionSuccessResult(
-                                                outputFile,
-                                                compressedSize
-                                        );
-                                    }
+                                sendCompressionSuccessResult(
+                                        outputFile,
+                                        compressedSize
+                                );
+                            }
 
-                                    @Override
-                                    public void onUnityAdsShowStart(
-                                            String placementId) {
+                            @Override
+                            public void onUnityAdsShowStart(
+                                    String placementId) {
 
-                                        showUnityDebug(
-                                                "AD STARTED ✓"
-                                        );
+                                showUnityDebug(
+                                        "AD STARTED ✓"
+                                );
 
-                                        Log.d(
-                                                "UnityAds",
-                                                "Interstitial started: "
-                                                        + placementId
-                                        );
-                                    }
+                                Log.d(
+                                        "UnityAds",
+                                        "Interstitial started: "
+                                                + placementId
+                                );
+                            }
 
-                                    @Override
-                                    public void onUnityAdsShowClick(
-                                            String placementId) {
+                            @Override
+                            public void onUnityAdsShowClick(
+                                    String placementId) {
 
-                                        showUnityDebug(
-                                                "AD CLICKED"
-                                        );
+                                showUnityDebug(
+                                        "AD CLICKED"
+                                );
 
-                                        Log.d(
-                                                "UnityAds",
-                                                "Interstitial clicked: "
-                                                        + placementId
-                                        );
-                                    }
+                                Log.d(
+                                        "UnityAds",
+                                        "Interstitial clicked: "
+                                                + placementId
+                                );
+                            }
 
-                                    @Override
-                                    public void onUnityAdsShowComplete(
-                                            String placementId,
-                                            UnityAds.UnityAdsShowCompletionState state) {
+                            @Override
+                            public void onUnityAdsShowComplete(
+                                    String placementId,
+                                    UnityAds.UnityAdsShowCompletionState state) {
 
-                                        showUnityDebug(
-                                                "AD COMPLETED ✓"
-                                        );
+                                showUnityDebug(
+                                        "AD COMPLETED ✓"
+                                );
 
-                                        Log.d(
-                                                "UnityAds",
-                                                "Interstitial completed: "
-                                                        + placementId
-                                                        + " State: "
-                                                        + state
-                                        );
+                                Log.d(
+                                        "UnityAds",
+                                        "Interstitial completed: "
+                                                + placementId
+                                                + " State: "
+                                                + state
+                                );
 
-                                        /*
-                                         * နောက် ad ကို preload
-                                         */
-                                        loadUnityInterstitial();
+                                loadUnityInterstitial();
 
-                                        /*
-                                         * Ad ပိတ်ပြီးမှ result ပြမယ်။
-                                         */
-                                        sendCompressionSuccessResult(
-                                                outputFile,
-                                                compressedSize
-                                        );
-                                    }
-                                }
-                        );
+                                sendCompressionSuccessResult(
+                                        outputFile,
+                                        compressedSize
+                                );
+                            }
+                        }
+                );
 
-                    } catch (Exception e) {
+            } catch (Exception e) {
 
-                        showUnityDebug(
-                                "AD SHOW EXCEPTION: "
-                                        + e.getMessage()
-                        );
+                showUnityDebug(
+                        "AD SHOW EXCEPTION: "
+                                + e.getMessage()
+                );
 
-                        Log.e(
-                                "UnityAds",
-                                "Interstitial show exception",
-                                e
-                        );
+                Log.e(
+                        "UnityAds",
+                        "Interstitial show exception",
+                        e
+                );
 
-                        loadUnityInterstitial();
+                loadUnityInterstitial();
 
-                        sendCompressionSuccessResult(
-                                outputFile,
-                                compressedSize
-                        );
-                    }
-                }
-        );
+                sendCompressionSuccessResult(
+                        outputFile,
+                        compressedSize
+                );
+            }
+        });
     }
 
     // =========================================================
@@ -723,11 +655,7 @@ public class MainActivity extends Activity {
         );
 
         root.setBackgroundColor(
-                Color.rgb(
-                        16,
-                        17,
-                        20
-                )
+                Color.rgb(16, 17, 20)
         );
 
         LinearLayout box =
@@ -749,31 +677,22 @@ public class MainActivity extends Activity {
         );
 
         box.setBackgroundColor(
-                Color.rgb(
-                        25,
-                        26,
-                        31
-                )
+                Color.rgb(25, 26, 31)
         );
 
         TextView icon =
                 new TextView(this);
 
         icon.setText("🔧");
-
         icon.setTextSize(50);
-
         icon.setGravity(Gravity.CENTER);
 
         TextView title =
                 new TextView(this);
 
         title.setText("App Maintenance");
-
         title.setTextColor(Color.WHITE);
-
         title.setTextSize(23);
-
         title.setGravity(Gravity.CENTER);
 
         title.setPadding(
@@ -789,16 +708,14 @@ public class MainActivity extends Activity {
         messageView.setText(message);
 
         messageView.setTextColor(
-                Color.rgb(
-                        169,
-                        173,
-                        183
-                )
+                Color.rgb(169, 173, 183)
         );
 
         messageView.setTextSize(15);
 
-        messageView.setGravity(Gravity.CENTER);
+        messageView.setGravity(
+                Gravity.CENTER
+        );
 
         messageView.setLineSpacing(
                 0,
@@ -855,18 +772,14 @@ public class MainActivity extends Activity {
 
     private void setupWebView() {
 
-        webView =
-                new WebView(this);
+        webView = new WebView(this);
 
         WebSettings settings =
                 webView.getSettings();
 
         settings.setJavaScriptEnabled(true);
-
         settings.setDomStorageEnabled(true);
-
         settings.setAllowFileAccess(true);
-
         settings.setAllowContentAccess(true);
 
         webView.setWebViewClient(
@@ -942,10 +855,6 @@ public class MainActivity extends Activity {
                 "AndroidBridge"
         );
 
-        /*
-         * WebView ကို FrameLayout ထဲထည့်ပြီး
-         * Debug TextView ကို အပေါ်က overlay လုပ်မယ်။
-         */
         FrameLayout frameLayout =
                 new FrameLayout(this);
 
@@ -968,9 +877,7 @@ public class MainActivity extends Activity {
                 Color.WHITE
         );
 
-        unityDebugText.setTextSize(
-                12
-        );
+        unityDebugText.setTextSize(12);
 
         unityDebugText.setBackgroundColor(
                 Color.argb(
@@ -995,7 +902,8 @@ public class MainActivity extends Activity {
                 );
 
         debugParams.gravity =
-                Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                Gravity.TOP |
+                        Gravity.CENTER_HORIZONTAL;
 
         debugParams.topMargin = 20;
 
@@ -1072,10 +980,6 @@ public class MainActivity extends Activity {
                 data
         );
 
-        // -----------------------------------------------------
-        // WEBVIEW FILE PICKER
-        // -----------------------------------------------------
-
         if (
                 requestCode ==
                         WEB_FILE_PICKER_REQUEST
@@ -1108,10 +1012,6 @@ public class MainActivity extends Activity {
 
             return;
         }
-
-        // -----------------------------------------------------
-        // SAVE COMPRESSED FILE
-        // -----------------------------------------------------
 
         if (
                 requestCode ==
@@ -1172,12 +1072,9 @@ public class MainActivity extends Activity {
                     int length;
 
                     while (
-                            (
-                                    length =
-                                            input.read(
-                                                    buffer
-                                            )
-                            ) != -1
+                            (length =
+                                    input.read(buffer))
+                                    != -1
                     ) {
 
                         output.write(
@@ -1190,7 +1087,6 @@ public class MainActivity extends Activity {
                     output.flush();
 
                     input.close();
-
                     output.close();
 
                     showDownloadSuccess();
@@ -1207,10 +1103,6 @@ public class MainActivity extends Activity {
 
             return;
         }
-
-        // -----------------------------------------------------
-        // COMPRESSOR FILE PICKER
-        // -----------------------------------------------------
 
         if (
                 requestCode ==
@@ -1454,9 +1346,7 @@ public class MainActivity extends Activity {
                             Environment.DIRECTORY_MUSIC
                     );
 
-            if (
-                    musicDir == null
-            ) {
+            if (musicDir == null) {
 
                 throw new Exception(
                         "Music folder မရပါ။"
@@ -1495,10 +1385,7 @@ public class MainActivity extends Activity {
                                     ".mp4"
                     );
 
-            if (
-                    outputFile.exists()
-            ) {
-
+            if (outputFile.exists()) {
                 outputFile.delete();
             }
 
@@ -1546,9 +1433,9 @@ public class MainActivity extends Activity {
 
             if (
                     mimeType != null &&
-                    mimeType.toLowerCase(
-                            Locale.US
-                    ).startsWith("video/")
+                            mimeType.toLowerCase(
+                                    Locale.US
+                            ).startsWith("video/")
             ) {
 
                 return 0;
@@ -1562,7 +1449,7 @@ public class MainActivity extends Activity {
 
             if (
                     bitrate != null &&
-                    !bitrate.isEmpty()
+                            !bitrate.isEmpty()
             ) {
 
                 long bitrateValue =
@@ -1587,9 +1474,7 @@ public class MainActivity extends Activity {
         } finally {
 
             try {
-
                 retriever.release();
-
             } catch (Exception ignored) {
             }
         }
@@ -1712,9 +1597,7 @@ public class MainActivity extends Activity {
         runOnUiThread(
                 () -> {
 
-                    if (
-                            !outputFile.exists()
-                    ) {
+                    if (!outputFile.exists()) {
 
                         sendResult(
                                 false,
@@ -1730,9 +1613,7 @@ public class MainActivity extends Activity {
                     long compressedSize =
                             outputFile.length();
 
-                    if (
-                            compressedSize <= 0
-                    ) {
+                    if (compressedSize <= 0) {
 
                         outputFile.delete();
 
@@ -1820,12 +1701,6 @@ public class MainActivity extends Activity {
                         return;
                     }
 
-                    /*
-                     * Compression အောင်မြင်ပြီ။
-                     *
-                     * Ad ready ဖြစ်ရင် Interstitial ပြမယ်။
-                     * Ad မ ready ဖြစ်ရင် result ကို တန်းပြမယ်။
-                     */
                     showInterstitialThenResult(
                             outputFile,
                             compressedSize
@@ -1848,8 +1723,8 @@ public class MainActivity extends Activity {
                             exception.getMessage();
 
                     if (
-                            message == null
-                                    || message.isEmpty()
+                            message == null ||
+                                    message.isEmpty()
                     ) {
 
                         message =
@@ -1964,13 +1839,9 @@ public class MainActivity extends Activity {
         }
 
         File file =
-                new File(
-                        outputPath
-                );
+                new File(outputPath);
 
-        if (
-                !file.exists()
-        ) {
+        if (!file.exists()) {
 
             showDownloadError(
                     "Output file မတွေ့ပါ။"
@@ -2077,38 +1948,17 @@ public class MainActivity extends Activity {
     private String escapeJsString(
             String value) {
 
-        if (
-                value == null
-        ) {
-
+        if (value == null) {
             return "";
         }
 
         return value
-                .replace(
-                        "\\",
-                        "\\\\"
-                )
-                .replace(
-                        "'",
-                        "\\'"
-                )
-                .replace(
-                        "\"",
-                        "\\\""
-                )
-                .replace(
-                        "\r",
-                        "\\r"
-                )
-                .replace(
-                        "\n",
-                        "\\n"
-                )
-                .replace(
-                        "</",
-                        "<\\/"
-                );
+                .replace("\\", "\\\\")
+                .replace("'", "\\'")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
+                .replace("</", "<\\/");
     }
 
     // =========================================================
@@ -2121,8 +1971,7 @@ public class MainActivity extends Activity {
         public void selectCompressorFile() {
 
             runOnUiThread(
-                    () ->
-                            openFilePicker()
+                    () -> openFilePicker()
             );
         }
 
@@ -2203,4 +2052,4 @@ public class MainActivity extends Activity {
             );
         }
     }
-    }
+            }
