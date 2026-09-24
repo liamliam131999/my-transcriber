@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -30,6 +31,11 @@ import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.Transformer;
+
+import com.unity3d.ads.InitializationConfiguration;
+import com.unity3d.ads.InitializationListener;
+import com.unity3d.ads.UnityAds;
+import com.unity3d.ads.UnityAds.UnityAdsError;
 
 import org.json.JSONObject;
 
@@ -60,6 +66,24 @@ public class MainActivity extends Activity {
     private static final int FILE_PICKER_REQUEST = 1001;
     private static final int WEB_FILE_PICKER_REQUEST = 2001;
     private static final int SAVE_FILE_REQUEST = 3001;
+
+    /*
+     * =========================================================
+     * UNITY ADS
+     * =========================================================
+     */
+
+    private static final String UNITY_GAME_ID = "800380386";
+
+    /*
+     * TEST MODE
+     *
+     * true = Test ads
+     * false = Live ads
+     *
+     * အခု စမ်းသပ်နေတဲ့အတွက် true ထားထားပါတယ်။
+     */
+    private static final boolean UNITY_TEST_MODE = true;
 
     /*
      * =========================================================
@@ -164,7 +188,6 @@ public class MainActivity extends Activity {
                                     ) {
 
                                         result.append(line);
-
                                     }
 
                                     reader.close();
@@ -202,7 +225,6 @@ public class MainActivity extends Activity {
                                                 () ->
                                                         startNormalApp()
                                         );
-
                                     }
 
                                 } else {
@@ -211,7 +233,6 @@ public class MainActivity extends Activity {
                                             () ->
                                                     startNormalApp()
                                     );
-
                                 }
 
                             } catch (Exception e) {
@@ -226,9 +247,7 @@ public class MainActivity extends Activity {
                                 if (connection != null) {
                                     connection.disconnect();
                                 }
-
                             }
-
                         }
                 );
 
@@ -245,7 +264,64 @@ public class MainActivity extends Activity {
             return;
         }
 
+        /*
+         * Initialize Unity Ads early.
+         */
+        initializeUnityAds();
+
         setupWebView();
+    }
+
+    // =========================================================
+    // UNITY ADS INITIALIZATION
+    // =========================================================
+
+    private void initializeUnityAds() {
+
+        try {
+
+            InitializationConfiguration config =
+                    new InitializationConfiguration.Builder(
+                            UNITY_GAME_ID
+                    )
+                            .withTestMode(
+                                    UNITY_TEST_MODE
+                            )
+                            .build();
+
+            InitializationListener listener =
+                    error -> {
+
+                        if (error == null) {
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Unity Ads SDK initialized successfully."
+                            );
+
+                        } else {
+
+                            Log.e(
+                                    "UnityAds",
+                                    "Unity Ads initialization failed: "
+                                            + error.getMessage()
+                            );
+                        }
+                    };
+
+            UnityAds.initialize(
+                    config,
+                    listener
+            );
+
+        } catch (Exception e) {
+
+            Log.e(
+                    "UnityAds",
+                    "Unity Ads initialization error",
+                    e
+            );
+        }
     }
 
     // =========================================================
@@ -1177,16 +1253,6 @@ public class MainActivity extends Activity {
 
         } catch (Exception e) {
 
-            /*
-             * FIX:
-             * ExportException constructor ကို
-             * manually မခေါ်တော့ပါ။
-             *
-             * အဲဒါကြောင့်
-             * "no suitable constructor found for ExportException"
-             * compile error မဖြစ်တော့ပါ။
-             */
-
             sendResult(
                     false,
                     e.getMessage() != null
@@ -1244,14 +1310,6 @@ public class MainActivity extends Activity {
 
                         return;
                     }
-
-                    /*
-                     * OUTPUT SIZE CHECK
-                     *
-                     * Output က မူရင်းထက် မသေးရင်
-                     * bitrate ကို ထပ်လျှော့ပြီး
-                     * တစ်ကြိမ် retry လုပ်မယ်။
-                     */
 
                     if (
                             compressedSize >=
@@ -1325,10 +1383,6 @@ public class MainActivity extends Activity {
 
                         return;
                     }
-
-                    /*
-                     * SUCCESS
-                     */
 
                     sendResult(
                             true,
@@ -1710,4 +1764,4 @@ public class MainActivity extends Activity {
             );
         }
     }
-                        }
+                                }
