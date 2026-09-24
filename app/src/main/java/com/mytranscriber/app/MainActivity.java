@@ -13,15 +13,15 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.media3.common.MediaItem;
 import androidx.media3.transformer.AudioEncoderSettings;
@@ -35,6 +35,12 @@ import androidx.media3.transformer.Transformer;
 import com.unity3d.ads.InitializationConfiguration;
 import com.unity3d.ads.InitializationListener;
 import com.unity3d.ads.UnityAds;
+import com.unity3d.ads.UnityAdsError;
+import com.unity3d.ads.interstitial.InterstitialAd;
+import com.unity3d.ads.interstitial.InterstitialLoadListener;
+import com.unity3d.ads.interstitial.InterstitialShowListener;
+import com.unity3d.ads.interstitial.LoadConfiguration;
+import com.unity3d.ads.interstitial.ShowConfiguration;
 
 import org.json.JSONObject;
 
@@ -75,10 +81,26 @@ public class MainActivity extends Activity {
     /*
      * true  = Test Ads
      * false = Live Ads
-     *
-     * အခုစမ်းသပ်နေတဲ့အတွက် true ထားထားပါတယ်။
      */
     private static final boolean UNITY_TEST_MODE = true;
+
+    /*
+     * Interstitial placement / ad unit.
+     *
+     * Test integration အတွက် Unity ရဲ့ "video" placement ကိုသုံးထားပါတယ်။
+     */
+    private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
+            "video";
+
+    /*
+     * Loaded interstitial ad instance.
+     */
+    private InterstitialAd interstitialAd;
+
+    /*
+     * Prevent duplicate result callback.
+     */
+    private boolean compressionResultSent = false;
 
     // =========================================================
     // REMOTE MAINTENANCE
@@ -292,6 +314,12 @@ public class MainActivity extends Activity {
                                     "Unity Ads initialized successfully."
                             );
 
+                            /*
+                             * SDK initialize ပြီးတာနဲ့
+                             * Interstitial ကို preload လုပ်မယ်။
+                             */
+                            loadUnityInterstitial();
+
                         } else {
 
                             Log.e(
@@ -315,6 +343,252 @@ public class MainActivity extends Activity {
                     e
             );
         }
+    }
+
+    // =========================================================
+    // UNITY INTERSTITIAL LOAD
+    // =========================================================
+
+    private void loadUnityInterstitial() {
+
+        try {
+
+            LoadConfiguration loadConfiguration =
+                    new LoadConfiguration.Builder(
+                            UNITY_INTERSTITIAL_AD_UNIT_ID
+                    )
+                            .build();
+
+            InterstitialAd.load(
+                    loadConfiguration,
+                    new InterstitialLoadListener() {
+
+                        @Override
+                        public void onInterstitialLoaded(
+                                InterstitialAd ad,
+                                UnityAdsError error) {
+
+                            if (ad != null) {
+
+                                interstitialAd = ad;
+
+                                Log.d(
+                                        "UnityAds",
+                                        "Interstitial loaded successfully."
+                                );
+
+                                /*
+                                 * Ad expire ဖြစ်သွားရင် reference
+                                 * ဖျက်ပြီး ပြန် load လုပ်မယ်။
+                                 */
+                                ad.setOnAdExpired(
+                                        expiredAd -> {
+
+                                            if (
+                                                    interstitialAd ==
+                                                            expiredAd
+                                            ) {
+
+                                                interstitialAd = null;
+                                            }
+
+                                            Log.d(
+                                                    "UnityAds",
+                                                    "Interstitial expired."
+                                            );
+
+                                            loadUnityInterstitial();
+                                        }
+                                );
+
+                            } else {
+
+                                interstitialAd = null;
+
+                                Log.e(
+                                        "UnityAds",
+                                        "Interstitial load failed: "
+                                                + (
+                                                error != null
+                                                        ? error.getMessage()
+                                                        : "Unknown error"
+                                        )
+                                );
+                            }
+                        }
+                    }
+            );
+
+        } catch (Exception e) {
+
+            interstitialAd = null;
+
+            Log.e(
+                    "UnityAds",
+                    "Interstitial load exception",
+                    e
+            );
+        }
+    }
+
+    // =========================================================
+    // SHOW UNITY INTERSTITIAL
+    // =========================================================
+
+    private void showInterstitialThenResult(
+            final File outputFile,
+            final long compressedSize) {
+
+        /*
+         * Ad မရှိသေးရင် Result ကို တန်းပြမယ်။
+         * App functionality မပျက်စေဖို့ပါ။
+         */
+        if (interstitialAd == null) {
+
+            Log.d(
+                    "UnityAds",
+                    "No interstitial ready. Showing result."
+            );
+
+            loadUnityInterstitial();
+
+            sendCompressionSuccessResult(
+                    outputFile,
+                    compressedSize
+            );
+
+            return;
+        }
+
+        /*
+         * Current loaded ad ကိုယူပြီး reference ကို null လုပ်ထားမယ်။
+         */
+        final InterstitialAd ad =
+                interstitialAd;
+
+        interstitialAd = null;
+
+        try {
+
+            ShowConfiguration showConfiguration =
+                    new ShowConfiguration.Builder()
+                            .build();
+
+            ad.show(
+                    this,
+                    showConfiguration,
+                    new InterstitialShowListener() {
+
+                        @Override
+                        public void onStarted(
+                                InterstitialAd unityAd) {
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Interstitial started."
+                            );
+                        }
+
+                        @Override
+                        public void onClicked(
+                                InterstitialAd unityAd) {
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Interstitial clicked."
+                            );
+                        }
+
+                        @Override
+                        public void onCompleted(
+                                InterstitialAd unityAd,
+                                UnityAds.ShowFinishState state) {
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Interstitial completed."
+                            );
+
+                            /*
+                             * နောက်တစ်ကြိမ်အတွက် preload ပြန်လုပ်။
+                             */
+                            loadUnityInterstitial();
+
+                            /*
+                             * Ad ပိတ်ပြီးမှ compression result ပြ။
+                             */
+                            sendCompressionSuccessResult(
+                                    outputFile,
+                                    compressedSize
+                            );
+                        }
+
+                        @Override
+                        public void onFailed(
+                                InterstitialAd unityAd,
+                                UnityAdsError error) {
+
+                            Log.e(
+                                    "UnityAds",
+                                    "Interstitial show failed: "
+                                            + (
+                                            error != null
+                                                    ? error.getMessage()
+                                                    : "Unknown error"
+                                    )
+                            );
+
+                            /*
+                             * Ad မပြနိုင်လည်း app မပျက်ရ။
+                             */
+                            loadUnityInterstitial();
+
+                            sendCompressionSuccessResult(
+                                    outputFile,
+                                    compressedSize
+                            );
+                        }
+                    }
+            );
+
+        } catch (Exception e) {
+
+            Log.e(
+                    "UnityAds",
+                    "Interstitial show exception",
+                    e
+            );
+
+            loadUnityInterstitial();
+
+            sendCompressionSuccessResult(
+                    outputFile,
+                    compressedSize
+            );
+        }
+    }
+
+    // =========================================================
+    // SEND COMPRESSION SUCCESS RESULT
+    // =========================================================
+
+    private void sendCompressionSuccessResult(
+            File outputFile,
+            long compressedSize) {
+
+        if (compressionResultSent) {
+            return;
+        }
+
+        compressionResultSent = true;
+
+        sendResult(
+                true,
+                "Compression အောင်မြင်ပါပြီ။",
+                originalFileSize,
+                compressedSize,
+                outputFile.getAbsolutePath()
+        );
     }
 
     // =========================================================
@@ -953,6 +1227,8 @@ public class MainActivity extends Activity {
 
         compressionAttempt = 0;
 
+        compressionResultSent = false;
+
         int safeRequestedBitrate =
                 Math.max(
                         24,
@@ -1377,12 +1653,17 @@ public class MainActivity extends Activity {
                         return;
                     }
 
-                    sendResult(
-                            true,
-                            "Compression အောင်မြင်ပါပြီ။",
-                            originalFileSize,
-                            compressedSize,
-                            outputFile.getAbsolutePath()
+                    /*
+                     * Compression အောင်မြင်ပြီ။
+                     *
+                     * ဒီနေရာမှာ Interstitial ရှိရင် ပြမယ်။
+                     * Ad ပိတ်ပြီးမှ Result ပြမယ်။
+                     *
+                     * Ad မရှိရင် Result ကို တန်းပြမယ်။
+                     */
+                    showInterstitialThenResult(
+                            outputFile,
+                            compressedSize
                     );
                 }
         );
@@ -1757,4 +2038,4 @@ public class MainActivity extends Activity {
             );
         }
     }
-                         }
+                                }
