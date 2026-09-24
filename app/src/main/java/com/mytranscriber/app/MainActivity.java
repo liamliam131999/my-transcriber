@@ -1,12 +1,10 @@
 package com.mytranscriber.app;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -18,27 +16,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.MediaItem;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.ExportException;
+import androidx.media3.transformer.ExportResult;
+import androidx.media3.transformer.Transformer;
 
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioProcessor;
-import com.google.android.exoplayer2.audio.DefaultAudioSink;
-import com.google.android.exoplayer2.transformer.Composition;
-import com.google.android.exoplayer2.transformer.EditedMediaItem;
-import com.google.android.exoplayer2.transformer.Transformer;
 import com.unity3d.ads.IUnityAdsLoadListener;
 import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.InitializationConfiguration;
+import com.unity3d.ads.InitializationListener;
 import com.unity3d.ads.UnityAds;
 import com.unity3d.ads.UnityAdsShowOptions;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     // =========================================================
     // UNITY ADS
@@ -46,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String UNITY_GAME_ID = "800380386";
 
-    // Test Mode
-    // Release မတင်ခင် false ပြောင်းနိုင်ပါတယ်။
     private static final boolean UNITY_TEST_MODE = true;
 
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
@@ -83,14 +77,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // -----------------------------------------------------
-        // Root Layout
+        // ROOT
         // -----------------------------------------------------
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
 
         // -----------------------------------------------------
-        // Unity Debug Text
+        // UNITY DEBUG TEXT
         // -----------------------------------------------------
 
         unityDebugText = new TextView(this);
@@ -107,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         // -----------------------------------------------------
-        // WebView
+        // WEBVIEW
         // -----------------------------------------------------
 
         webView = new WebView(this);
@@ -124,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(root);
 
         // -----------------------------------------------------
-        // WebView Settings
+        // WEBVIEW SETTINGS
         // -----------------------------------------------------
 
         WebSettings settings = webView.getSettings();
@@ -139,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebChromeClient(new WebChromeClient());
 
         // -----------------------------------------------------
-        // JavaScript Interface
+        // JAVASCRIPT BRIDGE
         // -----------------------------------------------------
 
         webView.addJavascriptInterface(
@@ -148,81 +142,84 @@ public class MainActivity extends AppCompatActivity {
         );
 
         // -----------------------------------------------------
-        // Load Website
+        // LOAD HTML
         // -----------------------------------------------------
 
-        webView.loadUrl("file:///android_asset/index.html");
+        webView.loadUrl(
+                "file:///android_asset/index.html"
+        );
 
         // -----------------------------------------------------
-        // Unity Ads
+        // UNITY ADS
         // -----------------------------------------------------
 
         initializeUnityAds();
     }
 
     // =========================================================
-    // UNITY ADS INITIALIZATION
+    // UNITY INITIALIZATION
     // =========================================================
 
     private void initializeUnityAds() {
 
-        updateUnityDebug("Unity Ads: Initializing...");
+        updateUnityDebug("Initializing...");
 
-        InitializationConfiguration configuration =
-                new InitializationConfiguration.Builder(UNITY_GAME_ID)
-                        .withTestMode(UNITY_TEST_MODE)
-                        .build();
+        try {
 
-        UnityAds.initialize(
-                this,
-                configuration,
-                new UnityAds.IUnityAdsInitializationListener() {
+            InitializationConfiguration configuration =
+                    new InitializationConfiguration.Builder(
+                            UNITY_GAME_ID
+                    )
+                            .withTestMode(UNITY_TEST_MODE)
+                            .build();
 
-                    @Override
-                    public void onInitializationComplete() {
+            InitializationListener listener =
+                    new InitializationListener() {
 
-                        runOnUiThread(() -> {
+                        @Override
+                        public void onInitializationComplete() {
 
-                            updateUnityDebug(
-                                    "Unity Ads: Initialized successfully"
-                            );
+                            runOnUiThread(() -> {
 
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "Unity Ads initialized",
-                                    Toast.LENGTH_SHORT
-                            ).show();
+                                updateUnityDebug(
+                                        "Initialized successfully"
+                                );
 
-                            loadUnityInterstitial();
-                        });
-                    }
+                                loadUnityInterstitial();
+                            });
+                        }
 
-                    @Override
-                    public void onInitializationFailed(
-                            UnityAds.UnityAdsInitializationError error,
-                            String message
-                    ) {
+                        @Override
+                        public void onInitializationFailed(
+                                com.unity3d.ads.UnityAds.UnityAdsInitializationError error,
+                                String message
+                        ) {
 
-                        runOnUiThread(() -> {
+                            runOnUiThread(() -> {
 
-                            unityInterstitialReady = false;
+                                unityInterstitialReady = false;
 
-                            updateUnityDebug(
-                                    "AD INIT FAILED: "
-                                            + error
-                                            + " - "
-                                            + message
-                            );
+                                updateUnityDebug(
+                                        "INIT FAILED: "
+                                                + error
+                                                + " - "
+                                                + message
+                                );
+                            });
+                        }
+                    };
 
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "Unity Ads init failed: " + message,
-                                    Toast.LENGTH_LONG
-                            ).show();
-                        });
-                    }
-                }
-        );
+            UnityAds.initialize(
+                    configuration,
+                    listener
+            );
+
+        } catch (Exception e) {
+
+            updateUnityDebug(
+                    "INIT ERROR: " + e.getMessage()
+            );
+        }
     }
 
     // =========================================================
@@ -233,58 +230,59 @@ public class MainActivity extends AppCompatActivity {
 
         unityInterstitialReady = false;
 
-        updateUnityDebug("Unity Ads: Ad loading...");
+        updateUnityDebug("Ad loading...");
 
-        UnityAds.load(
-                UNITY_INTERSTITIAL_AD_UNIT_ID,
-                new IUnityAdsLoadListener() {
+        try {
 
-                    @Override
-                    public void onUnityAdsAdLoaded(String placementId) {
+            UnityAds.load(
+                    UNITY_INTERSTITIAL_AD_UNIT_ID,
+                    new IUnityAdsLoadListener() {
 
-                        runOnUiThread(() -> {
+                        @Override
+                        public void onUnityAdsAdLoaded(
+                                String placementId
+                        ) {
 
-                            unityInterstitialReady = true;
+                            runOnUiThread(() -> {
 
-                            updateUnityDebug(
-                                    "AD LOADED: " + placementId
-                            );
+                                unityInterstitialReady = true;
 
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "Unity Interstitial Ready",
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        });
+                                updateUnityDebug(
+                                        "AD LOADED: "
+                                                + placementId
+                                );
+                            });
+                        }
+
+                        @Override
+                        public void onUnityAdsFailedToLoad(
+                                String placementId,
+                                UnityAds.UnityAdsLoadError error,
+                                String message
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                unityInterstitialReady = false;
+
+                                updateUnityDebug(
+                                        "AD LOAD FAILED: "
+                                                + error
+                                                + " - "
+                                                + message
+                                );
+                            });
+                        }
                     }
+            );
 
-                    @Override
-                    public void onUnityAdsFailedToLoad(
-                            String placementId,
-                            UnityAds.UnityAdsLoadError error,
-                            String message
-                    ) {
+        } catch (Exception e) {
 
-                        runOnUiThread(() -> {
-
-                            unityInterstitialReady = false;
-
-                            updateUnityDebug(
-                                    "AD LOAD FAILED: "
-                                            + error
-                                            + " - "
-                                            + message
-                            );
-
-                            Toast.makeText(
-                                    MainActivity.this,
-                                    "Ad load failed: " + error,
-                                    Toast.LENGTH_SHORT
-                            ).show();
-                        });
-                    }
-                }
-        );
+            updateUnityDebug(
+                    "AD LOAD ERROR: "
+                            + e.getMessage()
+            );
+        }
     }
 
     // =========================================================
@@ -303,96 +301,120 @@ public class MainActivity extends AppCompatActivity {
 
             sendCompressionResult(outputPath);
 
-            // နောက်တစ်ကြိမ်အတွက် ပြန် load
             loadUnityInterstitial();
 
             return;
         }
 
-        updateUnityDebug("Unity Ads: Showing ad...");
+        updateUnityDebug(
+                "Showing ad..."
+        );
 
         unityInterstitialReady = false;
 
-        UnityAds.show(
-                this,
-                UNITY_INTERSTITIAL_AD_UNIT_ID,
-                new UnityAdsShowOptions(),
-                new IUnityAdsShowListener() {
+        try {
 
-                    @Override
-                    public void onUnityAdsShowFailure(
-                            String placementId,
-                            UnityAds.UnityAdsShowError error,
-                            String message
-                    ) {
+            UnityAds.show(
+                    this,
+                    UNITY_INTERSTITIAL_AD_UNIT_ID,
+                    new UnityAdsShowOptions(),
+                    new IUnityAdsShowListener() {
 
-                        runOnUiThread(() -> {
+                        @Override
+                        public void onUnityAdsShowFailure(
+                                String placementId,
+                                UnityAds.UnityAdsShowError error,
+                                String message
+                        ) {
 
-                            updateUnityDebug(
-                                    "AD SHOW FAILED: "
-                                            + error
-                                            + " - "
-                                            + message
-                            );
+                            runOnUiThread(() -> {
 
-                            sendCompressionResult(outputPath);
+                                updateUnityDebug(
+                                        "AD SHOW FAILED: "
+                                                + error
+                                                + " - "
+                                                + message
+                                );
 
-                            loadUnityInterstitial();
-                        });
+                                sendCompressionResult(
+                                        outputPath
+                                );
+
+                                loadUnityInterstitial();
+                            });
+                        }
+
+                        @Override
+                        public void onUnityAdsShowStart(
+                                String placementId
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                updateUnityDebug(
+                                        "AD STARTED"
+                                );
+                            });
+                        }
+
+                        @Override
+                        public void onUnityAdsShowClick(
+                                String placementId
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                updateUnityDebug(
+                                        "AD CLICKED"
+                                );
+                            });
+                        }
+
+                        @Override
+                        public void onUnityAdsShowComplete(
+                                String placementId,
+                                UnityAds.UnityAdsShowCompletionState state
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                updateUnityDebug(
+                                        "AD COMPLETED: "
+                                                + state
+                                );
+
+                                sendCompressionResult(
+                                        outputPath
+                                );
+
+                                loadUnityInterstitial();
+                            });
+                        }
                     }
+            );
 
-                    @Override
-                    public void onUnityAdsShowStart(
-                            String placementId
-                    ) {
+        } catch (Exception e) {
 
-                        runOnUiThread(() -> {
+            updateUnityDebug(
+                    "AD SHOW ERROR: "
+                            + e.getMessage()
+            );
 
-                            updateUnityDebug(
-                                    "AD STARTED"
-                            );
-                        });
-                    }
+            sendCompressionResult(
+                    outputPath
+            );
 
-                    @Override
-                    public void onUnityAdsShowClick(
-                            String placementId
-                    ) {
-
-                        runOnUiThread(() -> {
-
-                            updateUnityDebug(
-                                    "AD CLICKED"
-                            );
-                        });
-                    }
-
-                    @Override
-                    public void onUnityAdsShowComplete(
-                            String placementId,
-                            UnityAds.UnityAdsShowCompletionState state
-                    ) {
-
-                        runOnUiThread(() -> {
-
-                            updateUnityDebug(
-                                    "AD COMPLETED: " + state
-                            );
-
-                            sendCompressionResult(outputPath);
-
-                            loadUnityInterstitial();
-                        });
-                    }
-                }
-        );
+            loadUnityInterstitial();
+        }
     }
 
     // =========================================================
     // UNITY DEBUG
     // =========================================================
 
-    private void updateUnityDebug(String message) {
+    private void updateUnityDebug(
+            String message
+    ) {
 
         if (unityDebugText == null) {
             return;
@@ -407,26 +429,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // =========================================================
-    // SEND COMPRESSION RESULT TO WEBVIEW
+    // SEND RESULT TO WEBVIEW
     // =========================================================
 
-    private void sendCompressionResult(String outputPath) {
+    private void sendCompressionResult(
+            String outputPath
+    ) {
 
         if (webView == null) {
             return;
         }
 
-        String safePath = outputPath
-                .replace("\\", "\\\\")
-                .replace("'", "\\'");
+        String safePath =
+                outputPath
+                        .replace("\\", "\\\\")
+                        .replace("'", "\\'");
 
         webView.post(() -> {
 
             webView.evaluateJavascript(
-                    "window.onCompressionComplete && " +
-                            "window.onCompressionComplete('" +
-                            safePath +
-                            "')",
+                    "window.onCompressionComplete && "
+                            + "window.onCompressionComplete('"
+                            + safePath
+                            + "')",
                     null
             );
         });
@@ -447,9 +472,10 @@ public class MainActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
 
-                Intent intent = new Intent(
-                        Intent.ACTION_OPEN_DOCUMENT
-                );
+                Intent intent =
+                        new Intent(
+                                Intent.ACTION_OPEN_DOCUMENT
+                        );
 
                 intent.addCategory(
                         Intent.CATEGORY_OPENABLE
@@ -541,15 +567,15 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(
                         MainActivity.this,
-                        "File ready: " +
-                                sourceFile.getName(),
+                        "File ready: "
+                                + sourceFile.getName(),
                         Toast.LENGTH_SHORT
                 ).show();
             });
         }
 
         // -----------------------------------------------------
-        // OPEN TELEGRAM
+        // TELEGRAM
         // -----------------------------------------------------
 
         @JavascriptInterface
@@ -644,10 +670,10 @@ public class MainActivity extends AppCompatActivity {
                             .replace("'", "\\'");
 
             webView.evaluateJavascript(
-                    "window.onFileSelected && " +
-                            "window.onFileSelected('" +
-                            safeName +
-                            "')",
+                    "window.onFileSelected && "
+                            + "window.onFileSelected('"
+                            + safeName
+                            + "')",
                     null
             );
         }
@@ -657,7 +683,9 @@ public class MainActivity extends AppCompatActivity {
     // URI -> PATH
     // =========================================================
 
-    private String getPathFromUri(Uri uri) {
+    private String getPathFromUri(
+            Uri uri
+    ) {
 
         try {
 
@@ -677,40 +705,47 @@ public class MainActivity extends AppCompatActivity {
             if (cursor != null) {
 
                 int columnIndex =
-                        cursor.getColumnIndexOrThrow(
+                        cursor.getColumnIndex(
                                 android.provider.MediaStore.MediaColumns.DATA
                         );
 
-                cursor.moveToFirst();
+                if (columnIndex >= 0 &&
+                        cursor.moveToFirst()) {
 
-                String path =
-                        cursor.getString(columnIndex);
+                    String path =
+                            cursor.getString(
+                                    columnIndex
+                            );
 
-                cursor.close();
+                    cursor.close();
 
-                if (path != null) {
-                    return path;
+                    if (path != null) {
+                        return path;
+                    }
+
+                } else {
+
+                    cursor.close();
                 }
             }
 
         } catch (Exception ignored) {
         }
 
-        /*
-         * Android အသစ်တွေမှာ DATA column မရနိုင်တာကြောင့်
-         * URI ကို cache ထဲ copy လုပ်ပါတယ်။
-         */
+        // -----------------------------------------------------
+        // FALLBACK: COPY URI TO CACHE
+        // -----------------------------------------------------
 
         try {
 
             File cacheFile =
                     new File(
                             getCacheDir(),
-                            "input_" +
-                                    System.currentTimeMillis()
+                            "input_"
+                                    + System.currentTimeMillis()
                     );
 
-            java.io.InputStream input =
+            InputStream input =
                     getContentResolver()
                             .openInputStream(uri);
 
@@ -718,8 +753,8 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
 
-            java.io.FileOutputStream output =
-                    new java.io.FileOutputStream(
+            FileOutputStream output =
+                    new FileOutputStream(
                             cacheFile
                     );
 
@@ -787,9 +822,7 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         if (outputDir == null) {
-
-            outputDir =
-                    getCacheDir();
+            outputDir = getCacheDir();
         }
 
         if (!outputDir.exists()) {
@@ -814,8 +847,8 @@ public class MainActivity extends AppCompatActivity {
         File outputFile =
                 new File(
                         outputDir,
-                        baseName +
-                                "_compressed.m4a"
+                        baseName
+                                + "_compressed.m4a"
                 );
 
         compressWithTransformer(
@@ -826,7 +859,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // =========================================================
-    // COMPRESS WITH MEDIA3
+    // MEDIA3 COMPRESSION
     // =========================================================
 
     private void compressWithTransformer(
@@ -852,6 +885,43 @@ public class MainActivity extends AppCompatActivity {
                     )
                             .build();
 
+            Transformer.Listener listener =
+                    new Transformer.Listener() {
+
+                        @Override
+                        public void onCompleted(
+                                Composition composition,
+                                ExportResult result
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                handleCompressionFinished(
+                                        inputFile,
+                                        outputFile
+                                );
+                            });
+                        }
+
+                        @Override
+                        public void onError(
+                                Composition composition,
+                                ExportResult result,
+                                ExportException exception
+                        ) {
+
+                            runOnUiThread(() -> {
+
+                                Toast.makeText(
+                                        MainActivity.this,
+                                        "Compression failed: "
+                                                + exception.getMessage(),
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            });
+                        }
+                    };
+
             Transformer transformer =
                     new Transformer.Builder(this)
                             .setAudioMimeType(
@@ -860,41 +930,7 @@ public class MainActivity extends AppCompatActivity {
                             .setAudioBitrate(
                                     bitrateKbps * 1000
                             )
-                            .addListener(
-                                    new Transformer.Listener() {
-
-                                        @Override
-                                        public void onTransformationCompleted(
-                                                @NonNull MediaItem mediaItem
-                                        ) {
-
-                                            runOnUiThread(() -> {
-
-                                                handleCompressionFinished(
-                                                        inputFile,
-                                                        outputFile
-                                                );
-                                            });
-                                        }
-
-                                        @Override
-                                        public void onTransformationError(
-                                                @NonNull MediaItem mediaItem,
-                                                @NonNull TransformationException exception
-                                        ) {
-
-                                            runOnUiThread(() -> {
-
-                                                Toast.makeText(
-                                                        MainActivity.this,
-                                                        "Compression failed: " +
-                                                                exception.getMessage(),
-                                                        Toast.LENGTH_LONG
-                                                ).show();
-                                            });
-                                        }
-                                    }
-                            )
+                            .addListener(listener)
                             .build();
 
             transformer.start(
@@ -906,8 +942,8 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(
                     this,
-                    "Compression error: " +
-                            e.getMessage(),
+                    "Compression error: "
+                            + e.getMessage(),
                     Toast.LENGTH_LONG
             ).show();
         }
@@ -939,10 +975,9 @@ public class MainActivity extends AppCompatActivity {
         long compressedSize =
                 outputFile.length();
 
-        /*
-         * Output မသေးဘူးဆိုရင် bitrate ကို တစ်ဝက်ချပြီး
-         * တစ်ကြိမ် ထပ်ကြိုးစားပါတယ်။
-         */
+        // -----------------------------------------------------
+        // RETRY WITH LOWER BITRATE
+        // -----------------------------------------------------
 
         if (compressedSize >= originalSize &&
                 requestedBitrateKbps > 24) {
@@ -980,10 +1015,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.LENGTH_SHORT
         ).show();
 
-        /*
-         * Ad ရှိရင် အရင်ပြပြီးမှ result ပြမယ်။
-         * Ad မရှိရင် result ကို တန်းပြမယ်။
-         */
+        // -----------------------------------------------------
+        // SHOW AD THEN RESULT
+        // -----------------------------------------------------
 
         showInterstitialThenResult(
                 compressedFilePath
@@ -1007,4 +1041,4 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
-        }
+            }
