@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -17,7 +16,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.media3.common.MediaItem;
+import androidx.media3.transformer.AudioEncoderSettings;
 import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
@@ -28,6 +29,7 @@ import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.InitializationConfiguration;
 import com.unity3d.ads.InitializationListener;
 import com.unity3d.ads.UnityAds;
+import com.unity3d.ads.UnityAdsError;
 import com.unity3d.ads.UnityAdsShowOptions;
 
 import java.io.File;
@@ -40,9 +42,11 @@ public class MainActivity extends Activity {
     // UNITY ADS
     // =========================================================
 
-    private static final String UNITY_GAME_ID = "800380386";
+    private static final String UNITY_GAME_ID =
+            "800380386";
 
-    private static final boolean UNITY_TEST_MODE = true;
+    private static final boolean UNITY_TEST_MODE =
+            true;
 
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
             "BP_Interstitial_Android";
@@ -64,6 +68,7 @@ public class MainActivity extends Activity {
     private static final int REQUEST_PICK_FILE = 1001;
 
     private String selectedFilePath = null;
+
     private String compressedFilePath = null;
 
     private int requestedBitrateKbps = 128;
@@ -77,20 +82,35 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         // -----------------------------------------------------
-        // ROOT
+        // ROOT LAYOUT
         // -----------------------------------------------------
 
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout root =
+                new LinearLayout(this);
+
+        root.setOrientation(
+                LinearLayout.VERTICAL
+        );
 
         // -----------------------------------------------------
-        // UNITY DEBUG TEXT
+        // UNITY DEBUG
         // -----------------------------------------------------
 
-        unityDebugText = new TextView(this);
-        unityDebugText.setText("Unity Ads: Initializing...");
+        unityDebugText =
+                new TextView(this);
+
+        unityDebugText.setText(
+                "Unity Ads: Initializing..."
+        );
+
         unityDebugText.setTextSize(12);
-        unityDebugText.setPadding(12, 8, 12, 8);
+
+        unityDebugText.setPadding(
+                12,
+                8,
+                12,
+                8
+        );
 
         root.addView(
                 unityDebugText,
@@ -104,7 +124,8 @@ public class MainActivity extends Activity {
         // WEBVIEW
         // -----------------------------------------------------
 
-        webView = new WebView(this);
+        webView =
+                new WebView(this);
 
         root.addView(
                 webView,
@@ -121,16 +142,28 @@ public class MainActivity extends Activity {
         // WEBVIEW SETTINGS
         // -----------------------------------------------------
 
-        WebSettings settings = webView.getSettings();
+        WebSettings settings =
+                webView.getSettings();
 
         settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
 
-        webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
+        settings.setDomStorageEnabled(true);
+
+        settings.setAllowFileAccess(true);
+
+        settings.setAllowContentAccess(true);
+
+        settings.setMediaPlaybackRequiresUserGesture(
+                false
+        );
+
+        webView.setWebViewClient(
+                new WebViewClient()
+        );
+
+        webView.setWebChromeClient(
+                new WebChromeClient()
+        );
 
         // -----------------------------------------------------
         // JAVASCRIPT BRIDGE
@@ -157,12 +190,14 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // UNITY INITIALIZATION
+    // UNITY ADS INITIALIZATION
     // =========================================================
 
     private void initializeUnityAds() {
 
-        updateUnityDebug("Initializing...");
+        updateUnityDebug(
+                "Initializing..."
+        );
 
         try {
 
@@ -170,41 +205,47 @@ public class MainActivity extends Activity {
                     new InitializationConfiguration.Builder(
                             UNITY_GAME_ID
                     )
-                            .withTestMode(UNITY_TEST_MODE)
+                            .withTestMode(
+                                    UNITY_TEST_MODE
+                            )
                             .build();
 
             InitializationListener listener =
                     new InitializationListener() {
 
                         @Override
-                        public void onInitializationComplete() {
-
-                            runOnUiThread(() -> {
-
-                                updateUnityDebug(
-                                        "Initialized successfully"
-                                );
-
-                                loadUnityInterstitial();
-                            });
-                        }
-
-                        @Override
-                        public void onInitializationFailed(
-                                com.unity3d.ads.UnityAds.UnityAdsInitializationError error,
-                                String message
+                        public void onInitializationComplete(
+                                UnityAdsError error
                         ) {
 
                             runOnUiThread(() -> {
 
-                                unityInterstitialReady = false;
+                                if (error == null) {
 
-                                updateUnityDebug(
-                                        "INIT FAILED: "
-                                                + error
-                                                + " - "
-                                                + message
-                                );
+                                    updateUnityDebug(
+                                            "Initialized successfully"
+                                    );
+
+                                    loadUnityInterstitial();
+
+                                } else {
+
+                                    unityInterstitialReady =
+                                            false;
+
+                                    String errorMessage =
+                                            error.getMessage();
+
+                                    if (errorMessage == null) {
+                                        errorMessage =
+                                                error.toString();
+                                    }
+
+                                    updateUnityDebug(
+                                            "INIT FAILED: "
+                                                    + errorMessage
+                                    );
+                                }
                             });
                         }
                     };
@@ -217,7 +258,8 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
 
             updateUnityDebug(
-                    "INIT ERROR: " + e.getMessage()
+                    "INIT ERROR: "
+                            + e.getMessage()
             );
         }
     }
@@ -228,9 +270,12 @@ public class MainActivity extends Activity {
 
     private void loadUnityInterstitial() {
 
-        unityInterstitialReady = false;
+        unityInterstitialReady =
+                false;
 
-        updateUnityDebug("Ad loading...");
+        updateUnityDebug(
+                "Ad loading..."
+        );
 
         try {
 
@@ -245,7 +290,8 @@ public class MainActivity extends Activity {
 
                             runOnUiThread(() -> {
 
-                                unityInterstitialReady = true;
+                                unityInterstitialReady =
+                                        true;
 
                                 updateUnityDebug(
                                         "AD LOADED: "
@@ -263,7 +309,8 @@ public class MainActivity extends Activity {
 
                             runOnUiThread(() -> {
 
-                                unityInterstitialReady = false;
+                                unityInterstitialReady =
+                                        false;
 
                                 updateUnityDebug(
                                         "AD LOAD FAILED: "
@@ -299,8 +346,11 @@ public class MainActivity extends Activity {
                     "Ad not ready - showing result"
             );
 
-            sendCompressionResult(outputPath);
+            sendCompressionResult(
+                    outputPath
+            );
 
+            // Try loading again for next compression.
             loadUnityInterstitial();
 
             return;
@@ -310,7 +360,8 @@ public class MainActivity extends Activity {
                 "Showing ad..."
         );
 
-        unityInterstitialReady = false;
+        unityInterstitialReady =
+                false;
 
         try {
 
@@ -409,7 +460,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // UNITY DEBUG
+    // UNITY DEBUG TEXT
     // =========================================================
 
     private void updateUnityDebug(
@@ -429,7 +480,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // SEND RESULT TO WEBVIEW
+    // SEND COMPRESSION RESULT TO WEBVIEW
     // =========================================================
 
     private void sendCompressionResult(
@@ -440,10 +491,20 @@ public class MainActivity extends Activity {
             return;
         }
 
+        if (outputPath == null) {
+            return;
+        }
+
         String safePath =
                 outputPath
-                        .replace("\\", "\\\\")
-                        .replace("'", "\\'");
+                        .replace(
+                                "\\",
+                                "\\\\"
+                        )
+                        .replace(
+                                "'",
+                                "\\'"
+                        );
 
         webView.post(() -> {
 
@@ -464,7 +525,7 @@ public class MainActivity extends Activity {
     public class AndroidBridge {
 
         // -----------------------------------------------------
-        // SELECT FILE
+        // SELECT COMPRESSOR FILE
         // -----------------------------------------------------
 
         @JavascriptInterface
@@ -481,7 +542,9 @@ public class MainActivity extends Activity {
                         Intent.CATEGORY_OPENABLE
                 );
 
-                intent.setType("*/*");
+                intent.setType(
+                        "*/*"
+                );
 
                 startActivityForResult(
                         intent,
@@ -575,7 +638,7 @@ public class MainActivity extends Activity {
         }
 
         // -----------------------------------------------------
-        // TELEGRAM
+        // OPEN TELEGRAM
         // -----------------------------------------------------
 
         @JavascriptInterface
@@ -593,7 +656,9 @@ public class MainActivity extends Activity {
                                     )
                             );
 
-                    startActivity(intent);
+                    startActivity(
+                            intent
+                    );
 
                 } catch (Exception e) {
 
@@ -628,14 +693,20 @@ public class MainActivity extends Activity {
             return;
         }
 
-        if (resultCode != RESULT_OK ||
-                data == null ||
-                data.getData() == null) {
-
+        if (resultCode != RESULT_OK) {
             return;
         }
 
-        Uri uri = data.getData();
+        if (data == null) {
+            return;
+        }
+
+        Uri uri =
+                data.getData();
+
+        if (uri == null) {
+            return;
+        }
 
         selectedFilePath =
                 getPathFromUri(uri);
@@ -651,10 +722,13 @@ public class MainActivity extends Activity {
             return;
         }
 
-        String fileName =
+        File selectedFile =
                 new File(
                         selectedFilePath
-                ).getName();
+                );
+
+        String fileName =
+                selectedFile.getName();
 
         Toast.makeText(
                 this,
@@ -666,8 +740,14 @@ public class MainActivity extends Activity {
 
             String safeName =
                     fileName
-                            .replace("\\", "\\\\")
-                            .replace("'", "\\'");
+                            .replace(
+                                    "\\",
+                                    "\\\\"
+                            )
+                            .replace(
+                                    "'",
+                                    "\\'"
+                            );
 
             webView.evaluateJavascript(
                     "window.onFileSelected && "
@@ -680,12 +760,16 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // URI -> PATH
+    // URI -> FILE PATH
     // =========================================================
 
     private String getPathFromUri(
             Uri uri
     ) {
+
+        // -----------------------------------------------------
+        // TRY DIRECT FILE PATH
+        // -----------------------------------------------------
 
         try {
 
@@ -719,7 +803,9 @@ public class MainActivity extends Activity {
 
                     cursor.close();
 
-                    if (path != null) {
+                    if (path != null &&
+                            !path.isEmpty()) {
+
                         return path;
                     }
 
@@ -747,7 +833,9 @@ public class MainActivity extends Activity {
 
             InputStream input =
                     getContentResolver()
-                            .openInputStream(uri);
+                            .openInputStream(
+                                    uri
+                            );
 
             if (input == null) {
                 return null;
@@ -776,7 +864,9 @@ public class MainActivity extends Activity {
             }
 
             output.flush();
+
             output.close();
+
             input.close();
 
             return cacheFile.getAbsolutePath();
@@ -822,7 +912,9 @@ public class MainActivity extends Activity {
                 );
 
         if (outputDir == null) {
-            outputDir = getCacheDir();
+
+            outputDir =
+                    getCacheDir();
         }
 
         if (!outputDir.exists()) {
@@ -833,7 +925,9 @@ public class MainActivity extends Activity {
                 inputFile.getName();
 
         int dot =
-                baseName.lastIndexOf('.');
+                baseName.lastIndexOf(
+                        '.'
+                );
 
         if (dot > 0) {
 
@@ -874,16 +968,30 @@ public class MainActivity extends Activity {
                 outputFile.delete();
             }
 
+            // -------------------------------------------------
+            // INPUT MEDIA
+            // -------------------------------------------------
+
             MediaItem mediaItem =
                     MediaItem.fromUri(
-                            Uri.fromFile(inputFile)
+                            Uri.fromFile(
+                                    inputFile
+                            )
                     );
+
+            // -------------------------------------------------
+            // EDITED MEDIA ITEM
+            // -------------------------------------------------
 
             EditedMediaItem editedMediaItem =
                     new EditedMediaItem.Builder(
                             mediaItem
                     )
                             .build();
+
+            // -------------------------------------------------
+            // LISTENER
+            // -------------------------------------------------
 
             Transformer.Listener listener =
                     new Transformer.Listener() {
@@ -912,26 +1020,72 @@ public class MainActivity extends Activity {
 
                             runOnUiThread(() -> {
 
+                                String message =
+                                        exception.getMessage();
+
+                                if (message == null) {
+                                    message =
+                                            exception.toString();
+                                }
+
                                 Toast.makeText(
                                         MainActivity.this,
                                         "Compression failed: "
-                                                + exception.getMessage(),
+                                                + message,
                                         Toast.LENGTH_LONG
                                 ).show();
                             });
                         }
                     };
 
+            // -------------------------------------------------
+            // AUDIO ENCODER SETTINGS
+            // -------------------------------------------------
+
+            AudioEncoderSettings
+                    audioEncoderSettings =
+                    new AudioEncoderSettings.Builder()
+                            .setBitrate(
+                                    bitrateKbps * 1000
+                            )
+                            .build();
+
+            // -------------------------------------------------
+            // ENCODER FACTORY
+            // -------------------------------------------------
+
+            DefaultEncoderFactory
+                    encoderFactory =
+                    new DefaultEncoderFactory.Builder(
+                            this
+                    )
+                            .setRequestedAudioEncoderSettings(
+                                    audioEncoderSettings
+                            )
+                            .build();
+
+            // -------------------------------------------------
+            // TRANSFORMER
+            // -------------------------------------------------
+
             Transformer transformer =
-                    new Transformer.Builder(this)
+                    new Transformer.Builder(
+                            this
+                    )
                             .setAudioMimeType(
                                     "audio/mp4"
                             )
-                            .setAudioBitrate(
-                                    bitrateKbps * 1000
+                            .setEncoderFactory(
+                                    encoderFactory
                             )
-                            .addListener(listener)
+                            .addListener(
+                                    listener
+                            )
                             .build();
+
+            // -------------------------------------------------
+            // START
+            // -------------------------------------------------
 
             transformer.start(
                     editedMediaItem,
@@ -940,10 +1094,18 @@ public class MainActivity extends Activity {
 
         } catch (Exception e) {
 
+            String message =
+                    e.getMessage();
+
+            if (message == null) {
+                message =
+                        e.toString();
+            }
+
             Toast.makeText(
                     this,
                     "Compression error: "
-                            + e.getMessage(),
+                            + message,
                     Toast.LENGTH_LONG
             ).show();
         }
@@ -1006,6 +1168,10 @@ public class MainActivity extends Activity {
             return;
         }
 
+        // -----------------------------------------------------
+        // SAVE RESULT PATH
+        // -----------------------------------------------------
+
         compressedFilePath =
                 outputFile.getAbsolutePath();
 
@@ -1041,4 +1207,4 @@ public class MainActivity extends Activity {
             super.onBackPressed();
         }
     }
-            }
+                                    }
