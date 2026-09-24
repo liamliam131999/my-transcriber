@@ -32,15 +32,12 @@ import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.Transformer;
 
+import com.unity3d.ads.IUnityAdsLoadListener;
+import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.InitializationConfiguration;
 import com.unity3d.ads.InitializationListener;
 import com.unity3d.ads.UnityAds;
-import com.unity3d.ads.UnityAdsError;
-import com.unity3d.ads.interstitial.InterstitialAd;
-import com.unity3d.ads.interstitial.InterstitialLoadListener;
-import com.unity3d.ads.interstitial.InterstitialShowListener;
-import com.unity3d.ads.interstitial.LoadConfiguration;
-import com.unity3d.ads.interstitial.ShowConfiguration;
+import com.unity3d.ads.UnityAdsShowOptions;
 
 import org.json.JSONObject;
 
@@ -85,22 +82,17 @@ public class MainActivity extends Activity {
     private static final boolean UNITY_TEST_MODE = true;
 
     /*
-     * Interstitial placement / ad unit.
+     * Unity Interstitial Ad Unit / Placement ID
      *
-     * Test integration အတွက် Unity ရဲ့ "video" placement ကိုသုံးထားပါတယ်။
+     * Test integration အတွက် "video" ကိုသုံးထားပါတယ်။
      */
     private static final String UNITY_INTERSTITIAL_AD_UNIT_ID =
             "video";
 
     /*
-     * Loaded interstitial ad instance.
+     * Interstitial ready ဖြစ်/မဖြစ်
      */
-    private InterstitialAd interstitialAd;
-
-    /*
-     * Prevent duplicate result callback.
-     */
-    private boolean compressionResultSent = false;
+    private boolean unityInterstitialReady = false;
 
     // =========================================================
     // REMOTE MAINTENANCE
@@ -122,6 +114,11 @@ public class MainActivity extends Activity {
     private int compressionAttempt = 0;
 
     private static final int MAX_COMPRESSION_ATTEMPTS = 2;
+
+    /*
+     * Result ကို ad callback ကြောင့် နှစ်ခါမပို့အောင်
+     */
+    private boolean compressionResultSent = false;
 
     // =========================================================
     // ON CREATE
@@ -315,8 +312,8 @@ public class MainActivity extends Activity {
                             );
 
                             /*
-                             * SDK initialize ပြီးတာနဲ့
-                             * Interstitial ကို preload လုပ်မယ်။
+                             * Unity Ads initialize အောင်မြင်ပြီဆို
+                             * Interstitial ကို ကြို load လုပ်မယ်။
                              */
                             loadUnityInterstitial();
 
@@ -353,75 +350,56 @@ public class MainActivity extends Activity {
 
         try {
 
-            LoadConfiguration loadConfiguration =
-                    new LoadConfiguration.Builder(
-                            UNITY_INTERSTITIAL_AD_UNIT_ID
-                    )
-                            .build();
+            unityInterstitialReady = false;
 
-            InterstitialAd.load(
-                    loadConfiguration,
-                    new InterstitialLoadListener() {
+            UnityAds.load(
+                    UNITY_INTERSTITIAL_AD_UNIT_ID,
+                    new IUnityAdsLoadListener() {
 
                         @Override
-                        public void onInterstitialLoaded(
-                                InterstitialAd ad,
-                                UnityAdsError error) {
+                        public void onUnityAdsAdLoaded(
+                                String placementId) {
 
-                            if (ad != null) {
+                            if (
+                                    UNITY_INTERSTITIAL_AD_UNIT_ID.equals(
+                                            placementId
+                                    )
+                            ) {
 
-                                interstitialAd = ad;
+                                unityInterstitialReady = true;
 
                                 Log.d(
                                         "UnityAds",
                                         "Interstitial loaded successfully."
                                 );
-
-                                /*
-                                 * Ad expire ဖြစ်သွားရင် reference
-                                 * ဖျက်ပြီး ပြန် load လုပ်မယ်။
-                                 */
-                                ad.setOnAdExpired(
-                                        expiredAd -> {
-
-                                            if (
-                                                    interstitialAd ==
-                                                            expiredAd
-                                            ) {
-
-                                                interstitialAd = null;
-                                            }
-
-                                            Log.d(
-                                                    "UnityAds",
-                                                    "Interstitial expired."
-                                            );
-
-                                            loadUnityInterstitial();
-                                        }
-                                );
-
-                            } else {
-
-                                interstitialAd = null;
-
-                                Log.e(
-                                        "UnityAds",
-                                        "Interstitial load failed: "
-                                                + (
-                                                error != null
-                                                        ? error.getMessage()
-                                                        : "Unknown error"
-                                        )
-                                );
                             }
+                        }
+
+                        @Override
+                        public void onUnityAdsFailedToLoad(
+                                String placementId,
+                                UnityAds.UnityAdsLoadError error,
+                                String message) {
+
+                            unityInterstitialReady = false;
+
+                            Log.e(
+                                    "UnityAds",
+                                    "Interstitial failed to load. " +
+                                            "Placement: " +
+                                            placementId +
+                                            " Error: " +
+                                            error +
+                                            " Message: " +
+                                            message
+                            );
                         }
                     }
             );
 
         } catch (Exception e) {
 
-            interstitialAd = null;
+            unityInterstitialReady = false;
 
             Log.e(
                     "UnityAds",
@@ -432,7 +410,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================================================
-    // SHOW UNITY INTERSTITIAL
+    // UNITY INTERSTITIAL SHOW
     // =========================================================
 
     private void showInterstitialThenResult(
@@ -440,16 +418,20 @@ public class MainActivity extends Activity {
             final long compressedSize) {
 
         /*
-         * Ad မရှိသေးရင် Result ကို တန်းပြမယ်။
-         * App functionality မပျက်စေဖို့ပါ။
+         * Ad မ ready ဖြစ်သေးရင်
+         * user ရဲ့ compression result မပျောက်စေဘဲ
+         * result ကို တန်းပြမယ်။
          */
-        if (interstitialAd == null) {
+        if (!unityInterstitialReady) {
 
             Log.d(
                     "UnityAds",
-                    "No interstitial ready. Showing result."
+                    "Interstitial is not ready."
             );
 
+            /*
+             * နောက်တစ်ကြိမ်အတွက် ပြန် load
+             */
             loadUnityInterstitial();
 
             sendCompressionSuccessResult(
@@ -461,62 +443,41 @@ public class MainActivity extends Activity {
         }
 
         /*
-         * Current loaded ad ကိုယူပြီး reference ကို null လုပ်ထားမယ်။
+         * ဒီ ad ကို show လုပ်တော့မယ်။
          */
-        final InterstitialAd ad =
-                interstitialAd;
-
-        interstitialAd = null;
+        unityInterstitialReady = false;
 
         try {
 
-            ShowConfiguration showConfiguration =
-                    new ShowConfiguration.Builder()
-                            .build();
-
-            ad.show(
+            UnityAds.show(
                     this,
-                    showConfiguration,
-                    new InterstitialShowListener() {
+                    UNITY_INTERSTITIAL_AD_UNIT_ID,
+                    new UnityAdsShowOptions(),
+                    new IUnityAdsShowListener() {
 
                         @Override
-                        public void onStarted(
-                                InterstitialAd unityAd) {
+                        public void onUnityAdsShowFailure(
+                                String placementId,
+                                UnityAds.UnityAdsShowError error,
+                                String message) {
 
-                            Log.d(
+                            Log.e(
                                     "UnityAds",
-                                    "Interstitial started."
-                            );
-                        }
-
-                        @Override
-                        public void onClicked(
-                                InterstitialAd unityAd) {
-
-                            Log.d(
-                                    "UnityAds",
-                                    "Interstitial clicked."
-                            );
-                        }
-
-                        @Override
-                        public void onCompleted(
-                                InterstitialAd unityAd,
-                                UnityAds.ShowFinishState state) {
-
-                            Log.d(
-                                    "UnityAds",
-                                    "Interstitial completed."
+                                    "Interstitial show failed. " +
+                                            "Placement: " +
+                                            placementId +
+                                            " Error: " +
+                                            error +
+                                            " Message: " +
+                                            message
                             );
 
                             /*
-                             * နောက်တစ်ကြိမ်အတွက် preload ပြန်လုပ်။
+                             * Ad မပြနိုင်လည်း
+                             * App result မပျောက်ရ။
                              */
                             loadUnityInterstitial();
 
-                            /*
-                             * Ad ပိတ်ပြီးမှ compression result ပြ။
-                             */
                             sendCompressionSuccessResult(
                                     outputFile,
                                     compressedSize
@@ -524,25 +485,48 @@ public class MainActivity extends Activity {
                         }
 
                         @Override
-                        public void onFailed(
-                                InterstitialAd unityAd,
-                                UnityAdsError error) {
+                        public void onUnityAdsShowStart(
+                                String placementId) {
 
-                            Log.e(
+                            Log.d(
                                     "UnityAds",
-                                    "Interstitial show failed: "
-                                            + (
-                                            error != null
-                                                    ? error.getMessage()
-                                                    : "Unknown error"
-                                    )
+                                    "Interstitial started: "
+                                            + placementId
+                            );
+                        }
+
+                        @Override
+                        public void onUnityAdsShowClick(
+                                String placementId) {
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Interstitial clicked: "
+                                            + placementId
+                            );
+                        }
+
+                        @Override
+                        public void onUnityAdsShowComplete(
+                                String placementId,
+                                UnityAds.UnityAdsShowCompletionState state) {
+
+                            Log.d(
+                                    "UnityAds",
+                                    "Interstitial completed: "
+                                            + placementId
+                                            + " State: "
+                                            + state
                             );
 
                             /*
-                             * Ad မပြနိုင်လည်း app မပျက်ရ။
+                             * နောက်တစ်ကြိမ်အတွက် preload
                              */
                             loadUnityInterstitial();
 
+                            /*
+                             * Ad ပိတ်ပြီးမှ Result ပြမယ်။
+                             */
                             sendCompressionSuccessResult(
                                     outputFile,
                                     compressedSize
@@ -559,6 +543,9 @@ public class MainActivity extends Activity {
                     e
             );
 
+            /*
+             * Error ဖြစ်ရင်လည်း App functionality မပျက်ရ။
+             */
             loadUnityInterstitial();
 
             sendCompressionSuccessResult(
@@ -1656,10 +1643,8 @@ public class MainActivity extends Activity {
                     /*
                      * Compression အောင်မြင်ပြီ။
                      *
-                     * ဒီနေရာမှာ Interstitial ရှိရင် ပြမယ်။
-                     * Ad ပိတ်ပြီးမှ Result ပြမယ်။
-                     *
-                     * Ad မရှိရင် Result ကို တန်းပြမယ်။
+                     * Interstitial ရှိရင် ပြမယ်။
+                     * Ad ပိတ်ပြီးမှ result ပြမယ်။
                      */
                     showInterstitialThenResult(
                             outputFile,
@@ -2038,4 +2023,4 @@ public class MainActivity extends Activity {
             );
         }
     }
-                                }
+                        }
