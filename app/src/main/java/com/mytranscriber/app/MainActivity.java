@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -74,15 +75,24 @@ public class MainActivity extends Activity {
     private boolean maintenanceMode = false;
 
 
+    /*
+     * =========================================================
+     * COMPRESSOR STATE
+     * =========================================================
+     */
+
+    private int currentCompressionBitrate = 64;
+
+    private int compressionAttempt = 0;
+
+    private static final int MAX_COMPRESSION_ATTEMPTS = 2;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
-        /*
-         * App စဖွင့်တဲ့အချိန် Maintenance ကို
-         * အရင်ဆုံးစစ်မယ်။
-         */
         checkMaintenance();
 
     }
@@ -224,10 +234,6 @@ public class MainActivity extends Activity {
 
                                 } else {
 
-                                    /*
-                                     * Server response မမှန်ရင်
-                                     * App ကို ပုံမှန်ဖွင့်မယ်။
-                                     */
                                     runOnUiThread(
                                             () ->
                                                     startNormalApp()
@@ -237,14 +243,6 @@ public class MainActivity extends Activity {
 
 
                             } catch (Exception e) {
-
-                                /*
-                                 * Internet မရတဲ့အချိန်
-                                 * App ကို ပုံမှန်ဆက်သုံးခွင့်ပေးမယ်။
-                                 *
-                                 * ဒါကြောင့် Internet error ကြောင့်
-                                 * User တွေ App သုံးမရတာ မဖြစ်စေဘူး။
-                                 */
 
                                 runOnUiThread(
                                         () ->
@@ -295,10 +293,6 @@ public class MainActivity extends Activity {
 
         maintenanceMode = true;
 
-        /*
-         * WebView မဖွင့်ဘဲ Native Maintenance Screen
-         * တိုက်ရိုက်ပြမယ်။
-         */
 
         LinearLayout root =
                 new LinearLayout(this);
@@ -1052,7 +1046,7 @@ public class MainActivity extends Activity {
     // =========================================================
 
     private void compressAudio(
-            final int bitrateKbps) {
+            final int requestedBitrateKbps) {
 
         if (
                 lastSelectedUri == null
@@ -1088,6 +1082,95 @@ public class MainActivity extends Activity {
             return;
 
         }
+
+
+        /*
+         * -----------------------------------------------------
+         * Compression state reset
+         * -----------------------------------------------------
+         */
+
+        compressionAttempt = 0;
+
+
+        /*
+         * User ရွေးထားတဲ့ bitrate ကို
+         * 24 - 128 kbps အတွင်းထားမယ်။
+         */
+
+        int safeRequestedBitrate =
+                Math.max(
+                        24,
+                        Math.min(
+                                requestedBitrateKbps,
+                                128
+                        )
+                );
+
+
+        /*
+         * မူရင်းဖိုင်ရဲ့ bitrate ကို စစ်မယ်။
+         *
+         * Audio-only file ဖြစ်ရင်
+         * မူရင်း bitrate ထက် မြင့်တဲ့ bitrate
+         * နဲ့ encode မလုပ်အောင် ကာကွယ်မယ်။
+         */
+
+        int sourceBitrateKbps =
+                getSourceBitrateKbps(
+                        lastSelectedUri
+                );
+
+
+        int targetBitrate =
+                safeRequestedBitrate;
+
+
+        if (
+                sourceBitrateKbps > 0
+        ) {
+
+            /*
+             * မူရင်း bitrate ထက် 70% ခန့်အထိ
+             * လျှော့ပြီး encode လုပ်မယ်။
+             *
+             * ဥပမာ
+             *
+             * Source = 128 kbps
+             * User = 96 kbps
+             * Target = 89 kbps ခန့်
+             *
+             * Source = 64 kbps
+             * User = 64 kbps
+             * Target = 44 kbps ခန့်
+             */
+
+            int sourceBasedTarget =
+                    (int)
+                            Math.floor(
+                                    sourceBitrateKbps *
+                                            0.70
+                            );
+
+
+            sourceBasedTarget =
+                    Math.max(
+                            24,
+                            sourceBasedTarget
+                    );
+
+
+            targetBitrate =
+                    Math.min(
+                            safeRequestedBitrate,
+                            sourceBasedTarget
+                    );
+
+        }
+
+
+        currentCompressionBitrate =
+                targetBitrate;
 
 
         runOnUiThread(
@@ -1163,6 +1246,138 @@ public class MainActivity extends Activity {
             }
 
 
+            startAudioCompression(
+                    outputFile,
+                    targetBitrate
+            );
+
+
+        } catch (Exception e) {
+
+            sendResult(
+                    false,
+                    e.getMessage() != null
+                            ? e.getMessage()
+                            : "Compression error",
+                    originalFileSize,
+                    0,
+                    ""
+            );
+
+        }
+
+    }
+
+
+    // =========================================================
+    // GET SOURCE BITRATE
+    // =========================================================
+
+    private int getSourceBitrateKbps(
+            Uri uri) {
+
+        MediaMetadataRetriever retriever =
+                new MediaMetadataRetriever();
+
+
+        try {
+
+            retriever.setDataSource(
+                    this,
+                    uri
+            );
+
+
+            String mimeType =
+                    retriever.extractMetadata(
+                            MediaMetadataRetriever
+                                    .METADATA_KEY_MIMETYPE
+                    );
+
+
+            /*
+             * Video file ဖြစ်ရင် source bitrate က
+             * Video + Audio နှစ်ခုလုံးပါနိုင်တာကြောင့်
+             * source bitrate အဖြစ် မသုံးဘူး။
+             *
+             * Video → Audio only ဖြစ်တဲ့အတွက်
+             * user ရွေးထားတဲ့ bitrate ကိုပဲ သုံးမယ်။
+             */
+
+            if (
+                    mimeType != null &&
+                    mimeType.toLowerCase(
+                            Locale.US
+                    ).startsWith("video/")
+            ) {
+
+                return 0;
+
+            }
+
+
+            String bitrate =
+                    retriever.extractMetadata(
+                            MediaMetadataRetriever
+                                    .METADATA_KEY_BITRATE
+                    );
+
+
+            if (
+                    bitrate != null &&
+                    !bitrate.isEmpty()
+            ) {
+
+                long bitrateValue =
+                        Long.parseLong(
+                                bitrate
+                        );
+
+
+                if (
+                        bitrateValue > 0
+                ) {
+
+                    return (int)
+                            Math.max(
+                                    1,
+                                    bitrateValue / 1000
+                            );
+
+                }
+
+            }
+
+
+        } catch (Exception ignored) {
+
+        } finally {
+
+            try {
+
+                retriever.release();
+
+            } catch (Exception ignored) {
+            }
+
+        }
+
+
+        return 0;
+
+    }
+
+
+    // =========================================================
+    // START AUDIO COMPRESSION
+    // =========================================================
+
+    private void startAudioCompression(
+            final File outputFile,
+            final int bitrateKbps) {
+
+        try {
+
             MediaItem mediaItem =
                     MediaItem.fromUri(
                             lastSelectedUri
@@ -1203,7 +1418,8 @@ public class MainActivity extends Activity {
                                                 ExportResult exportResult) {
 
                                             handleCompressionSuccess(
-                                                    outputFile
+                                                    outputFile,
+                                                    bitrateKbps
                                             );
 
                                         }
@@ -1236,10 +1452,16 @@ public class MainActivity extends Activity {
                             .build();
 
 
+            final String progressMessage =
+                    "Audio ကို " +
+                            bitrateKbps +
+                            " kbps နဲ့ encode လုပ်နေပါတယ်...";
+
+
             runOnUiThread(
                     () ->
                             sendProgress(
-                                    "Video track ကို ဖယ်ပြီး Audio encode လုပ်နေပါတယ်..."
+                                    progressMessage
                             )
             );
 
@@ -1252,14 +1474,12 @@ public class MainActivity extends Activity {
 
         } catch (Exception e) {
 
-            sendResult(
-                    false,
-                    e.getMessage() != null
-                            ? e.getMessage()
-                            : "Compression error",
-                    originalFileSize,
-                    0,
-                    ""
+            handleCompressionError(
+                    new ExportException(
+                            e.getMessage() != null
+                                    ? e.getMessage()
+                                    : "Compression error"
+                    )
             );
 
         }
@@ -1272,7 +1492,8 @@ public class MainActivity extends Activity {
     // =========================================================
 
     private void handleCompressionSuccess(
-            File outputFile) {
+            File outputFile,
+            int usedBitrateKbps) {
 
         runOnUiThread(
                 () -> {
@@ -1320,18 +1541,102 @@ public class MainActivity extends Activity {
                     }
 
 
-                    // Output must be smaller than original
+                    /*
+                     * -------------------------------------------------
+                     * OUTPUT SIZE CHECK
+                     * -------------------------------------------------
+                     *
+                     * Output က မူရင်းထက် မသေးရင်
+                     * bitrate ကို ထပ်လျှော့ပြီး တစ်ကြိမ် retry လုပ်မယ်။
+                     */
+
                     if (
                             compressedSize >=
                                     originalFileSize
                     ) {
+
+                        if (
+                                compressionAttempt <
+                                        MAX_COMPRESSION_ATTEMPTS - 1
+                        ) {
+
+                            compressionAttempt++;
+
+
+                            int retryBitrate =
+                                    Math.max(
+                                            24,
+                                            usedBitrateKbps / 2
+                                    );
+
+
+                            /*
+                             * Bitrate ထပ်လျှော့လို့ မရတော့ရင်
+                             * ဒီ output ကိုပဲ error ပြမယ်။
+                             */
+
+                            if (
+                                    retryBitrate <
+                                            usedBitrateKbps
+                            ) {
+
+                                outputFile.delete();
+
+
+                                currentCompressionBitrate =
+                                        retryBitrate;
+
+
+                                sendProgress(
+                                        "Output size မသေးသေးပါ။ " +
+                                                retryBitrate +
+                                                " kbps နဲ့ ထပ်ချုံ့နေပါတယ်..."
+                                );
+
+
+                                String timestamp =
+                                        new SimpleDateFormat(
+                                                "yyyyMMdd_HHmmss_SSS",
+                                                Locale.US
+                                        ).format(
+                                                new Date()
+                                        );
+
+
+                                File retryFile =
+                                        new File(
+                                                outputFile.getParentFile(),
+                                                "compressed_audio_" +
+                                                        timestamp +
+                                                        ".mp4"
+                                        );
+
+
+                                startAudioCompression(
+                                        retryFile,
+                                        retryBitrate
+                                );
+
+
+                                return;
+
+                            }
+
+                        }
+
+
+                        /*
+                         * Retry လုပ်ပြီးတာတောင်
+                         * output က မသေးရင် failure.
+                         */
 
                         outputFile.delete();
 
 
                         sendResult(
                                 false,
-                                "Compression ပြီးသော်လည်း Output size က မူရင်းထက် မသေးပါ။",
+                                "ဒီဖိုင်က သေးအောင်ချုံ့ဖို့ မလွယ်ပါ။ " +
+                                        "မူရင်း Audio က bitrate နိမ့်နေပြီးသား ဖြစ်နိုင်ပါတယ်။",
                                 originalFileSize,
                                 compressedSize,
                                 ""
@@ -1342,6 +1647,12 @@ public class MainActivity extends Activity {
 
                     }
 
+
+                    /*
+                     * -------------------------------------------------
+                     * SUCCESS
+                     * -------------------------------------------------
+                     */
 
                     sendResult(
                             true,
@@ -1775,7 +2086,7 @@ public class MainActivity extends Activity {
                                                 Uri.parse(
                                                         "https://t.me/liamliam131999"
                                                 )
-                                        );
+                                );
 
 
                                 startActivity(
