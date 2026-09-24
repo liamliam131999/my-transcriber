@@ -35,7 +35,6 @@ import androidx.media3.transformer.Transformer;
 import com.unity3d.ads.InitializationConfiguration;
 import com.unity3d.ads.InitializationListener;
 import com.unity3d.ads.UnityAds;
-import com.unity3d.ads.UnityAds.UnityAdsError;
 
 import org.json.JSONObject;
 
@@ -67,29 +66,23 @@ public class MainActivity extends Activity {
     private static final int WEB_FILE_PICKER_REQUEST = 2001;
     private static final int SAVE_FILE_REQUEST = 3001;
 
-    /*
-     * =========================================================
-     * UNITY ADS
-     * =========================================================
-     */
+    // =========================================================
+    // UNITY ADS
+    // =========================================================
 
     private static final String UNITY_GAME_ID = "800380386";
 
     /*
-     * TEST MODE
+     * true  = Test Ads
+     * false = Live Ads
      *
-     * true = Test ads
-     * false = Live ads
-     *
-     * အခု စမ်းသပ်နေတဲ့အတွက် true ထားထားပါတယ်။
+     * အခုစမ်းသပ်နေတဲ့အတွက် true ထားထားပါတယ်။
      */
     private static final boolean UNITY_TEST_MODE = true;
 
-    /*
-     * =========================================================
-     * REMOTE MAINTENANCE
-     * =========================================================
-     */
+    // =========================================================
+    // REMOTE MAINTENANCE
+    // =========================================================
 
     private static final String MAINTENANCE_URL =
             "https://liamliam131999.github.io/my-transcriber/maintenance.json";
@@ -98,17 +91,19 @@ public class MainActivity extends Activity {
 
     private boolean maintenanceMode = false;
 
-    /*
-     * =========================================================
-     * COMPRESSOR STATE
-     * =========================================================
-     */
+    // =========================================================
+    // COMPRESSOR STATE
+    // =========================================================
 
     private int currentCompressionBitrate = 64;
 
     private int compressionAttempt = 0;
 
     private static final int MAX_COMPRESSION_ATTEMPTS = 2;
+
+    // =========================================================
+    // ON CREATE
+    // =========================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,6 +186,7 @@ public class MainActivity extends Activity {
                                     }
 
                                     reader.close();
+
                                     input.close();
 
                                     JSONObject json =
@@ -264,9 +260,6 @@ public class MainActivity extends Activity {
             return;
         }
 
-        /*
-         * Initialize Unity Ads early.
-         */
         initializeUnityAds();
 
         setupWebView();
@@ -296,7 +289,7 @@ public class MainActivity extends Activity {
 
                             Log.d(
                                     "UnityAds",
-                                    "Unity Ads SDK initialized successfully."
+                                    "Unity Ads initialized successfully."
                             );
 
                         } else {
@@ -304,7 +297,7 @@ public class MainActivity extends Activity {
                             Log.e(
                                     "UnityAds",
                                     "Unity Ads initialization failed: "
-                                            + error.getMessage()
+                                            + error
                             );
                         }
                     };
@@ -1764,4 +1757,4 @@ public class MainActivity extends Activity {
             );
         }
     }
-                                }
+                         }
